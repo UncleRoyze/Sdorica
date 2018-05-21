@@ -5,6 +5,7 @@ import random
 
 
 def SelectFriend():
+    print "SelectFriend"
     def _findFriend():
         dragFrom = friendSlotCenter.offset(-500, 240)
         dragTo = friendSlotCenter.offset(-500, 100)
@@ -22,16 +23,16 @@ def SelectFriend():
         elif roy:
             dropAt(dragTo)
             click(roy.getCenter().offset(0, 100))
-        elif exists("1526664627524.png", 0.001):
+        elif exists("delan_sp.png", 0.001):
             dropAt(dragTo)
-            click("1526664627524.png")
+            click("delan_sp.png")
         else:
             dropAt(dragTo)
             return False
  
         return True
         
-    friendSlot = exists("1526661219964.png", 0.001)
+    friendSlot = exists("SelectFriend.png", 0.001)
     if not friendSlot:
         return
     click(friendSlot)
@@ -44,24 +45,25 @@ def SelectFriend():
 
 
 def ClickStartFighting():
-    if exists("1526536759952.png"):
-        click("1526536775982.png")
+    print "ClickStartFighting"
+    if exists("gotofight.png", 30):
+        click("gotofight.png")
         wait(1)
         SelectFriend()
         
-        wait("1526537049069.png")
-        click("1526537049069.png")
+        wait("gotofight.png")
+        click("gotofight.png")
         wait(1)
 
 def DragForward():
     print "DragForward"
     start_time = time()
-    clock = exists("1526703255111.png" , 10)
+    clock = exists("clock.png" , 0.001)
     if clock:
         dragFrom = clock.getCenter().offset(100,400)           
         drag(dragFrom)
         hover(Location(dragFrom.x+500, dragFrom.y))
-        while not exists("1526881392188.png",0.001):
+        while not exists("board.png", 1):
             end_time = time()
             time_taken = end_time - start_time # time_taken is in seconds
             if(time_taken >= 30): # not found
@@ -74,10 +76,10 @@ def ClickFinish():
     print "ClickFinish"
     start_time = time()
     while True:
-        finish = exists(Pattern("1526674281353.png").similar(0.80),1)
+        finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
             wait(2)
-            click(Pattern("1526674281353.png").similar(0.80).targetOffset(26,0))
+            click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
             break
         end_time = time()
         time_taken = end_time - start_time # time_taken is in seconds
@@ -137,27 +139,30 @@ def SimpleAlgo(dotLoc, dotColor):
                 return
 
 def C10_2_Algo(dotLoc, dotColor):
+    print "C10_2_Algo"
     if PlayDots("b", 1, dotLoc, dotColor):
         return
     SimpleAlgo(dotLoc, dotColor)
 
 def CheckLost():
-    if exists(Pattern("1526873100173.png").similar(0.90), 1):
-        click(Pattern("1526873100173.png").similar(0.90))
+    print "CheckLost"
+    if exists(Pattern("ok_button.png").similar(0.90), 0.001):
+        click(Pattern("ok_button.png").similar(0.90))
         return 1
     return 0
 
 def GetDotBoard():
-    if exists(Pattern("1526873100173.png").similar(0.90), 0.001):
+    print "GetDotBoard"
+    if exists(Pattern("ok_button.png").similar(0.90), 0.001):
         return 0, 0, 0
-    if not exists(Pattern("1526629695304.png").similar(0.80), 1):
-        if not exists(Pattern("1526636568398.png").similar(0.80), 1):
+    if not exists(Pattern("soul_normal.png").similar(0.85), 1):
+        if not exists(Pattern("soul_dead.png").similar(0.85), 1):
             return 0, 0, 0
-    clock = exists("1526703255111.png", 0.001)
+    clock = exists("clock.png", 0.001)
     dotLoc = []
-    dotLoc.append(clock.getCenter().offset(221,470))
+    dotLoc.append(clock.getCenter().offset(221,471))
     stepX = 96
-    stepY = 100
+    stepY = 99
     for i in range(1, 7):
         dotLoc.append(Location(dotLoc[i-1].x+stepX, dotLoc[i-1].y))
     for i in range(0, 7):
@@ -179,6 +184,9 @@ def GetDotBoard():
     return 1, dotLoc, dotColor
         
 def PlayDrag():
+    print "PlayDrag"
+    if not exists("clock.png" , 0.001):
+        return
     while True:
         isFound, dotLoc, dotColor = GetDotBoard()
         if not isFound:
@@ -193,7 +201,8 @@ def main():
         isFailed = False
         print i
         ClickStartFighting()
-        for k in range(3):
+        wait("clock.png", 20)
+        while exists("clock.png" , 0.001):
             DragForward() 
             wait(1)
             PlayDrag()
@@ -204,9 +213,7 @@ def main():
                 break
         if not isFailed:
             ClickFinish()
-            wait(10)
     
-
 if __name__ == "__main__":
     #ClickFinish()
     main()
