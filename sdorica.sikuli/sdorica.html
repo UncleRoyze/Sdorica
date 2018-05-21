@@ -1,0 +1,287 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>sdorica.sikuli</h2> <a href="sdorica.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="kw">from</span> java.awt <span class="kw">import</span> Color
+<span class="kw">from</span> java.awt <span class="kw">import</span> Robot
+<span class="kw">from</span> time <span class="kw">import</span> time
+<span class="kw">import</span> random
+
+
+<span class="kw">def</span> SelectFriend():
+    <span class="kw">def</span> _findFriend():
+        dragFrom = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">240</span>)
+        dragTo = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">100</span>)
+        drag(dragFrom)
+        hcm = exists(<img src="hcm.png" />, <span class="dig">0.001</span>)
+        apollo = exists(<img src="apollo.png" />, <span class="dig">0.001</span>)
+        roy = exists(<img src="roy.png" />, <span class="dig">0.001</span>)
+
+        <span class="kw">if</span> apollo:
+            dropAt(dragTo)
+            <span class="skw">click</span>(apollo.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        <span class="kw">elif</span> hcm:
+            dropAt(dragTo)
+            <span class="skw">click</span>(hcm.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        <span class="kw">elif</span> roy:
+            dropAt(dragTo)
+            <span class="skw">click</span>(roy.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        <span class="kw">elif</span> exists(<img src="1526664627524.png" />, <span class="dig">0.001</span>):
+            dropAt(dragTo)
+            <span class="skw">click</span>(<img src="1526664627524.png" />)
+        <span class="kw">else</span>:
+            dropAt(dragTo)
+            <span class="kw">return</span> False
+
+        <span class="kw">return</span> True
+
+    friendSlot = exists(<img src="1526661219964.png" />, <span class="dig">0.001</span>)
+    <span class="kw">if</span> <span class="kw">not</span> friendSlot:
+        <span class="kw">return</span>
+    <span class="skw">click</span>(friendSlot)
+    friendSlotCenter = friendSlot.getCenter()
+
+    <span class="kw">if</span> <span class="kw">not</span> _findFriend():  <span class="cmt"># drag and drop to second half friends</span>
+        <span class="skw">dragDrop</span>(friendSlotCenter.offset(-<span class="dig">50</span>,<span class="dig">240</span>),
+                 friendSlotCenter.offset(-<span class="dig">900</span>,<span class="dig">240</span>))
+        _findFriend()
+
+
+<span class="kw">def</span> ClickStartFighting():
+    <span class="kw">if</span> exists(<img src="1526536759952.png" />):
+        <span class="skw">click</span>(<img src="1526536775982.png" />)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        SelectFriend()
+
+        <span class="skw">wait</span>(<img src="1526537049069.png" />)
+        <span class="skw">click</span>(<img src="1526537049069.png" />)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+
+<span class="kw">def</span> DragForward():
+    <span class="kw">print</span> <span class="str">"DragForward"</span>
+    start_time = time()
+    clock = exists(<img src="1526703255111.png" /> , <span class="dig">10</span>)
+    <span class="kw">if</span> clock:
+        dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
+        drag(dragFrom)
+        hover(Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y))
+        <span class="kw">while</span> <span class="kw">not</span> exists(<img src="1526881392188.png" />,<span class="dig">0.001</span>):
+            end_time = time()
+            time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+            <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+                <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+        <span class="kw">print</span> <span class="str">"exists"</span>
+        dropAt(Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y))
+
+
+<span class="kw">def</span> ClickFinish():
+    <span class="kw">print</span> <span class="str">"ClickFinish"</span>
+    start_time = time()
+    <span class="kw">while</span> True:
+        finish = exists(Pattern(<img src="1526674281353.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
+        <span class="kw">if</span> finish:
+            <span class="skw">wait</span>(<span class="dig">2</span>)
+            <span class="skw">click</span>(Pattern(<img src="1526674281353.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
+            <span class="kw">break</span>
+        end_time = time()
+        time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+        <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+            <span class="kw">break</span>
+
+<span class="kw">def</span> PlayDots(color, number, dotLoc, dotColor):
+    <span class="kw">if</span> number == <span class="dig">1</span>:
+        <span class="kw">return</span> PlayOneDot(color, dotLoc, dotColor)
+    <span class="kw">elif</span> number == <span class="dig">2</span>:
+        <span class="kw">return</span> PlayTwoDot(color, dotLoc, dotColor)
+    <span class="kw">elif</span> number == <span class="dig">4</span>:
+        <span class="kw">return</span> PlayFourDot(color, dotLoc, dotColor)
+    <span class="kw">else</span>:
+        <span class="kw">return</span> False
+
+<span class="kw">def</span> PlayOneDot(color, dotLoc, dotColor):
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
+        <span class="kw">if</span> dotColor[i] == color:
+            <span class="skw">click</span>(dotLoc[i])
+            <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">elif</span> dotColor[i+<span class="dig">7</span>] == color:
+            <span class="skw">click</span>(dotLoc[i+<span class="dig">7</span>])
+            <span class="kw">return</span> <span class="dig">1</span>
+    <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">def</span> PlayTwoDot(color, dotLoc, dotColor):
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>): <span class="cmt">#verical</span>
+        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">7</span>] == color :
+            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">7</span>])
+            <span class="cmt">#print "%s, 2" % color</span>
+            <span class="kw">return</span> <span class="dig">1</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#horizontal</span>
+        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">1</span>] == color:
+            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">1</span>])
+            <span class="cmt">#print "%s, 2" % color</span>
+            <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">if</span> dotColor[i+<span class="dig">7</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">8</span>] == color:
+            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">1</span>])
+            <span class="cmt">#print "%s, 2" % color</span>
+            <span class="kw">return</span> <span class="dig">1</span>
+    <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">def</span> PlayFourDot(color, dotLoc, dotColor):
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#verical</span>
+        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">1</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">7</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">8</span>] == color:
+            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">8</span>])
+            <span class="cmt">#print "%s, 4" % color</span>
+            <span class="kw">return</span> <span class="dig">1</span>
+    <span class="kw">return</span> <span class="dig">0</span>
+
+
+<span class="kw">def</span> SimpleAlgo(dotLoc, dotColor):
+    <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+        <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"y"</span>, <span class="str">"w"</span>):
+            <span class="kw">if</span> PlayDots(color, number, dotLoc, dotColor):
+                <span class="kw">return</span>
+
+<span class="kw">def</span> C10_2_Algo(dotLoc, dotColor):
+    <span class="kw">if</span> PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>, dotLoc, dotColor):
+        <span class="kw">return</span>
+    SimpleAlgo(dotLoc, dotColor)
+
+<span class="kw">def</span> CheckLost():
+    <span class="kw">if</span> exists(Pattern(<img src="1526873100173.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+        <span class="skw">click</span>(Pattern(<img src="1526873100173.png" />).similar(<span class="dig">0.90</span>))
+        <span class="kw">return</span> <span class="dig">1</span>
+    <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">def</span> GetDotBoard():
+    <span class="kw">if</span> exists(Pattern(<img src="1526873100173.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+        <span class="kw">return</span> <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>
+    <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="1526629695304.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
+        <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="1526636568398.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
+            <span class="kw">return</span> <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>
+    clock = exists(<img src="1526703255111.png" />, <span class="dig">0.001</span>)
+    dotLoc = []
+    dotLoc.append(clock.getCenter().offset(<span class="dig">221</span>,<span class="dig">470</span>))
+    stepX = <span class="dig">96</span>
+    stepY = <span class="dig">100</span>
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">7</span>):
+        dotLoc.append(Location(dotLoc[i-<span class="dig">1</span>].x+stepX, dotLoc[i-<span class="dig">1</span>].y))
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
+        dotLoc.append( Location(dotLoc[i].x, dotLoc[i].y+stepY))
+    dotColor = []
+    r = Robot()
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">14</span>):
+        c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) <span class="cmt"># get the color object</span>
+        <span class="kw">if</span> c.getRed() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getGreen() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getBlue() &gt; <span class="dig">200</span>:
+            dotColor.append(<span class="str">"b"</span>)
+        <span class="kw">elif</span> c.getRed() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getGreen() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getBlue() &lt; <span class="dig">150</span>:
+            dotColor.append(<span class="str">"y"</span>)
+        <span class="kw">elif</span> c.getRed() &gt; <span class="dig">220</span> <span class="kw">and</span> c.getGreen() &gt; <span class="dig">220</span> <span class="kw">and</span> c.getBlue() &gt; <span class="dig">220</span>:
+            dotColor.append(<span class="str">"w"</span>)
+        <span class="kw">else</span>:
+            dotColor.append(<span class="str">"?"</span>)
+        <span class="cmt">#crgb = ( c.getRed(), c.getGreen(), c.getBlue() ) # decode to RGB values</span>
+        <span class="cmt">#print dotColor[i]</span>
+    <span class="kw">return</span> <span class="dig">1</span>, dotLoc, dotColor
+
+<span class="kw">def</span> PlayDrag():
+    <span class="kw">while</span> True:
+        isFound, dotLoc, dotColor = GetDotBoard()
+        <span class="kw">if</span> <span class="kw">not</span> isFound:
+            <span class="kw">break</span>
+        C10_2_Algo(dotLoc, dotColor)
+        <span class="cmt">#SimpleAlgo(dotLoc, dotColor)</span>
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+
+
+<span class="kw">def</span> main():
+    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">100</span>):
+        isFailed = False
+        <span class="kw">print</span> i
+        ClickStartFighting()
+        <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">3</span>):
+            DragForward()
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            PlayDrag()
+            <span class="kw">if</span> CheckLost():
+                isFailed = True
+                <span class="kw">print</span> <span class="str">"lost"</span>
+                <span class="skw">wait</span>(<span class="dig">5</span>)
+                <span class="kw">break</span>
+        <span class="kw">if</span> <span class="kw">not</span> isFailed:
+            ClickFinish()
+            <span class="skw">wait</span>(<span class="dig">10</span>)
+
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    <span class="cmt">#ClickFinish()</span>
+    main()
+</pre>
+</body>
+</html>
