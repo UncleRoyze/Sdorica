@@ -1,3 +1,4 @@
+# -*- coding: UTF-8 -*-
 from java.awt import Color
 from java.awt import Robot
 from time import time
@@ -47,8 +48,9 @@ def SelectFriend():
 def ClickStartFighting():
     print "ClickStartFighting"
     if exists("gotofight.png", 30):
-        click("gotofight.png")
-        wait(1)
+        if not exists("SelectFriend.png", 0.001): # 在選關頁面
+            click("gotofight.png")
+            wait(1)
         SelectFriend()
         
         wait("gotofight.png")
@@ -218,4 +220,7 @@ if __name__ == "__main__":
     #ClickFinish()
     main()
 
-    
+#    Pattern("GuildQuest_4.png").similar(0.90)
+#    Pattern("1526951100616.png").similar(0.90)
+#    Pattern("GuildQuest_no4.png").similar(0.90)
+#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back.png"
