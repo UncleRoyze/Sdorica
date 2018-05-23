@@ -8,12 +8,11 @@ class PlayModeType:
     LEVELUP, LEVELUP_ALL, MATERIAL, QUEST= range(4)
 
 # ----- global setting -----
-TURN = 100
+TURN = 1000
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
 TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
 # ----- global setting -----
-
 logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
 
 def SelectLowLevelCharacter():
@@ -42,7 +41,7 @@ def SelectLowLevelCharacter():
         for i in range(2):              #會滑動角色選單兩次
             for j in range(4,-1,-1):    #檢查選單中的五個角色
                 reg = Region()
-                reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
+                reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240)
                 if reg.exists("using.png", 0.001):
                     continue
                 if not reg.exists(TARGETLEVEL_SMALL, 0.001):
@@ -63,8 +62,8 @@ def SelectLowLevelCharacter():
         for i in range(7):              #會滑動角色選單七次
             for j in range(4,-1,-1):    #檢查選單中的五個角色
                 reg = Region()
-                reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
-                if not reg.exists("black_icon.png", 0.001):
+                reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240)
+                if not reg.exists(Pattern("black_icon.png").similar(0.65), 0.001):
                     continue
                 if not reg.exists(TARGETLEVEL_SMALL, 0.001):
                     if not reg.exists("using.png", 0.001):
@@ -80,7 +79,7 @@ def SelectLowLevelCharacter():
         reg = Region()
         reg.setROI(topLeft.x+40, topLeft.y+65, 350, 300)
         if reg.exists(TARGETLEVEL_TITLE, 0.001):
-            if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
+            if not reg.exists(Pattern("CharactSelected.png").similar(0.55),0.001): #確認是否已經選到該位
                 click(topLeft.offset(200,215))
             return True
         return False
@@ -90,7 +89,7 @@ def SelectLowLevelCharacter():
         reg = Region()
         reg.setROI(topLeft.x+460, topLeft.y+65, 300, 300)
         if reg.exists(TARGETLEVEL_TITLE, 0.001):
-            if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
+            if not reg.exists(Pattern("CharactSelected.png").similar(0.55),0.001): #確認是否已經選到該位
                 click(topLeft.offset(610,215))
             return True
         return False
@@ -200,7 +199,7 @@ def PlayDots(color, number, dotLoc, dotColor):
         return False
 
 def PlayOneDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.1
     for i in range(0, 7):
         if dotColor[i] == color:
             click(dotLoc[i])
@@ -322,7 +321,7 @@ def PlayLevelUp():
 
 def main():
     for i in range(TURN):
-        logging.debug("Turn: %d", i)
+        print "Turn: ", i
         if PLAYMODE == PlayModeType.LEVELUP or PLAYMODE == PlayModeType.LEVELUP_ALL:
             PlayLevelUp()
        
@@ -330,6 +329,7 @@ def main():
 if __name__ == "__main__":
     #ClickFinish()
     main()
+    
 
 #    Pattern("GuildQuest_4.png").similar(0.90)
 #    Pattern("1526951100616.png").similar(0.90)

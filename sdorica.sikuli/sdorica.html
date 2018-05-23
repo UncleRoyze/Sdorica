@@ -80,12 +80,11 @@
     LEVELUP, LEVELUP_ALL, MATERIAL, QUEST= range(<span class="dig">4</span>)
 
 <span class="cmt"># ----- global setting -----</span>
-TURN = <span class="dig">100</span>
+TURN = <span class="dig">1000</span>
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern(<img src="lv54.png" />).similar(<span class="dig">0.80</span>)
 TARGETLEVEL_SMALL = Pattern(<img src="TARGETLEVEL_SMALL.png" />).similar(<span class="dig">0.90</span>)
 <span class="cmt"># ----- global setting -----</span>
-
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, level=logging.DEBUG)
 
 <span class="kw">def</span> SelectLowLevelCharacter():
@@ -114,7 +113,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):              <span class="cmt">#會滑動角色選單兩次</span>
             <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">4</span>,-<span class="dig">1</span>,-<span class="dig">1</span>):    <span class="cmt">#檢查選單中的五個角色</span>
                 reg = Region()
-                reg.setROI(topLeft.x+<span class="dig">120</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">180</span>, <span class="dig">240</span>)
+                reg.setROI(topLeft.x+<span class="dig">115</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">190</span>, <span class="dig">240</span>)
                 <span class="kw">if</span> reg.exists(<img src="using.png" />, <span class="dig">0.001</span>):
                     <span class="kw">continue</span>
                 <span class="kw">if</span> <span class="kw">not</span> reg.exists(TARGETLEVEL_SMALL, <span class="dig">0.001</span>):
@@ -135,8 +134,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):              <span class="cmt">#會滑動角色選單七次</span>
             <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">4</span>,-<span class="dig">1</span>,-<span class="dig">1</span>):    <span class="cmt">#檢查選單中的五個角色</span>
                 reg = Region()
-                reg.setROI(topLeft.x+<span class="dig">120</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">180</span>, <span class="dig">240</span>)
-                <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="black_icon.png" />, <span class="dig">0.001</span>):
+                reg.setROI(topLeft.x+<span class="dig">115</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">190</span>, <span class="dig">240</span>)
+                <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="black_icon.png" />).similar(<span class="dig">0.65</span>), <span class="dig">0.001</span>):
                     <span class="kw">continue</span>
                 <span class="kw">if</span> <span class="kw">not</span> reg.exists(TARGETLEVEL_SMALL, <span class="dig">0.001</span>):
                     <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="using.png" />, <span class="dig">0.001</span>):
@@ -152,7 +151,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         reg = Region()
         reg.setROI(topLeft.x+<span class="dig">40</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">350</span>, <span class="dig">300</span>)
         <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">0.001</span>):
-            <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharactSelected.png" />).similar(<span class="dig">0.60</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選到該位</span>
+            <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharactSelected.png" />).similar(<span class="dig">0.55</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選到該位</span>
                 <span class="skw">click</span>(topLeft.offset(<span class="dig">200</span>,<span class="dig">215</span>))
             <span class="kw">return</span> True
         <span class="kw">return</span> False
@@ -162,7 +161,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         reg = Region()
         reg.setROI(topLeft.x+<span class="dig">460</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">300</span>, <span class="dig">300</span>)
         <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">0.001</span>):
-            <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharactSelected.png" />).similar(<span class="dig">0.60</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選到該位</span>
+            <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharactSelected.png" />).similar(<span class="dig">0.55</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選到該位</span>
                 <span class="skw">click</span>(topLeft.offset(<span class="dig">610</span>,<span class="dig">215</span>))
             <span class="kw">return</span> True
         <span class="kw">return</span> False
@@ -272,7 +271,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         <span class="kw">return</span> False
 
 <span class="kw">def</span> PlayOneDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
         <span class="kw">if</span> dotColor[i] == color:
             <span class="skw">click</span>(dotLoc[i])
@@ -394,7 +393,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 
 <span class="kw">def</span> main():
     <span class="kw">for</span> i <span class="kw">in</span> range(TURN):
-        logging.debug(<span class="str">"Turn: %d"</span>, i)
+        <span class="kw">print</span> <span class="str">"Turn: "</span>, i
         <span class="kw">if</span> PLAYMODE == PlayModeType.LEVELUP <span class="kw">or</span> PLAYMODE == PlayModeType.LEVELUP_ALL:
             PlayLevelUp()
 
@@ -402,6 +401,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     <span class="cmt">#ClickFinish()</span>
     main()
+
 
 <span class="cmt">#    Pattern("GuildQuest_4.png").similar(0.90)</span>
 <span class="cmt">#    Pattern("1526951100616.png").similar(0.90)</span>
