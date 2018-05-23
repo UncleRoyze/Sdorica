@@ -84,6 +84,7 @@ TURN = <span class="dig">1000</span>
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern(<img src="lv54.png" />).similar(<span class="dig">0.80</span>)
 TARGETLEVEL_SMALL = Pattern(<img src="TARGETLEVEL_SMALL.png" />).similar(<span class="dig">0.90</span>)
+GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv2.png" />, <img src="Shirley_lv3.png" />, <img src="Fatima_lv2.png" />]
 <span class="cmt"># ----- global setting -----</span>
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, level=logging.DEBUG)
 
@@ -172,9 +173,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         _SelectCharacter()
     _SelectSupport()
 
-<span class="kw">def</span> SelectFriend():
-    logging.debug(<span class="str">"SelectFriend"</span>)
-    <span class="kw">def</span> _findFriend():
+<span class="kw">def</span> SelectBrainman():
+    logging.debug(<span class="str">"SelectBrainman"</span>)
+    <span class="kw">def</span> _findBrainman():
         dragFrom = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">240</span>)
         dragTo = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">100</span>)
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
@@ -183,22 +184,22 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         apollo = exists(<img src="apollo.png" />, <span class="dig">0.001</span>)
         roy = exists(<img src="roy.png" />, <span class="dig">0.001</span>)
 
-        <span class="kw">if</span> apollo:
+        <span class="kw">for</span> friend <span class="kw">in</span> (apollo, roy, hcm):
+            <span class="kw">if</span> friend:
+                dropAt(dragTo)
+                <span class="skw">click</span>(friend.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+                <span class="kw">return</span> True
+
+        matches = findAnyList(GOOD_BRAINMAN)
+        <span class="kw">if</span> matches:
             dropAt(dragTo)
-            <span class="skw">click</span>(apollo.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
-        <span class="kw">elif</span> hcm:
-            dropAt(dragTo)
-            <span class="skw">click</span>(hcm.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
-        <span class="kw">elif</span> roy:
-            dropAt(dragTo)
-            <span class="skw">click</span>(roy.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
-        <span class="kw">elif</span> exists(<img src="delan_sp.png" />, <span class="dig">0.001</span>):
-            dropAt(dragTo)
-            <span class="skw">click</span>(<img src="delan_sp.png" />)
+            <span class="skw">click</span>(matches[<span class="dig">0</span>])
+            <span class="kw">return</span> False
         <span class="kw">else</span>:
             dropAt(dragTo)
             <span class="kw">return</span> False
-        <span class="kw">return</span> True
+
+        <span class="kw">return</span> False
 
     friendSlot = exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>)
     <span class="kw">if</span> <span class="kw">not</span> friendSlot:
@@ -206,25 +207,26 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
     <span class="skw">click</span>(friendSlot)
     friendSlotCenter = friendSlot.getCenter()
 
-    <span class="kw">if</span> <span class="kw">not</span> _findFriend():  <span class="cmt"># drag and drop to second half friends</span>
+    <span class="kw">if</span> <span class="kw">not</span> _findBrainman():  <span class="cmt"># drag and drop to second half friends</span>
         <span class="skw">dragDrop</span>(friendSlotCenter.offset(-<span class="dig">50</span>,<span class="dig">240</span>),
-                 friendSlotCenter.offset(-<span class="dig">900</span>,<span class="dig">240</span>))
-        _findFriend()
+                 friendSlotCenter.offset(-<span class="dig">1000</span>,<span class="dig">240</span>))
+        _findBrainman()
 
 
 <span class="kw">def</span> ClickStartFighting():
     logging.debug(<span class="str">"ClickStartFighting"</span>)
     Settings.MoveMouseDelay = <span class="dig">0</span>
-    <span class="kw">if</span> exists(<img src="gotofight.png" />, <span class="dig">30</span>):
+    start = <img src="gotofight.png" />
+    <span class="kw">if</span> exists(start, <span class="dig">30</span>):
         <span class="kw">if</span> <span class="kw">not</span> exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
-            <span class="skw">click</span>(<img src="gotofight.png" />)
+            <span class="skw">click</span>(start)
             <span class="skw">wait</span>(<span class="dig">1</span>)
+
         <span class="kw">if</span> PLAYMODE == PlayModeType.LEVELUP_ALL:
             SelectLowLevelCharacter()
-        SelectFriend()
-
-        <span class="skw">wait</span>(<img src="gotofight.png" />)
-        <span class="skw">click</span>(<img src="gotofight.png" />)
+        SelectBrainman()
+        <span class="skw">wait</span>(start)
+        <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
 <span class="kw">def</span> DragForward():
@@ -399,7 +401,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
-    <span class="cmt">#ClickFinish()</span>
     main()
 
 

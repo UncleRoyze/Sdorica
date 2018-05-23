@@ -12,6 +12,7 @@ TURN = 1000
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
 TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
+GOOD_BRAINMAN = ["delan_sp.png", "Sione_sp.png", "Shirley_lv2.png", "Shirley_lv3.png", "Fatima_lv2.png"]
 # ----- global setting -----
 logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
 
@@ -100,9 +101,9 @@ def SelectLowLevelCharacter():
         _SelectCharacter()
     _SelectSupport()
     
-def SelectFriend():
-    logging.debug("SelectFriend")
-    def _findFriend():
+def SelectBrainman():
+    logging.debug("SelectBrainman")
+    def _findBrainman():
         dragFrom = friendSlotCenter.offset(-500, 240)
         dragTo = friendSlotCenter.offset(-500, 100)
         Settings.MoveMouseDelay = 0.5
@@ -111,22 +112,22 @@ def SelectFriend():
         apollo = exists("apollo.png", 0.001)
         roy = exists("roy.png", 0.001)
 
-        if apollo:
+        for friend in (apollo, roy, hcm):
+            if friend:
+                dropAt(dragTo)
+                click(friend.getCenter().offset(0, 100))
+                return True
+
+        matches = findAnyList(GOOD_BRAINMAN)
+        if matches:
             dropAt(dragTo)
-            click(apollo.getCenter().offset(0, 100))
-        elif hcm:
-            dropAt(dragTo)
-            click(hcm.getCenter().offset(0, 100))
-        elif roy:
-            dropAt(dragTo)
-            click(roy.getCenter().offset(0, 100))
-        elif exists("delan_sp.png", 0.001):
-            dropAt(dragTo)
-            click("delan_sp.png")
+            click(matches[0])
+            return False
         else:
             dropAt(dragTo)
             return False
-        return True
+        
+        return False
         
     friendSlot = exists("SelectFriend.png", 0.001)
     if not friendSlot:
@@ -134,25 +135,26 @@ def SelectFriend():
     click(friendSlot)
     friendSlotCenter = friendSlot.getCenter()
     
-    if not _findFriend():  # drag and drop to second half friends
+    if not _findBrainman():  # drag and drop to second half friends
         dragDrop(friendSlotCenter.offset(-50,240), 
-                 friendSlotCenter.offset(-900,240))
-        _findFriend()
+                 friendSlotCenter.offset(-1000,240))
+        _findBrainman()
 
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
     Settings.MoveMouseDelay = 0
-    if exists("gotofight.png", 30):
+    start = "gotofight.png"
+    if exists(start, 30):
         if not exists("SelectFriend.png", 0.001): # 在選關頁面
-            click("gotofight.png")
+            click(start)
             wait(1)
+            
         if PLAYMODE == PlayModeType.LEVELUP_ALL:
-            SelectLowLevelCharacter()
-        SelectFriend()
-        
-        wait("gotofight.png")
-        click("gotofight.png")
+            SelectLowLevelCharacter()           
+        SelectBrainman()
+        wait(start)
+        click(start)
         wait(1)
 
 def DragForward():
@@ -327,7 +329,6 @@ def main():
        
     
 if __name__ == "__main__":
-    #ClickFinish()
     main()
     
 
