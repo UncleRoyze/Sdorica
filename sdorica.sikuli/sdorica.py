@@ -12,7 +12,9 @@ TURN = 1000
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
 TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
-GOOD_BRAINMAN = ["delan_sp.png", "Sione_sp.png", "Shirley_lv2.png", "Shirley_lv3.png", "Fatima_lv2.png"]
+FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
+GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
+
 # ----- global setting -----
 logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
 
@@ -33,7 +35,7 @@ def SelectLowLevelCharacter():
     def _DragCharacterBar():
         Settings.MoveMouseDelay = 1.5
         dragDrop(dragLeft,dragRight)
-        Settings.MoveMouseDelay = 0
+        Settings.MoveMouseDelay = 0.1
         hover(dragLeft)
         
     def _SelectCharacter():
@@ -106,29 +108,30 @@ def SelectBrainman():
     def _findBrainman():
         dragFrom = friendSlotCenter.offset(-500, 240)
         dragTo = friendSlotCenter.offset(-500, 100)
-        Settings.MoveMouseDelay = 0.5
+        Settings.MoveMouseDelay = 0.1
         drag(dragFrom)
-        hcm = exists("hcm.png", 0.001)
-        apollo = exists("apollo.png", 0.001)
-        roy = exists("roy.png", 0.001)
 
-        for friend in (apollo, roy, hcm):
-            if friend:
-                dropAt(dragTo)
-                click(friend.getCenter().offset(0, 100))
-                return True
-
-        matches = findAnyList(GOOD_BRAINMAN)
+        selectCenter = None
+        trueFriendFound = False
+        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
         if matches:
-            dropAt(dragTo)
-            click(matches[0])
-            return False
-        else:
-            dropAt(dragTo)
-            return False
-        
-        return False
-        
+            for match in matches:
+                matchCenter = match.getCenter()
+                if match.getIndex() > len(FRIENDS) - 1:
+                    selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
+                    break
+                else:
+                    reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
+                    if reg.exists("using.png"):
+                        # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
+                        continue
+                    selectCenter = reg.getCenter()
+                    trueFriendFound = True
+                    break
+        dropAt(dragTo)
+        click(selectCenter)
+        return trueFriendFound
+     
     friendSlot = exists("SelectFriend.png", 0.001)
     if not friendSlot:
         return
@@ -143,15 +146,15 @@ def SelectBrainman():
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
-    Settings.MoveMouseDelay = 0
-    start = "gotofight.png"
+    Settings.MoveMouseDelay = 0.1
+    start = "gotoFight.png" 
     if exists(start, 30):
         if not exists("SelectFriend.png", 0.001): # 在選關頁面
             click(start)
             wait(1)
             
         if PLAYMODE == PlayModeType.LEVELUP_ALL:
-            SelectLowLevelCharacter()           
+            SelectLowLevelCharacter()
         SelectBrainman()
         wait(start)
         click(start)
@@ -178,7 +181,7 @@ def DragForward():
 def ClickFinish():
     logging.debug("ClickFinish")
     start_time = time()
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.1
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
@@ -253,7 +256,7 @@ def C10_2_Algo(dotLoc, dotColor):
 
 def CheckLost():
     logging.debug("CheckLost")
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.1
     if exists(Pattern("ok_button.png").similar(0.90), 0.001):
         click(Pattern("ok_button.png").similar(0.90))
         logging.debug("lost")
@@ -331,7 +334,6 @@ def main():
 if __name__ == "__main__":
     main()
     
-
 #    Pattern("GuildQuest_4.png").similar(0.90)
 #    Pattern("1526951100616.png").similar(0.90)
 #    Pattern("GuildQuest_no4.png").similar(0.90)

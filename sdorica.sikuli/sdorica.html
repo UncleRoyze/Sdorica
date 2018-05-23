@@ -84,7 +84,9 @@ TURN = <span class="dig">1000</span>
 PLAYMODE = PlayModeType.LEVELUP_ALL
 TARGETLEVEL_TITLE = Pattern(<img src="lv54.png" />).similar(<span class="dig">0.80</span>)
 TARGETLEVEL_SMALL = Pattern(<img src="TARGETLEVEL_SMALL.png" />).similar(<span class="dig">0.90</span>)
-GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv2.png" />, <img src="Shirley_lv3.png" />, <img src="Fatima_lv2.png" />]
+FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
+GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
+
 <span class="cmt"># ----- global setting -----</span>
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, level=logging.DEBUG)
 
@@ -105,7 +107,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
     <span class="kw">def</span> _DragCharacterBar():
         Settings.MoveMouseDelay = <span class="dig">1.5</span>
         <span class="skw">dragDrop</span>(dragLeft,dragRight)
-        Settings.MoveMouseDelay = <span class="dig">0</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         hover(dragLeft)
 
     <span class="kw">def</span> _SelectCharacter():
@@ -178,28 +180,29 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
     <span class="kw">def</span> _findBrainman():
         dragFrom = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">240</span>)
         dragTo = friendSlotCenter.offset(-<span class="dig">500</span>, <span class="dig">100</span>)
-        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         drag(dragFrom)
-        hcm = exists(<img src="hcm.png" />, <span class="dig">0.001</span>)
-        apollo = exists(<img src="apollo.png" />, <span class="dig">0.001</span>)
-        roy = exists(<img src="roy.png" />, <span class="dig">0.001</span>)
 
-        <span class="kw">for</span> friend <span class="kw">in</span> (apollo, roy, hcm):
-            <span class="kw">if</span> friend:
-                dropAt(dragTo)
-                <span class="skw">click</span>(friend.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
-                <span class="kw">return</span> True
-
-        matches = findAnyList(GOOD_BRAINMAN)
+        selectCenter = None
+        trueFriendFound = False
+        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
         <span class="kw">if</span> matches:
-            dropAt(dragTo)
-            <span class="skw">click</span>(matches[<span class="dig">0</span>])
-            <span class="kw">return</span> False
-        <span class="kw">else</span>:
-            dropAt(dragTo)
-            <span class="kw">return</span> False
-
-        <span class="kw">return</span> False
+            <span class="kw">for</span> match <span class="kw">in</span> matches:
+                matchCenter = match.getCenter()
+                <span class="kw">if</span> match.getIndex() &gt; len(FRIENDS) - <span class="dig">1</span>:
+                    selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
+                    <span class="kw">break</span>
+                <span class="kw">else</span>:
+                    reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y + <span class="dig">20</span>, <span class="dig">140</span>, <span class="dig">200</span>)
+                    <span class="kw">if</span> reg.exists(<img src="using.png" />):
+                        <span class="cmt"># 好友的參謀跟自己隊伍的角色相同，只好不選他了 </span>
+                        <span class="kw">continue</span>
+                    selectCenter = reg.getCenter()
+                    trueFriendFound = True
+                    <span class="kw">break</span>
+        dropAt(dragTo)
+        <span class="skw">click</span>(selectCenter)
+        <span class="kw">return</span> trueFriendFound
 
     friendSlot = exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>)
     <span class="kw">if</span> <span class="kw">not</span> friendSlot:
@@ -215,8 +218,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 
 <span class="kw">def</span> ClickStartFighting():
     logging.debug(<span class="str">"ClickStartFighting"</span>)
-    Settings.MoveMouseDelay = <span class="dig">0</span>
-    start = <img src="gotofight.png" />
+    Settings.MoveMouseDelay = <span class="dig">0.1</span>
+    start = <img src="gotoFight.png" />
     <span class="kw">if</span> exists(start, <span class="dig">30</span>):
         <span class="kw">if</span> <span class="kw">not</span> exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
             <span class="skw">click</span>(start)
@@ -250,7 +253,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 <span class="kw">def</span> ClickFinish():
     logging.debug(<span class="str">"ClickFinish"</span>)
     start_time = time()
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">while</span> True:
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
         <span class="kw">if</span> finish:
@@ -325,7 +328,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 
 <span class="kw">def</span> CheckLost():
     logging.debug(<span class="str">"CheckLost"</span>)
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">if</span> exists(Pattern(<img src="ok_button.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
         <span class="skw">click</span>(Pattern(<img src="ok_button.png" />).similar(<span class="dig">0.90</span>))
         logging.debug(<span class="str">"lost"</span>)
@@ -402,7 +405,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()
-
 
 <span class="cmt">#    Pattern("GuildQuest_4.png").similar(0.90)</span>
 <span class="cmt">#    Pattern("1526951100616.png").similar(0.90)</span>
