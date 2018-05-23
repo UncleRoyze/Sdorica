@@ -91,13 +91,28 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
 <span class="kw">def</span> SelectLowLevelCharacter():
     logging.debug(<span class="str">"SelectLowLevelCharacter"</span>)
     topLeft = exists(<img src="back_button.png" />,<span class="dig">0.001</span>).getCenter()
-    dragFrom = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
-    dragTo = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+    dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+    dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
+    dragLeftLeft = topLeft.offset(<span class="dig">100</span>, <span class="dig">450</span>)
+
+    <span class="kw">def</span> _ToEndOfCharacterBar():
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
+            <span class="skw">dragDrop</span>(dragRight,dragLeft)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+
+    <span class="kw">def</span> _DragCharacterBar():
+        Settings.MoveMouseDelay = <span class="dig">1.5</span>
+        <span class="skw">dragDrop</span>(dragLeft,dragRight)
+        Settings.MoveMouseDelay = <span class="dig">0</span>
+        hover(dragLeft)
 
     <span class="kw">def</span> _SelectCharacter():
         logging.debug(<span class="str">"_SelectCharacter"</span>)
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):    <span class="cmt">#會滑動角色選單兩次</span>
-            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">5</span>):<span class="cmt">#檢查選單中的五個角色</span>
+        _ToEndOfCharacterBar()
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):              <span class="cmt">#會滑動角色選單兩次</span>
+            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">4</span>,-<span class="dig">1</span>,-<span class="dig">1</span>):    <span class="cmt">#檢查選單中的五個角色</span>
                 reg = Region()
                 reg.setROI(topLeft.x+<span class="dig">120</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">180</span>, <span class="dig">240</span>)
                 <span class="kw">if</span> reg.exists(<img src="using.png" />, <span class="dig">0.001</span>):
@@ -105,10 +120,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
                 <span class="kw">if</span> <span class="kw">not</span> reg.exists(TARGETLEVEL_SMALL, <span class="dig">0.001</span>):
                     reg.<span class="skw">click</span>(reg.getCenter())
                     <span class="kw">return</span> True
-            Settings.MoveMouseDelay = <span class="dig">1.5</span>
-            <span class="skw">dragDrop</span>(dragFrom,dragTo)
-            Settings.MoveMouseDelay = <span class="dig">0</span>
-            hover(dragFrom)
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> False
+            _DragCharacterBar()
         <span class="kw">return</span> False
 
     <span class="kw">def</span> _SelectSupport():
@@ -117,8 +131,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
         reg.setROI(topLeft.x+<span class="dig">630</span>, topLeft.y+<span class="dig">260</span>, <span class="dig">325</span>, <span class="dig">75</span>)
         <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharactSelected.png" />).similar(<span class="dig">0.60</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選到該位</span>
             <span class="skw">click</span>(topLeft.offset(<span class="dig">800</span>,<span class="dig">230</span>))
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):    <span class="cmt">#會滑動角色選單七次</span>
-            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">5</span>):<span class="cmt">#檢查選單中的五個角色</span>
+        _ToEndOfCharacterBar()
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):              <span class="cmt">#會滑動角色選單七次</span>
+            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">4</span>,-<span class="dig">1</span>,-<span class="dig">1</span>):    <span class="cmt">#檢查選單中的五個角色</span>
                 reg = Region()
                 reg.setROI(topLeft.x+<span class="dig">120</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">180</span>, <span class="dig">240</span>)
                 <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="black_icon.png" />, <span class="dig">0.001</span>):
@@ -127,10 +142,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>, l
                     <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="using.png" />, <span class="dig">0.001</span>):
                         reg.<span class="skw">click</span>(reg.getCenter())
                     <span class="kw">return</span> True
-            Settings.MoveMouseDelay = <span class="dig">1.5</span>
-            <span class="skw">dragDrop</span>(dragFrom,dragTo)
-            Settings.MoveMouseDelay = <span class="dig">0</span>
-            hover(dragFrom)
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> False
+            _DragCharacterBar()
         <span class="kw">return</span> False
 
     <span class="kw">def</span> _CheckWhite():

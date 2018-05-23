@@ -19,13 +19,28 @@ logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
 def SelectLowLevelCharacter():
     logging.debug("SelectLowLevelCharacter")
     topLeft = exists("back_button.png",0.001).getCenter()
-    dragFrom = topLeft.offset(877, 450)
-    dragTo = topLeft.offset(208, 450)
-   
+    dragLeft = topLeft.offset(208, 450)
+    dragRight = topLeft.offset(877, 450)
+    dragLeftLeft = topLeft.offset(100, 450)
+    
+    def _ToEndOfCharacterBar():
+        for i in range(3):
+            Settings.MoveMouseDelay = 0.1
+            Settings.DelayBeforeDrop = 0
+            dragDrop(dragRight,dragLeft)
+            wait(1)
+        
+    def _DragCharacterBar():
+        Settings.MoveMouseDelay = 1.5
+        dragDrop(dragLeft,dragRight)
+        Settings.MoveMouseDelay = 0
+        hover(dragLeft)
+        
     def _SelectCharacter():
         logging.debug("_SelectCharacter")         
-        for i in range(2):    #會滑動角色選單兩次
-            for j in range(5):#檢查選單中的五個角色
+        _ToEndOfCharacterBar()
+        for i in range(2):              #會滑動角色選單兩次
+            for j in range(4,-1,-1):    #檢查選單中的五個角色
                 reg = Region()
                 reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
                 if reg.exists("using.png", 0.001):
@@ -33,10 +48,9 @@ def SelectLowLevelCharacter():
                 if not reg.exists(TARGETLEVEL_SMALL, 0.001):
                     reg.click(reg.getCenter())
                     return True
-            Settings.MoveMouseDelay = 1.5
-            dragDrop(dragFrom,dragTo)
-            Settings.MoveMouseDelay = 0
-            hover(dragFrom)
+                else:
+                    return False
+            _DragCharacterBar()
         return False
 
     def _SelectSupport():
@@ -45,8 +59,9 @@ def SelectLowLevelCharacter():
         reg.setROI(topLeft.x+630, topLeft.y+260, 325, 75)
         if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
             click(topLeft.offset(800,230))
-        for i in range(7):    #會滑動角色選單七次
-            for j in range(5):#檢查選單中的五個角色
+        _ToEndOfCharacterBar()
+        for i in range(7):              #會滑動角色選單七次
+            for j in range(4,-1,-1):    #檢查選單中的五個角色
                 reg = Region()
                 reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
                 if not reg.exists("black_icon.png", 0.001):
@@ -55,10 +70,9 @@ def SelectLowLevelCharacter():
                     if not reg.exists("using.png", 0.001):
                         reg.click(reg.getCenter())
                     return True
-            Settings.MoveMouseDelay = 1.5
-            dragDrop(dragFrom,dragTo)
-            Settings.MoveMouseDelay = 0
-            hover(dragFrom)
+                else:
+                    return False
+            _DragCharacterBar()
         return False
         
     def _CheckWhite():
