@@ -2,14 +2,97 @@
 from java.awt import Color
 from java.awt import Robot
 from time import time
-import random
+import logging, sys
 
+class PlayModeType:
+    LEVELUP, LEVELUP_ALL, MATERIAL, QUEST= range(4)
 
+# ----- global setting -----
+TURN = 100
+PLAYMODE = PlayModeType.LEVELUP_ALL
+TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
+TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
+# ----- global setting -----
+
+logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
+
+def SelectLowLevelCharacter():
+    logging.debug("SelectLowLevelCharacter")
+    topLeft = exists("back_button.png",0.001).getCenter()
+    dragFrom = topLeft.offset(877, 450)
+    dragTo = topLeft.offset(208, 450)
+   
+    def _SelectCharacter():
+        logging.debug("_SelectCharacter")         
+        for i in range(2):    #會滑動角色選單兩次
+            for j in range(5):#檢查選單中的五個角色
+                reg = Region()
+                reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
+                if reg.exists("using.png", 0.001):
+                    continue
+                if not reg.exists(TARGETLEVEL_SMALL, 0.001):
+                    reg.click(reg.getCenter())
+                    return True
+            Settings.MoveMouseDelay = 1.5
+            dragDrop(dragFrom,dragTo)
+            Settings.MoveMouseDelay = 0
+            hover(dragFrom)
+        return False
+
+    def _SelectSupport():
+        logging.debug("_SelectSupport")
+        reg = Region()
+        reg.setROI(topLeft.x+630, topLeft.y+260, 325, 75)
+        if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
+            click(topLeft.offset(800,230))
+        for i in range(7):    #會滑動角色選單七次
+            for j in range(5):#檢查選單中的五個角色
+                reg = Region()
+                reg.setROI(topLeft.x+120+j*160, topLeft.y+340, 180, 240)
+                if not reg.exists("black_icon.png", 0.001):
+                    continue
+                if not reg.exists(TARGETLEVEL_SMALL, 0.001):
+                    if not reg.exists("using.png", 0.001):
+                        reg.click(reg.getCenter())
+                    return True
+            Settings.MoveMouseDelay = 1.5
+            dragDrop(dragFrom,dragTo)
+            Settings.MoveMouseDelay = 0
+            hover(dragFrom)
+        return False
+        
+    def _CheckWhite():
+        logging.debug("_CheckWhite")
+        reg = Region()
+        reg.setROI(topLeft.x+40, topLeft.y+65, 350, 300)
+        if reg.exists(TARGETLEVEL_TITLE, 0.001):
+            if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
+                click(topLeft.offset(200,215))
+            return True
+        return False
+
+    def _CheckYellow():
+        logging.debug("_CheckYellow")
+        reg = Region()
+        reg.setROI(topLeft.x+460, topLeft.y+65, 300, 300)
+        if reg.exists(TARGETLEVEL_TITLE, 0.001):
+            if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
+                click(topLeft.offset(610,215))
+            return True
+        return False
+    
+    if _CheckWhite():
+        _SelectCharacter()
+    if _CheckYellow():
+        _SelectCharacter()
+    _SelectSupport()
+    
 def SelectFriend():
-    print "SelectFriend"
+    logging.debug("SelectFriend")
     def _findFriend():
         dragFrom = friendSlotCenter.offset(-500, 240)
         dragTo = friendSlotCenter.offset(-500, 100)
+        Settings.MoveMouseDelay = 0.5
         drag(dragFrom)
         hcm = exists("hcm.png", 0.001)
         apollo = exists("apollo.png", 0.001)
@@ -30,7 +113,6 @@ def SelectFriend():
         else:
             dropAt(dragTo)
             return False
- 
         return True
         
     friendSlot = exists("SelectFriend.png", 0.001)
@@ -46,11 +128,14 @@ def SelectFriend():
 
 
 def ClickStartFighting():
-    print "ClickStartFighting"
+    logging.debug("ClickStartFighting")
+    Settings.MoveMouseDelay = 0
     if exists("gotofight.png", 30):
         if not exists("SelectFriend.png", 0.001): # 在選關頁面
             click("gotofight.png")
             wait(1)
+        if PLAYMODE == PlayModeType.LEVELUP_ALL:
+            SelectLowLevelCharacter()
         SelectFriend()
         
         wait("gotofight.png")
@@ -58,11 +143,12 @@ def ClickStartFighting():
         wait(1)
 
 def DragForward():
-    print "DragForward"
+    logging.debug("DragForward")
     start_time = time()
     clock = exists("clock.png" , 0.001)
     if clock:
         dragFrom = clock.getCenter().offset(100,400)           
+        Settings.MoveMouseDelay = 0.5
         drag(dragFrom)
         hover(Location(dragFrom.x+500, dragFrom.y))
         while not exists("board.png", 1):
@@ -70,13 +156,14 @@ def DragForward():
             time_taken = end_time - start_time # time_taken is in seconds
             if(time_taken >= 30): # not found
                 break            #exit while not exists
-        print "exists"
+        logging.debug("in to drag soul mode")
         dropAt(Location(dragFrom.x+500, dragFrom.y)) 
 
    
 def ClickFinish():
-    print "ClickFinish"
+    logging.debug("ClickFinish")
     start_time = time()
+    Settings.MoveMouseDelay = 0
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
@@ -99,6 +186,7 @@ def PlayDots(color, number, dotLoc, dotColor):
         return False
 
 def PlayOneDot(color, dotLoc, dotColor):
+    Settings.MoveMouseDelay = 0
     for i in range(0, 7):
         if dotColor[i] == color:
             click(dotLoc[i])
@@ -109,6 +197,7 @@ def PlayOneDot(color, dotLoc, dotColor):
     return 0
 
 def PlayTwoDot(color, dotLoc, dotColor):
+    Settings.MoveMouseDelay = 0.5
     for i in range(0, 7): #verical
         if dotColor[i] == color and dotColor[i+7] == color :
             dragDrop(dotLoc[i], dotLoc[i+7])
@@ -126,6 +215,7 @@ def PlayTwoDot(color, dotLoc, dotColor):
     return 0
 
 def PlayFourDot(color, dotLoc, dotColor):
+    Settings.MoveMouseDelay = 0.5
     for i in range(0, 6): #verical
         if dotColor[i] == color and dotColor[i+1] == color and dotColor[i+7] == color and dotColor[i+8] == color:
             dragDrop(dotLoc[i], dotLoc[i+8])
@@ -141,20 +231,22 @@ def SimpleAlgo(dotLoc, dotColor):
                 return
 
 def C10_2_Algo(dotLoc, dotColor):
-    print "C10_2_Algo"
+    logging.debug("C10_2_Algo")
     if PlayDots("b", 1, dotLoc, dotColor):
         return
     SimpleAlgo(dotLoc, dotColor)
 
 def CheckLost():
-    print "CheckLost"
+    logging.debug("CheckLost")
+    Settings.MoveMouseDelay = 0
     if exists(Pattern("ok_button.png").similar(0.90), 0.001):
         click(Pattern("ok_button.png").similar(0.90))
+        logging.debug("lost")
         return 1
     return 0
 
 def GetDotBoard():
-    print "GetDotBoard"
+    logging.debug("GetDotBoard")
     if exists(Pattern("ok_button.png").similar(0.90), 0.001):
         return 0, 0, 0
     if not exists(Pattern("soul_normal.png").similar(0.85), 1):
@@ -186,7 +278,7 @@ def GetDotBoard():
     return 1, dotLoc, dotColor
         
 def PlayDrag():
-    print "PlayDrag"
+    logging.debug("PlayDrag")
     if not exists("clock.png" , 0.001):
         return
     while True:
@@ -197,24 +289,29 @@ def PlayDrag():
         #SimpleAlgo(dotLoc, dotColor)
         wait(1)
 
+def WaitIntoStage():
+    wait("clock.png", 20)                #等到看到有時鐘才代表進入關卡
+    
+def PlayLevelUp():
+    isFailed = False
+    ClickStartFighting()
+    WaitIntoStage()
+    while exists("clock.png" , 0.001):
+        DragForward() 
+        PlayDrag()
+        if CheckLost():            #檢查有無輸
+            isFailed = True
+            wait(5)
+            break
+    if not isFailed:    #正常跳出才要去按Finish
+        ClickFinish()
 
 def main():
-    for i in range(100):
-        isFailed = False
-        print i
-        ClickStartFighting()
-        wait("clock.png", 20)
-        while exists("clock.png" , 0.001):
-            DragForward() 
-            wait(1)
-            PlayDrag()
-            if CheckLost():
-                isFailed = True
-                print "lost"
-                wait(5)
-                break
-        if not isFailed:
-            ClickFinish()
+    for i in range(TURN):
+        logging.debug("Turn: %d", i)
+        if PLAYMODE == PlayModeType.LEVELUP or PLAYMODE == PlayModeType.LEVELUP_ALL:
+            PlayLevelUp()
+       
     
 if __name__ == "__main__":
     #ClickFinish()
@@ -223,4 +320,4 @@ if __name__ == "__main__":
 #    Pattern("GuildQuest_4.png").similar(0.90)
 #    Pattern("1526951100616.png").similar(0.90)
 #    Pattern("GuildQuest_no4.png").similar(0.90)
-#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back.png"
+#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png"
