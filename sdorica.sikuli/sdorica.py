@@ -13,6 +13,8 @@ TURN = 1000
 PLAYMODE = PlayModeType.AUTO_LV_UP
 TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
 TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
+FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
+GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
 # ----- global setting -----
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
@@ -37,63 +39,61 @@ class DragCharacterBar:
         Settings.MoveMouseDelay = 0.001
         hover(self.dragLeft)
     
-def SelectFriend():
-    logging.debug("SelectFriend")
+def SelectBrainman():
+    logging.debug("SelectBrainman")
     bar = DragCharacterBar()
-    def _findFriend():
-        bar.ToRightEnd(1)
+    def _findBrainman():
         dragFrom = friendSlotCenter.offset(-510, 240)
         dragTo = friendSlotCenter.offset(-510, 100)
-        hcm = exists("hcm.png", 0.001)
-        apollo = exists("apollo.png", 0.001)
-        roy = exists("roy.png", 0.001)
-        for i in range(2):    
-            Settings.MoveMouseDelay = 0.1
-            drag(dragFrom)
-            Settings.MoveMouseDelay = 0.5
-            if apollo:
-                dropAt(dragTo)
-                click(apollo.getCenter().offset(0, 100))
-                return True
-            elif hcm:
-                dropAt(dragTo)
-                click(hcm.getCenter().offset(0, 100))
-                return True
-            elif roy:
-                dropAt(dragTo)
-                click(roy.getCenter().offset(0, 100))
-                return True
-            elif exists("delan_sp.png", 0.001):
-                dropAt(dragTo)
-                click("delan_sp.png")
-                return True
-            else:
-                dropAt(dragTo)
-            if i == 0:
-                bar.ToLeft()
-        return False
+        Settings.MoveMouseDelay = 0.1
+        drag(dragFrom)
+
+        selectCenter = None
+        trueFriendFound = False
+        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
+        if matches:
+            for match in matches:
+                matchCenter = match.getCenter()
+                if match.getIndex() > len(FRIENDS) - 1:
+                    selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
+                    break
+                else:
+                    reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
+                    if reg.exists("using.png"):
+                        # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
+                        continue
+                    selectCenter = reg.getCenter()
+                    trueFriendFound = True
+                    break
+        dropAt(dragTo)
+        click(selectCenter)
+        return trueFriendFound
         
     friendSlot = exists("SelectFriend.png", 0.001)
     if not friendSlot:
         return
     click(friendSlot)
     friendSlotCenter = friendSlot.getCenter()
-    _findFriend()
+    bar.ToRightEnd(1)
+    if not _findBrainman():  # drag and drop to second half friends
+        bar.ToLeft()
+        _findBrainman()
 
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
     Settings.MoveMouseDelay = 0.1
-    if exists("gotofight.png", 30):
+    start = "gotofight.png" 
+    if exists(start, 30):
         if not exists(Pattern("SelectFriend.png").similar(0.80), 0.001): # 在選關頁面
-            click("gotofight.png")
+            click(start)
             wait(1)
         if PLAYMODE == PlayModeType.AUTO_LV_UP:
             SelectLowLevelCharacter()
-        SelectFriend()
+        SelectBrainman()
         
-        wait("gotofight.png")
-        click("gotofight.png")
+        wait(start)
+        click(start)
         wait(1)
 
 def DragForward():
@@ -117,7 +117,7 @@ def DragForward():
 def ClickFinish():
     logging.debug("ClickFinish")
     start_time = time()
-    Settings.MoveMouseDelay = 0.001
+    Settings.MoveMouseDelay = 0.1
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
@@ -192,7 +192,7 @@ def C10_2_Algo(dotLoc, dotColor):
 
 def CheckLost():
     logging.debug("CheckLost")
-    Settings.MoveMouseDelay = 0.001
+    Settings.MoveMouseDelay = 0.1
     if exists("lost_message.png", 0.001):
         click(Pattern("lost_message.png").targetOffset(0,130))
         logging.debug("lost")
