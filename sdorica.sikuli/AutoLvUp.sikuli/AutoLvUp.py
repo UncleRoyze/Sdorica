@@ -3,7 +3,7 @@
 #自動選擇白位、金位、參謀裡面等級不夠的角色出陣來練等
 #參謀裡面只選黑位, 用諾瓦1帶3鍊等
 class DragCharacterBar:
-    topLeft = exists(Pattern("back_button-3.png").targetOffset(460,0),0.001).getCenter()
+    topLeft = exists(Pattern("back_button-3.png").similar(0.80),0.001).getCenter()
     dragLeft = topLeft.offset(208, 450)
     dragRight = topLeft.offset(877, 450)
 
@@ -43,7 +43,7 @@ def SelectLowLevelCharacter():
     #選擇等級不夠的黑位角色當作參謀   
     def _SelectSupport():
         logging.debug("_SelectSupport")
-        reg = Region(topLeft.x+880, topLeft.y+260, 320, 75)
+        reg = Region(topLeft.x+870, topLeft.y+260, 100, 75)
         if not reg.exists(Pattern("CharaterSelected_support.png").similar(0.80),0.001): #確認現在是否已經有角色當參謀, 並選到該參謀欄
             click(topLeft.offset(800,230))  #沒有選到參謀欄則click
         bar.ToRightEnd(3)
@@ -63,8 +63,9 @@ def SelectLowLevelCharacter():
     #檢查白位的角色是否滿等了需要換隻
     def _CheckWhite():
         logging.debug("_CheckWhite")
-        reg = Region(topLeft.x+40, topLeft.y+65, 210, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 0.001):#白位現在出戰的角色已經滿等, 需要換角
+        reg = Region(topLeft.x+140, topLeft.y+65, 220, 300)
+        if reg.exists(TARGETLEVEL_TITLE, 1):    #白位現在出戰的角色已經滿等, 需要換角
+            logging.debug("full lv")
             if not reg.exists(Pattern("CharaterSelected_white.png").similar(0.80),0.001): #確認是否已經選取白位
                 click(topLeft.offset(200,215))  #沒有選取白位則click, 否則會進入出戰角色的頁面
             return True
@@ -72,8 +73,8 @@ def SelectLowLevelCharacter():
     #檢查金位的角色是否滿等了需要換隻
     def _CheckYellow():
         logging.debug("_CheckYellow")
-        reg = Region(topLeft.x+460, topLeft.y+65, 210, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 0.001):#白位現在出戰的角色已經滿等, 需要換角
+        reg = Region(topLeft.x+560, topLeft.y+65, 220, 300)
+        if reg.exists(TARGETLEVEL_TITLE, 1):    #金位現在出戰的角色已經滿等, 需要換角
             if not reg.exists(Pattern("CharaterSelected_gold.png").similar(0.80),0.001):  #確認是否已經選取金位
                 click(topLeft.offset(610,215))  #沒有選取金位則click, 否則會進入出戰角色的頁面
             return True

@@ -48,9 +48,9 @@ def SelectFriend():
         apollo = exists("apollo.png", 0.001)
         roy = exists("roy.png", 0.001)
         for i in range(2):    
-            Settings.MoveMouseDelay = 0.5
-            drag(dragFrom)
             Settings.MoveMouseDelay = 0.1
+            drag(dragFrom)
+            Settings.MoveMouseDelay = 0.5
             if apollo:
                 dropAt(dragTo)
                 click(apollo.getCenter().offset(0, 100))
@@ -69,7 +69,8 @@ def SelectFriend():
                 return True
             else:
                 dropAt(dragTo)
-            bar.ToLeft()
+            if i == 0:
+                bar.ToLeft()
         return False
         
     friendSlot = exists("SelectFriend.png", 0.001)
@@ -82,9 +83,9 @@ def SelectFriend():
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.1
     if exists("gotofight.png", 30):
-        if not exists("SelectFriend.png", 0.001): # 在選關頁面
+        if not exists(Pattern("SelectFriend.png").similar(0.80), 0.001): # 在選關頁面
             click("gotofight.png")
             wait(1)
         if PLAYMODE == PlayModeType.AUTO_LV_UP:
@@ -116,7 +117,7 @@ def DragForward():
 def ClickFinish():
     logging.debug("ClickFinish")
     start_time = time()
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.001
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
@@ -191,7 +192,7 @@ def C10_2_Algo(dotLoc, dotColor):
 
 def CheckLost():
     logging.debug("CheckLost")
-    Settings.MoveMouseDelay = 0
+    Settings.MoveMouseDelay = 0.001
     if exists("lost_message.png", 0.001):
         click(Pattern("lost_message.png").targetOffset(0,130))
         logging.debug("lost")
@@ -243,7 +244,7 @@ def PlayDrag():
         wait(1)
 
 def WaitIntoStage():
-    wait(Pattern("clock.png").similar(0.90), 20)                #等到看到有時鐘才代表進入關卡
+    exists(Pattern("clock.png").similar(0.90), 20)              #等到看到有時鐘才代表進入關卡
     
 def PlayLevelUp():
     isFailed = False
@@ -274,4 +275,4 @@ if __name__ == "__main__":
 #    Pattern("GuildQuest_4.png").similar(0.90)
 #    Pattern("1526951100616.png").similar(0.90)
 #    Pattern("GuildQuest_no4.png").similar(0.90)
-#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""1527123633402.png""1527129696257.png"
+#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""material_2.png""material_3.png"

@@ -120,9 +120,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         apollo = exists(<img src="apollo.png" />, <span class="dig">0.001</span>)
         roy = exists(<img src="roy.png" />, <span class="dig">0.001</span>)
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
-            Settings.MoveMouseDelay = <span class="dig">0.5</span>
-            drag(dragFrom)
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            drag(dragFrom)
+            Settings.MoveMouseDelay = <span class="dig">0.5</span>
             <span class="kw">if</span> apollo:
                 dropAt(dragTo)
                 <span class="skw">click</span>(apollo.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
@@ -141,7 +141,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="kw">return</span> True
             <span class="kw">else</span>:
                 dropAt(dragTo)
-            bar.ToLeft()
+            <span class="kw">if</span> i == <span class="dig">0</span>:
+                bar.ToLeft()
         <span class="kw">return</span> False
 
     friendSlot = exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>)
@@ -154,9 +155,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> ClickStartFighting():
     logging.debug(<span class="str">"ClickStartFighting"</span>)
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">if</span> exists(<img src="gotofight.png" />, <span class="dig">30</span>):
-        <span class="kw">if</span> <span class="kw">not</span> exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
+        <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
             <span class="skw">click</span>(<img src="gotofight.png" />)
             <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">if</span> PLAYMODE == PlayModeType.AUTO_LV_UP:
@@ -188,7 +189,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">def</span> ClickFinish():
     logging.debug(<span class="str">"ClickFinish"</span>)
     start_time = time()
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.001</span>
     <span class="kw">while</span> True:
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
         <span class="kw">if</span> finish:
@@ -263,7 +264,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> CheckLost():
     logging.debug(<span class="str">"CheckLost"</span>)
-    Settings.MoveMouseDelay = <span class="dig">0</span>
+    Settings.MoveMouseDelay = <span class="dig">0.001</span>
     <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
         <span class="skw">click</span>(Pattern(<img src="lost_message.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">130</span>))
         logging.debug(<span class="str">"lost"</span>)
@@ -315,7 +316,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
 <span class="kw">def</span> WaitIntoStage():
-    <span class="skw">wait</span>(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">20</span>)                <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
+    exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">20</span>)              <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
 
 <span class="kw">def</span> PlayLevelUp():
     isFailed = False
@@ -346,7 +347,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="cmt">#    Pattern("GuildQuest_4.png").similar(0.90)</span>
 <span class="cmt">#    Pattern("1526951100616.png").similar(0.90)</span>
 <span class="cmt">#    Pattern("GuildQuest_no4.png").similar(0.90)</span>
-<span class="cmt">#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""1527123633402.png""1527129696257.png"</span>
+<span class="cmt">#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""material_2.png""material_3.png"</span>
 
 </pre>
 </body>

@@ -75,7 +75,7 @@
 <span class="cmt">#自動選擇白位、金位、參謀裡面等級不夠的角色出陣來練等</span>
 <span class="cmt">#參謀裡面只選黑位, 用諾瓦1帶3鍊等</span>
 <span class="kw">class</span> DragCharacterBar:
-    topLeft = exists(Pattern(<img src="back_button-3.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
+    topLeft = exists(Pattern(<img src="back_button-3.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>).getCenter()
     dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
     dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
 
@@ -115,7 +115,7 @@
     <span class="cmt">#選擇等級不夠的黑位角色當作參謀   </span>
     <span class="kw">def</span> _SelectSupport():
         logging.debug(<span class="str">"_SelectSupport"</span>)
-        reg = Region(topLeft.x+<span class="dig">880</span>, topLeft.y+<span class="dig">260</span>, <span class="dig">320</span>, <span class="dig">75</span>)
+        reg = Region(topLeft.x+<span class="dig">870</span>, topLeft.y+<span class="dig">260</span>, <span class="dig">100</span>, <span class="dig">75</span>)
         <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharaterSelected_support.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#確認現在是否已經有角色當參謀, 並選到該參謀欄</span>
             <span class="skw">click</span>(topLeft.offset(<span class="dig">800</span>,<span class="dig">230</span>))  <span class="cmt">#沒有選到參謀欄則click</span>
         bar.ToRightEnd(<span class="dig">3</span>)
@@ -135,8 +135,9 @@
     <span class="cmt">#檢查白位的角色是否滿等了需要換隻</span>
     <span class="kw">def</span> _CheckWhite():
         logging.debug(<span class="str">"_CheckWhite"</span>)
-        reg = Region(topLeft.x+<span class="dig">40</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">210</span>, <span class="dig">300</span>)
-        <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">0.001</span>):<span class="cmt">#白位現在出戰的角色已經滿等, 需要換角</span>
+        reg = Region(topLeft.x+<span class="dig">140</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">220</span>, <span class="dig">300</span>)
+        <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">1</span>):    <span class="cmt">#白位現在出戰的角色已經滿等, 需要換角</span>
+            logging.debug(<span class="str">"full lv"</span>)
             <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharaterSelected_white.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#確認是否已經選取白位</span>
                 <span class="skw">click</span>(topLeft.offset(<span class="dig">200</span>,<span class="dig">215</span>))  <span class="cmt">#沒有選取白位則click, 否則會進入出戰角色的頁面</span>
             <span class="kw">return</span> True
@@ -144,8 +145,8 @@
     <span class="cmt">#檢查金位的角色是否滿等了需要換隻</span>
     <span class="kw">def</span> _CheckYellow():
         logging.debug(<span class="str">"_CheckYellow"</span>)
-        reg = Region(topLeft.x+<span class="dig">460</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">210</span>, <span class="dig">300</span>)
-        <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">0.001</span>):<span class="cmt">#白位現在出戰的角色已經滿等, 需要換角</span>
+        reg = Region(topLeft.x+<span class="dig">560</span>, topLeft.y+<span class="dig">65</span>, <span class="dig">220</span>, <span class="dig">300</span>)
+        <span class="kw">if</span> reg.exists(TARGETLEVEL_TITLE, <span class="dig">1</span>):    <span class="cmt">#金位現在出戰的角色已經滿等, 需要換角</span>
             <span class="kw">if</span> <span class="kw">not</span> reg.exists(Pattern(<img src="CharaterSelected_gold.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>):  <span class="cmt">#確認是否已經選取金位</span>
                 <span class="skw">click</span>(topLeft.offset(<span class="dig">610</span>,<span class="dig">215</span>))  <span class="cmt">#沒有選取金位則click, 否則會進入出戰角色的頁面</span>
             <span class="kw">return</span> True
