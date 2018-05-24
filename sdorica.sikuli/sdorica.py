@@ -3,167 +3,102 @@ from java.awt import Color
 from java.awt import Robot
 from time import time
 import logging, sys
+import AutoLvUp
 
 class PlayModeType:
-    LEVELUP, LEVELUP_ALL, MATERIAL, QUEST= range(4)
+    ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(4)
 
 # ----- global setting -----
 TURN = 1000
-PLAYMODE = PlayModeType.LEVELUP_ALL
+PLAYMODE = PlayModeType.AUTO_LV_UP
 TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
 TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
-FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
-GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
-
 # ----- global setting -----
-logging.basicConfig(format='%(asctime)s:%(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
-def SelectLowLevelCharacter():
-    logging.debug("SelectLowLevelCharacter")
-    topLeft = exists("back_button.png",0.001).getCenter()
+class DragCharacterBar:
+    topLeft = exists(Pattern("back_button-2.png").targetOffset(460,0),0.001).getCenter()
     dragLeft = topLeft.offset(208, 450)
     dragRight = topLeft.offset(877, 450)
-    dragLeftLeft = topLeft.offset(100, 450)
-    
-    def _ToEndOfCharacterBar():
-        for i in range(3):
+
+    #角色選單拉到最右邊
+    def ToRightEnd(self, dragTimes):       
+        for i in range(dragTimes):
             Settings.MoveMouseDelay = 0.1
             Settings.DelayBeforeDrop = 0
-            dragDrop(dragRight,dragLeft)
+            dragDrop(self.dragRight,self.dragLeft)
             wait(1)
-        
-    def _DragCharacterBar():
+    #角色選單拉往左, 一次拉一整排五位位置都正好換掉
+    def ToLeft(self):
+        Settings.MoveMouseDelay = 0.001
+        drag(self.dragLeft)
         Settings.MoveMouseDelay = 1.5
-        dragDrop(dragLeft,dragRight)
-        Settings.MoveMouseDelay = 0.1
-        hover(dragLeft)
-        
-    def _SelectCharacter():
-        logging.debug("_SelectCharacter")         
-        _ToEndOfCharacterBar()
-        for i in range(2):              #會滑動角色選單兩次
-            for j in range(4,-1,-1):    #檢查選單中的五個角色
-                reg = Region()
-                reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240)
-                if reg.exists("using.png", 0.001):
-                    continue
-                if not reg.exists(TARGETLEVEL_SMALL, 0.001):
-                    reg.click(reg.getCenter())
-                    return True
-                else:
-                    return False
-            _DragCharacterBar()
-        return False
-
-    def _SelectSupport():
-        logging.debug("_SelectSupport")
-        reg = Region()
-        reg.setROI(topLeft.x+630, topLeft.y+260, 325, 75)
-        if not reg.exists(Pattern("CharactSelected.png").similar(0.60),0.001): #確認是否已經選到該位
-            click(topLeft.offset(800,230))
-        _ToEndOfCharacterBar()
-        for i in range(7):              #會滑動角色選單七次
-            for j in range(4,-1,-1):    #檢查選單中的五個角色
-                reg = Region()
-                reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240)
-                if not reg.exists(Pattern("black_icon.png").similar(0.65), 0.001):
-                    continue
-                if not reg.exists(TARGETLEVEL_SMALL, 0.001):
-                    if not reg.exists("using.png", 0.001):
-                        reg.click(reg.getCenter())
-                    return True
-                else:
-                    return False
-            _DragCharacterBar()
+        dropAt(self.dragRight)
+        Settings.MoveMouseDelay = 0.001
+        hover(self.dragLeft)
+    
+def SelectFriend():
+    logging.debug("SelectFriend")
+    bar = DragCharacterBar()
+    def _findFriend():
+        bar.ToRightEnd(1)
+        dragFrom = friendSlotCenter.offset(-510, 240)
+        dragTo = friendSlotCenter.offset(-510, 100)
+        hcm = exists("hcm.png", 0.001)
+        apollo = exists("apollo.png", 0.001)
+        roy = exists("roy.png", 0.001)
+        for i in range(2):    
+            Settings.MoveMouseDelay = 0.5
+            drag(dragFrom)
+            Settings.MoveMouseDelay = 0.1
+            if apollo:
+                dropAt(dragTo)
+                click(apollo.getCenter().offset(0, 100))
+                return True
+            elif hcm:
+                dropAt(dragTo)
+                click(hcm.getCenter().offset(0, 100))
+                return True
+            elif roy:
+                dropAt(dragTo)
+                click(roy.getCenter().offset(0, 100))
+                return True
+            elif exists("delan_sp.png", 0.001):
+                dropAt(dragTo)
+                click("delan_sp.png")
+                return True
+            else:
+                dropAt(dragTo)
+            bar.ToLeft()
         return False
         
-    def _CheckWhite():
-        logging.debug("_CheckWhite")
-        reg = Region()
-        reg.setROI(topLeft.x+40, topLeft.y+65, 350, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 0.001):
-            if not reg.exists(Pattern("CharactSelected.png").similar(0.55),0.001): #確認是否已經選到該位
-                click(topLeft.offset(200,215))
-            return True
-        return False
-
-    def _CheckYellow():
-        logging.debug("_CheckYellow")
-        reg = Region()
-        reg.setROI(topLeft.x+460, topLeft.y+65, 300, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 0.001):
-            if not reg.exists(Pattern("CharactSelected.png").similar(0.55),0.001): #確認是否已經選到該位
-                click(topLeft.offset(610,215))
-            return True
-        return False
-    
-    if _CheckWhite():
-        _SelectCharacter()
-    if _CheckYellow():
-        _SelectCharacter()
-    _SelectSupport()
-    
-def SelectBrainman():
-    logging.debug("SelectBrainman")
-    def _findBrainman():
-        dragFrom = friendSlotCenter.offset(-500, 240)
-        dragTo = friendSlotCenter.offset(-500, 100)
-        Settings.MoveMouseDelay = 0.1
-        drag(dragFrom)
-
-        selectCenter = None
-        trueFriendFound = False
-        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
-        if matches:
-            for match in matches:
-                matchCenter = match.getCenter()
-                if match.getIndex() > len(FRIENDS) - 1:
-                    selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
-                    break
-                else:
-                    reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
-                    if reg.exists("using.png"):
-                        # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
-                        continue
-                    selectCenter = reg.getCenter()
-                    trueFriendFound = True
-                    break
-        dropAt(dragTo)
-        click(selectCenter)
-        return trueFriendFound
-     
     friendSlot = exists("SelectFriend.png", 0.001)
     if not friendSlot:
         return
     click(friendSlot)
     friendSlotCenter = friendSlot.getCenter()
-    
-    if not _findBrainman():  # drag and drop to second half friends
-        dragDrop(friendSlotCenter.offset(-50,240), 
-                 friendSlotCenter.offset(-1000,240))
-        _findBrainman()
+    _findFriend()
 
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
-    Settings.MoveMouseDelay = 0.1
-    start = "gotoFight.png" 
-    if exists(start, 30):
+    Settings.MoveMouseDelay = 0
+    if exists("gotofight.png", 30):
         if not exists("SelectFriend.png", 0.001): # 在選關頁面
-            click(start)
+            click("gotofight.png")
             wait(1)
-            
-        if PLAYMODE == PlayModeType.LEVELUP_ALL:
+        if PLAYMODE == PlayModeType.AUTO_LV_UP:
             SelectLowLevelCharacter()
-        SelectBrainman()
-        wait(start)
-        click(start)
+        SelectFriend()
+        
+        wait("gotofight.png")
+        click("gotofight.png")
         wait(1)
 
 def DragForward():
     logging.debug("DragForward")
     start_time = time()
-    clock = exists("clock.png" , 0.001)
+    clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     if clock:
         dragFrom = clock.getCenter().offset(100,400)           
         Settings.MoveMouseDelay = 0.5
@@ -181,7 +116,7 @@ def DragForward():
 def ClickFinish():
     logging.debug("ClickFinish")
     start_time = time()
-    Settings.MoveMouseDelay = 0.1
+    Settings.MoveMouseDelay = 0
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:
@@ -256,16 +191,16 @@ def C10_2_Algo(dotLoc, dotColor):
 
 def CheckLost():
     logging.debug("CheckLost")
-    Settings.MoveMouseDelay = 0.1
-    if exists(Pattern("ok_button.png").similar(0.90), 0.001):
-        click(Pattern("ok_button.png").similar(0.90))
+    Settings.MoveMouseDelay = 0
+    if exists("lost_message.png", 0.001):
+        click(Pattern("lost_message.png").targetOffset(0,130))
         logging.debug("lost")
         return 1
     return 0
 
 def GetDotBoard():
     logging.debug("GetDotBoard")
-    if exists(Pattern("ok_button.png").similar(0.90), 0.001):
+    if exists("lost_message.png", 0.001):
         return 0, 0, 0
     if not exists(Pattern("soul_normal.png").similar(0.85), 1):
         if not exists(Pattern("soul_dead.png").similar(0.85), 1):
@@ -308,13 +243,13 @@ def PlayDrag():
         wait(1)
 
 def WaitIntoStage():
-    wait("clock.png", 20)                #等到看到有時鐘才代表進入關卡
+    wait(Pattern("clock.png").similar(0.90), 20)                #等到看到有時鐘才代表進入關卡
     
 def PlayLevelUp():
     isFailed = False
     ClickStartFighting()
     WaitIntoStage()
-    while exists("clock.png" , 0.001):
+    while exists(Pattern("clock.png").similar(0.90) , 0.001):
         DragForward() 
         PlayDrag()
         if CheckLost():            #檢查有無輸
@@ -326,15 +261,17 @@ def PlayLevelUp():
 
 def main():
     for i in range(TURN):
-        print "Turn: ", i
-        if PLAYMODE == PlayModeType.LEVELUP or PLAYMODE == PlayModeType.LEVELUP_ALL:
+        logging.debug("Turn: %d", i)
+        if PLAYMODE == PlayModeType.ONE_STAGE or PLAYMODE == PlayModeType.AUTO_LV_UP:
             PlayLevelUp()
        
     
 if __name__ == "__main__":
+    #ClickFinish()
     main()
     
+
 #    Pattern("GuildQuest_4.png").similar(0.90)
 #    Pattern("1526951100616.png").similar(0.90)
 #    Pattern("GuildQuest_no4.png").similar(0.90)
-#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png"
+#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""1527123633402.png""1527129696257.png"
