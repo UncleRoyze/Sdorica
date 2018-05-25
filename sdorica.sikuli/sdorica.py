@@ -9,20 +9,20 @@ class PlayModeType:
     ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(4)
 
 # ----- global setting -----
-TURN = 1000
+TURN = 500
 PLAYMODE = PlayModeType.AUTO_LV_UP
-TARGETLEVEL_TITLE = Pattern("lv54.png").similar(0.80)
-TARGETLEVEL_SMALL = Pattern("TARGETLEVEL_SMALL.png").similar(0.90)
+TARGET_LV = 55
 FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
 GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
 # ----- global setting -----
+
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 class DragCharacterBar:
-    topLeft = exists(Pattern("back_button-2.png").targetOffset(460,0),0.001).getCenter()
+    topLeft = exists(Pattern("back_button.png").targetOffset(460,0),0.001).getCenter()
     dragLeft = topLeft.offset(208, 450)
     dragRight = topLeft.offset(877, 450)
-
+         
     #角色選單拉到最右邊
     def ToRightEnd(self, dragTimes):       
         for i in range(dragTimes):
@@ -180,7 +180,7 @@ def PlayFourDot(color, dotLoc, dotColor):
 
 def SimpleAlgo(dotLoc, dotColor):
     for number in (4, 2, 1):   
-        for color in ("b", "y", "w"):
+        for color in ("b", "w", "y"):
             if PlayDots(color, number, dotLoc, dotColor):
                 return
 

@@ -81,17 +81,17 @@
     ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(<span class="dig">4</span>)
 
 <span class="cmt"># ----- global setting -----</span>
-TURN = <span class="dig">1000</span>
+TURN = <span class="dig">500</span>
 PLAYMODE = PlayModeType.AUTO_LV_UP
-TARGETLEVEL_TITLE = Pattern(<img src="lv54.png" />).similar(<span class="dig">0.80</span>)
-TARGETLEVEL_SMALL = Pattern(<img src="TARGETLEVEL_SMALL.png" />).similar(<span class="dig">0.90</span>)
+TARGET_LV = <span class="dig">55</span>
 FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
 GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
 <span class="cmt"># ----- global setting -----</span>
+
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
 <span class="kw">class</span> DragCharacterBar:
-    topLeft = exists(Pattern(<img src="back_button-2.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
+    topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
     dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
     dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
 
@@ -252,7 +252,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> SimpleAlgo(dotLoc, dotColor):
     <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-        <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"y"</span>, <span class="str">"w"</span>):
+        <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
             <span class="kw">if</span> PlayDots(color, number, dotLoc, dotColor):
                 <span class="kw">return</span>
 

@@ -2,27 +2,14 @@
 
 #自動選擇白位、金位、參謀裡面等級不夠的角色出陣來練等
 #參謀裡面只選黑位, 用諾瓦1帶3鍊等
-class DragCharacterBar:
-    topLeft = exists(Pattern("back_button-3.png").similar(0.80),0.001).getCenter()
-    dragLeft = topLeft.offset(208, 450)
-    dragRight = topLeft.offset(877, 450)
-
-    #角色選單拉到最右邊
-    def ToRightEnd(self, dragTimes):       
-        for i in range(dragTimes):
-            Settings.MoveMouseDelay = 0.001
-            Settings.DelayBeforeDrop = 0
-            dragDrop(self.dragRight,self.dragLeft)
-            wait(1)
-    #角色選單拉往左, 一次拉一整排五位位置都正好換掉
-    def ToLeft(self):
-        Settings.MoveMouseDelay = 1.5
-        dragDrop(self.dragLeft,self.dragRight)
-        Settings.MoveMouseDelay = 0
-        hover(self.dragLeft)
         
 def SelectLowLevelCharacter():
     logging.debug("SelectLowLevelCharacter")
+    TARGET_LV_TITLE = [Pattern] * 61
+    TARGET_LV_SMALL = [Pattern] * 61
+    TARGET_LV_TITLE[55] = Pattern("lv55_title.png").similar(0.85)
+    TARGET_LV_SMALL[55] = Pattern("lv55_small.png").similar(0.90)
+    
     topLeft = exists(Pattern("back_button-2.png").targetOffset(460,0),0.001).getCenter()
     bar = DragCharacterBar()
    
@@ -33,7 +20,7 @@ def SelectLowLevelCharacter():
         for j in range(4,-1,-1):    #檢查選單中的五個角色
             reg = Region()          #只檢查單一角色圖框的範圍
             reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240) #從最右邊開始向左檢查
-            if not reg.exists(TARGETLEVEL_SMALL, 0.001):             #如果等級還沒練滿          
+            if not reg.exists(TARGET_LV_SMALL[TARGET_LV], 0.001):             #如果等級還沒練滿          
                 if not reg.exists("using.png", 0.001):                #如果正在使用就不處理
                     reg.click(reg.getCenter())                       #如果沒在使用則點選該角色出陣
                 return True
@@ -52,7 +39,7 @@ def SelectLowLevelCharacter():
                 reg = Region(topLeft.x+115+j*160, topLeft.y+340, 190, 240)  #從最右邊開始向左檢查
                 if not reg.exists(Pattern("black_icon.png").similar(0.65), 0.001):    #跳過不是黑位的角色
                     continue
-                if not reg.exists(TARGETLEVEL_SMALL, 0.001):  #如果等級還沒練滿 
+                if not reg.exists(TARGET_LV_SMALL[TARGET_LV], 0.001):  #如果等級還沒練滿 
                     if not reg.exists("using.png", 0.001):     #如果正在使用就不處理
                         reg.click(reg.getCenter())            #如果沒在使用則點選該角色出陣
                     return True
@@ -64,7 +51,7 @@ def SelectLowLevelCharacter():
     def _CheckWhite():
         logging.debug("_CheckWhite")
         reg = Region(topLeft.x+140, topLeft.y+65, 220, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 1):    #白位現在出戰的角色已經滿等, 需要換角
+        if reg.exists(TARGET_LV_TITLE[TARGET_LV], 1):    #白位現在出戰的角色已經滿等, 需要換角
             logging.debug("full lv")
             if not reg.exists(Pattern("CharaterSelected_white.png").similar(0.80),0.001): #確認是否已經選取白位
                 click(topLeft.offset(200,215))  #沒有選取白位則click, 否則會進入出戰角色的頁面
@@ -74,7 +61,7 @@ def SelectLowLevelCharacter():
     def _CheckYellow():
         logging.debug("_CheckYellow")
         reg = Region(topLeft.x+560, topLeft.y+65, 220, 300)
-        if reg.exists(TARGETLEVEL_TITLE, 1):    #金位現在出戰的角色已經滿等, 需要換角
+        if reg.exists(TARGET_LV_TITLE[TARGET_LV], 1):    #金位現在出戰的角色已經滿等, 需要換角
             if not reg.exists(Pattern("CharaterSelected_gold.png").similar(0.80),0.001):  #確認是否已經選取金位
                 click(topLeft.offset(610,215))  #沒有選取金位則click, 否則會進入出戰角色的頁面
             return True
