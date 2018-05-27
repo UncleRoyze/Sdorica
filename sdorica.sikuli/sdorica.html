@@ -82,25 +82,28 @@
 
 <span class="cmt"># ----- global setting -----</span>
 TURN = <span class="dig">500</span>
-PLAYMODE = PlayModeType.AUTO_LV_UP
+PLAYMODE = PlayModeType.MATERIAL
 TARGET_LV = <span class="dig">55</span>
 FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
 GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
+MATERIALS = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>)]
 <span class="cmt"># ----- global setting -----</span>
 
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
 <span class="kw">class</span> DragCharacterBar:
-    topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
-    dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
-    dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
+
+    <span class="kw">def</span> __init__(self):
+        topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
+        self.dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+        self.dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
 
     <span class="cmt">#角色選單拉到最右邊</span>
     <span class="kw">def</span> ToRightEnd(self, dragTimes):
         <span class="kw">for</span> i <span class="kw">in</span> range(dragTimes):
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
             Settings.DelayBeforeDrop = <span class="dig">0</span>
-            <span class="skw">dragDrop</span>(self.dragRight,self.dragLeft)
+            <span class="skw">dragDrop</span>(self.dragRight, self.dragLeft)
             <span class="skw">wait</span>(<span class="dig">1</span>)
     <span class="cmt">#角色選單拉往左, 一次拉一整排五位位置都正好換掉</span>
     <span class="kw">def</span> ToLeft(self):
@@ -168,22 +171,54 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
+<span class="kw">def</span> CollectMaterials(dragFrom=None, dragTo=None):
+    logging.debug(<span class="str">"CollectMaterials"</span>)
+    <span class="kw">if</span> PLAYMODE != PlayModeType.MATERIAL:
+        logging.debug(<span class="str">"Not in material collecting mode."</span>)
+        <span class="kw">return</span>
+
+    materials = findAnyList(MATERIALS)
+    <span class="kw">if</span> <span class="kw">not</span> materials:
+        logging.debug(<span class="str">"Materials not found"</span>)
+        <span class="kw">return</span>
+    <span class="kw">for</span> material <span class="kw">in</span> materials:
+        index = material.getIndex()
+        <span class="kw">if</span> dragTo:
+            dropAt(dragTo)
+        logging.debug(<span class="str">"Found a material %d"</span> % index)
+        <span class="kw">if</span> exists(MATERIALS[index], <span class="dig">1</span>):
+            logging.debug(<span class="str">"Trying to collect a material with index %d"</span> % index)
+            <span class="skw">click</span>(MATERIALS[index])
+        <span class="kw">else</span>:
+            logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
+
+        <span class="kw">if</span> dragFrom <span class="kw">and</span> dragTo:
+            drag(dragFrom)
+            hover(dragTo)
+
+
 <span class="kw">def</span> DragForward():
     logging.debug(<span class="str">"DragForward"</span>)
     start_time = time()
     clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
     <span class="kw">if</span> clock:
         dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
+        <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
+            <span class="cmt"># 不能走太快，不然會抓不到素材</span>
+            dragTo = Location(dragFrom.x+<span class="dig">35</span>, dragFrom.y)
+        <span class="kw">else</span>:
+            dragTo = Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y)
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
         drag(dragFrom)
-        hover(Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y))
+        hover(dragTo)
         <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">1</span>):
+            CollectMaterials(dragFrom, dragTo)
             end_time = time()
             time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
             <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
                 <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
         logging.debug(<span class="str">"in to drag soul mode"</span>)
-        dropAt(Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y))
+        dropAt(dragTo)
 
 
 <span class="kw">def</span> ClickFinish():
@@ -318,11 +353,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">def</span> WaitIntoStage():
     exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">20</span>)              <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
 
-<span class="kw">def</span> PlayLevelUp():
+<span class="kw">def</span> Play():
     isFailed = False
     ClickStartFighting()
     WaitIntoStage()
     <span class="kw">while</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>):
+        CollectMaterials()  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
         DragForward()
         PlayDrag()
         <span class="kw">if</span> CheckLost():            <span class="cmt">#檢查有無輸</span>
@@ -335,12 +371,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">def</span> main():
     <span class="kw">for</span> i <span class="kw">in</span> range(TURN):
         logging.debug(<span class="str">"Turn: %d"</span>, i)
-        <span class="kw">if</span> PLAYMODE == PlayModeType.ONE_STAGE <span class="kw">or</span> PLAYMODE == PlayModeType.AUTO_LV_UP:
-            PlayLevelUp()
+        Play()
 
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
-    <span class="cmt">#ClickFinish()</span>
     main()
 
 

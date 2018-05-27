@@ -10,25 +10,28 @@ class PlayModeType:
 
 # ----- global setting -----
 TURN = 500
-PLAYMODE = PlayModeType.AUTO_LV_UP
+PLAYMODE = PlayModeType.MATERIAL
 TARGET_LV = 55
 FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
 GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
+MATERIALS = [Pattern("masquerade_mask_1.png").similar(0.80), Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.80), Pattern("masquerade_mask_4.png").similar(0.80)]
 # ----- global setting -----
 
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 class DragCharacterBar:
-    topLeft = exists(Pattern("back_button.png").targetOffset(460,0),0.001).getCenter()
-    dragLeft = topLeft.offset(208, 450)
-    dragRight = topLeft.offset(877, 450)
+
+    def __init__(self):       
+        topLeft = exists(Pattern("back_button.png").targetOffset(460,0),0.001).getCenter()
+        self.dragLeft = topLeft.offset(208, 450)
+        self.dragRight = topLeft.offset(877, 450)
          
     #角色選單拉到最右邊
     def ToRightEnd(self, dragTimes):       
         for i in range(dragTimes):
             Settings.MoveMouseDelay = 0.1
             Settings.DelayBeforeDrop = 0
-            dragDrop(self.dragRight,self.dragLeft)
+            dragDrop(self.dragRight, self.dragLeft)
             wait(1)
     #角色選單拉往左, 一次拉一整排五位位置都正好換掉
     def ToLeft(self):
@@ -96,22 +99,54 @@ def ClickStartFighting():
         click(start)
         wait(1)
 
+def CollectMaterials(dragFrom=None, dragTo=None): 
+    logging.debug("CollectMaterials")
+    if PLAYMODE != PlayModeType.MATERIAL:
+        logging.debug("Not in material collecting mode.")
+        return
+    
+    materials = findAnyList(MATERIALS)
+    if not materials:
+        logging.debug("Materials not found")
+        return
+    for material in materials:
+        index = material.getIndex()
+        if dragTo:
+            dropAt(dragTo)
+        logging.debug("Found a material %d" % index)
+        if exists(MATERIALS[index], 1):
+            logging.debug("Trying to collect a material with index %d" % index)
+            click(MATERIALS[index])
+        else:
+            logging.warning("Material seems disappear, keep moving...")
+
+        if dragFrom and dragTo:
+            drag(dragFrom)
+            hover(dragTo)
+
+
 def DragForward():
     logging.debug("DragForward")
     start_time = time()
     clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     if clock:
-        dragFrom = clock.getCenter().offset(100,400)           
+        dragFrom = clock.getCenter().offset(100,400)
+        if PLAYMODE == PlayModeType.MATERIAL:
+            # 不能走太快，不然會抓不到素材
+            dragTo = Location(dragFrom.x+35, dragFrom.y)
+        else:
+            dragTo = Location(dragFrom.x+500, dragFrom.y)
         Settings.MoveMouseDelay = 0.5
         drag(dragFrom)
-        hover(Location(dragFrom.x+500, dragFrom.y))
+        hover(dragTo)
         while not exists("board.png", 1):
+            CollectMaterials(dragFrom, dragTo)
             end_time = time()
             time_taken = end_time - start_time # time_taken is in seconds
             if(time_taken >= 30): # not found
                 break            #exit while not exists
         logging.debug("in to drag soul mode")
-        dropAt(Location(dragFrom.x+500, dragFrom.y)) 
+        dropAt(dragTo) 
 
    
 def ClickFinish():
@@ -246,11 +281,12 @@ def PlayDrag():
 def WaitIntoStage():
     exists(Pattern("clock.png").similar(0.90), 20)              #等到看到有時鐘才代表進入關卡
     
-def PlayLevelUp():
+def Play():
     isFailed = False
     ClickStartFighting()
     WaitIntoStage()
     while exists(Pattern("clock.png").similar(0.90) , 0.001):
+        CollectMaterials()  # 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次
         DragForward() 
         PlayDrag()
         if CheckLost():            #檢查有無輸
@@ -263,12 +299,10 @@ def PlayLevelUp():
 def main():
     for i in range(TURN):
         logging.debug("Turn: %d", i)
-        if PLAYMODE == PlayModeType.ONE_STAGE or PLAYMODE == PlayModeType.AUTO_LV_UP:
-            PlayLevelUp()
+        Play()
        
     
 if __name__ == "__main__":
-    #ClickFinish()
     main()
     
 
