@@ -14,10 +14,33 @@ PLAYMODE = PlayModeType.MATERIAL
 TARGET_LV = 55
 FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
 GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
-MATERIALS = [Pattern("masquerade_mask_1.png").similar(0.80), Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.80), Pattern("masquerade_mask_4.png").similar(0.80), Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), Pattern("fruit_4.png").similar(0.80)]
+MATERIALS = [Pattern("masquerade_mask_1.png").similar(0.80), Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.80), Pattern("masquerade_mask_4.png").similar(0.80), Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), Pattern("fruit_4.png").similar(0.80), Pattern("fruit_5.png").similar(0.80)]
 # ----- global setting -----
 
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
+
+
+class MouseDragHandler:
+
+    def __init__(self, dragFrom, dragTo, reverseOperation=False):
+        self.dragFrom = dragFrom
+        self.dragTo = dragTo
+        self.reverseOperation = reverseOperation
+
+    def __enter__(self):
+        if not self.reverseOperation:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+        else:
+            dropAt(self.dragTo)
+
+    def __exit__(self, type, value, traceback):
+        if not self.reverseOperation:
+            dropAt(self.dragTo)
+        else:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+
 
 class DragCharacterBar:
 
@@ -41,7 +64,7 @@ class DragCharacterBar:
         dropAt(self.dragRight)
         Settings.MoveMouseDelay = 0.001
         hover(self.dragLeft)
-    
+
 def SelectBrainman():
     logging.debug("SelectBrainman")
     bar = DragCharacterBar()
@@ -49,26 +72,25 @@ def SelectBrainman():
         dragFrom = friendSlotCenter.offset(-510, 240)
         dragTo = friendSlotCenter.offset(-510, 100)
         Settings.MoveMouseDelay = 0.1
-        drag(dragFrom)
-
+        
         selectCenter = None
-        trueFriendFound = False
-        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
-        if matches:
-            for match in matches:
-                matchCenter = match.getCenter()
-                if match.getIndex() > len(FRIENDS) - 1:
-                    selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
-                    break
-                else:
-                    reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
-                    if reg.exists("using.png"):
-                        # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
-                        continue
-                    selectCenter = reg.getCenter()
-                    trueFriendFound = True
-                    break
-        dropAt(dragTo)
+        trueFriendFound = False         
+        with MouseDragHandler(dragFrom, dragTo):
+            matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
+            if matches:
+                for match in matches:
+                    matchCenter = match.getCenter()
+                    if match.getIndex() > len(FRIENDS) - 1:
+                        selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
+                        break
+                    else:
+                        reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
+                        if reg.exists("using.png"):
+                            # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
+                            continue
+                        selectCenter = reg.getCenter()
+                        trueFriendFound = True
+                        break
         click(selectCenter)
         return trueFriendFound
         
@@ -99,30 +121,28 @@ def ClickStartFighting():
         click(start)
         wait(1)
 
-def CollectMaterials(dragFrom=None, dragTo=None): 
+def CollectMaterials(dragFrom, dragTo): 
     logging.debug("CollectMaterials")
     if PLAYMODE != PlayModeType.MATERIAL:
         logging.debug("Not in material collecting mode.")
         return
     
-    materials = findAnyList(MATERIALS)
-    if not materials:
+    matches = findAnyList(MATERIALS)
+    if not matches:
         logging.debug("Materials not found")
         return
-    for material in materials:
-        index = material.getIndex()
-        if dragTo:
-            dropAt(dragTo)
-        logging.debug("Found a material %d" % index)
-        if exists(MATERIALS[index], 1):
-            logging.debug("Trying to collect a material with index %d" % index)
-            click(MATERIALS[index])
-        else:
-            logging.warning("Material seems disappear, keep moving...")
-
-        if dragFrom and dragTo:
-            drag(dragFrom)
-            hover(dragTo)
+    
+    # Material found! Try to collect it.
+    with MouseDragHandler(dragFrom, dragTo, True):
+        for match in matches:
+            index = match.getIndex()
+            logging.debug("Found a material with index [%d]" % index)
+            material = exists(MATERIALS[index], 1)
+            if material:
+                logging.debug("Trying to collect a material with index [%d]" % index)
+                click(material)
+            else:
+                logging.warning("Material seems disappear, keep moving...")
 
 
 def DragForward():
@@ -137,16 +157,15 @@ def DragForward():
         else:
             dragTo = Location(dragFrom.x+500, dragFrom.y)
         Settings.MoveMouseDelay = 0.5
-        drag(dragFrom)
-        hover(dragTo)
-        while not exists("board.png", 1):
-            CollectMaterials(dragFrom, dragTo)
-            end_time = time()
-            time_taken = end_time - start_time # time_taken is in seconds
-            if(time_taken >= 30): # not found
-                break            #exit while not exists
-        logging.debug("in to drag soul mode")
-        dropAt(dragTo) 
+
+        with MouseDragHandler(dragFrom, dragTo):
+            while not exists("board.png", 1):
+                CollectMaterials(dragFrom, dragTo)
+                end_time = time()
+                time_taken = end_time - start_time # time_taken is in seconds
+                if(time_taken >= 30): # not found
+                    break            #exit while not exists
+            logging.debug("in to drag soul mode")
 
    
 def ClickFinish():
@@ -286,7 +305,7 @@ def Play():
     ClickStartFighting()
     WaitIntoStage()
     while exists(Pattern("clock.png").similar(0.90) , 0.001):
-        CollectMaterials()  # 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次
+        CollectMaterials(dragFrom=None, dragTo=None)  # 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次
         DragForward() 
         PlayDrag()
         if CheckLost():            #檢查有無輸

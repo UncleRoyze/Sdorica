@@ -86,10 +86,33 @@ PLAYMODE = PlayModeType.MATERIAL
 TARGET_LV = <span class="dig">55</span>
 FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
 GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
-MATERIALS = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_4.png" />).similar(<span class="dig">0.80</span>)]
+MATERIALS = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_5.png" />).similar(<span class="dig">0.80</span>)]
 <span class="cmt"># ----- global setting -----</span>
 
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
+
+
+<span class="kw">class</span> MouseDragHandler:
+
+    <span class="kw">def</span> __init__(self, dragFrom, dragTo, reverseOperation=False):
+        self.dragFrom = dragFrom
+        self.dragTo = dragTo
+        self.reverseOperation = reverseOperation
+
+    <span class="kw">def</span> __enter__(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.reverseOperation:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+        <span class="kw">else</span>:
+            dropAt(self.dragTo)
+
+    <span class="kw">def</span> __exit__(self, <span class="skw">type</span>, value, traceback):
+        <span class="kw">if</span> <span class="kw">not</span> self.reverseOperation:
+            dropAt(self.dragTo)
+        <span class="kw">else</span>:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+
 
 <span class="kw">class</span> DragCharacterBar:
 
@@ -121,26 +144,25 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         dragFrom = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">240</span>)
         dragTo = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">100</span>)
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        drag(dragFrom)
 
         selectCenter = None
         trueFriendFound = False
-        matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
-        <span class="kw">if</span> matches:
-            <span class="kw">for</span> match <span class="kw">in</span> matches:
-                matchCenter = match.getCenter()
-                <span class="kw">if</span> match.getIndex() &gt; len(FRIENDS) - <span class="dig">1</span>:
-                    selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
-                    <span class="kw">break</span>
-                <span class="kw">else</span>:
-                    reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y + <span class="dig">20</span>, <span class="dig">140</span>, <span class="dig">200</span>)
-                    <span class="kw">if</span> reg.exists(<img src="using.png" />):
-                        <span class="cmt"># 好友的參謀跟自己隊伍的角色相同，只好不選他了 </span>
-                        <span class="kw">continue</span>
-                    selectCenter = reg.getCenter()
-                    trueFriendFound = True
-                    <span class="kw">break</span>
-        dropAt(dragTo)
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
+            matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
+            <span class="kw">if</span> matches:
+                <span class="kw">for</span> match <span class="kw">in</span> matches:
+                    matchCenter = match.getCenter()
+                    <span class="kw">if</span> match.getIndex() &gt; len(FRIENDS) - <span class="dig">1</span>:
+                        selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
+                        <span class="kw">break</span>
+                    <span class="kw">else</span>:
+                        reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y + <span class="dig">20</span>, <span class="dig">140</span>, <span class="dig">200</span>)
+                        <span class="kw">if</span> reg.exists(<img src="using.png" />):
+                            <span class="cmt"># 好友的參謀跟自己隊伍的角色相同，只好不選他了 </span>
+                            <span class="kw">continue</span>
+                        selectCenter = reg.getCenter()
+                        trueFriendFound = True
+                        <span class="kw">break</span>
         <span class="skw">click</span>(selectCenter)
         <span class="kw">return</span> trueFriendFound
 
@@ -171,30 +193,28 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
-<span class="kw">def</span> CollectMaterials(dragFrom=None, dragTo=None):
+<span class="kw">def</span> CollectMaterials(dragFrom, dragTo):
     logging.debug(<span class="str">"CollectMaterials"</span>)
     <span class="kw">if</span> PLAYMODE != PlayModeType.MATERIAL:
         logging.debug(<span class="str">"Not in material collecting mode."</span>)
         <span class="kw">return</span>
 
-    materials = findAnyList(MATERIALS)
-    <span class="kw">if</span> <span class="kw">not</span> materials:
+    matches = findAnyList(MATERIALS)
+    <span class="kw">if</span> <span class="kw">not</span> matches:
         logging.debug(<span class="str">"Materials not found"</span>)
         <span class="kw">return</span>
-    <span class="kw">for</span> material <span class="kw">in</span> materials:
-        index = material.getIndex()
-        <span class="kw">if</span> dragTo:
-            dropAt(dragTo)
-        logging.debug(<span class="str">"Found a material %d"</span> % index)
-        <span class="kw">if</span> exists(MATERIALS[index], <span class="dig">1</span>):
-            logging.debug(<span class="str">"Trying to collect a material with index %d"</span> % index)
-            <span class="skw">click</span>(MATERIALS[index])
-        <span class="kw">else</span>:
-            logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
 
-        <span class="kw">if</span> dragFrom <span class="kw">and</span> dragTo:
-            drag(dragFrom)
-            hover(dragTo)
+    <span class="cmt"># Material found! Try to collect it.</span>
+    <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
+        <span class="kw">for</span> match <span class="kw">in</span> matches:
+            index = match.getIndex()
+            logging.debug(<span class="str">"Found a material with index [%d]"</span> % index)
+            material = exists(MATERIALS[index], <span class="dig">1</span>)
+            <span class="kw">if</span> material:
+                logging.debug(<span class="str">"Trying to collect a material with index [%d]"</span> % index)
+                <span class="skw">click</span>(material)
+            <span class="kw">else</span>:
+                logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
 
 
 <span class="kw">def</span> DragForward():
@@ -209,16 +229,15 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">else</span>:
             dragTo = Location(dragFrom.x+<span class="dig">500</span>, dragFrom.y)
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
-        drag(dragFrom)
-        hover(dragTo)
-        <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">1</span>):
-            CollectMaterials(dragFrom, dragTo)
-            end_time = time()
-            time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
-            <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
-                <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
-        logging.debug(<span class="str">"in to drag soul mode"</span>)
-        dropAt(dragTo)
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
+            <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">1</span>):
+                CollectMaterials(dragFrom, dragTo)
+                end_time = time()
+                time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+                <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+                    <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+            logging.debug(<span class="str">"in to drag soul mode"</span>)
 
 
 <span class="kw">def</span> ClickFinish():
@@ -358,7 +377,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     ClickStartFighting()
     WaitIntoStage()
     <span class="kw">while</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>):
-        CollectMaterials()  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
+        CollectMaterials(dragFrom=None, dragTo=None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
         DragForward()
         PlayDrag()
         <span class="kw">if</span> CheckLost():            <span class="cmt">#檢查有無輸</span>
