@@ -76,21 +76,31 @@
 <span class="kw">from</span> time <span class="kw">import</span> time
 <span class="kw">import</span> logging, sys
 <span class="kw">import</span> AutoLvUp
+<span class="kw">import</span> ConfigParser
 
 <span class="kw">class</span> PlayModeType:
     ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(<span class="dig">4</span>)
 
 <span class="cmt"># ----- global setting -----</span>
-TURN = <span class="dig">500</span>
-PLAYMODE = PlayModeType.MATERIAL
 TARGET_LV = <span class="dig">55</span>
 FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
 GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
-MATERIALS = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_5.png" />).similar(<span class="dig">0.80</span>)]
+MATERIALS =  []
+<span class="kw">for</span> i <span class="kw">in</span> range (<span class="dig">0</span>, <span class="dig">10</span>):
+    MATERIALS.append([])
+MATERIALS[<span class="dig">5</span>] = [Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), <img src="fruit_4.png" />, Pattern(<img src="1527664800770.png" />).similar(<span class="dig">0.80</span>)]
+MATERIALS[<span class="dig">7</span>] = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>)]
+STAGE_TITLE = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
+
+<span class="cmt"># ----- global variables -----</span>
+
+<span class="cmt"># ----- global variables -----</span>
+TURN = <span class="dig">0</span>
+PLAYMODE = <span class="dig">0</span>
+MATERIAL_STAGE = <span class="dig">0</span>
+MATERIAL_SUB_STAGE = <span class="dig">0</span>
 <span class="cmt"># ----- global setting -----</span>
-
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
-
 
 <span class="kw">class</span> MouseDragHandler:
 
@@ -178,6 +188,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
 <span class="kw">def</span> ClickStartFighting():
+    <span class="kw">global</span> PLAYMODE
     logging.debug(<span class="str">"ClickStartFighting"</span>)
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     start = <img src="gotofight.png" />
@@ -193,23 +204,29 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
-<span class="kw">def</span> CollectMaterials(dragFrom, dragTo):
+<span class="kw">def</span> CollectMaterials(clock, dragFrom, dragTo):
+    <span class="kw">global</span> PLAYMODE
+    <span class="kw">global</span> MATERIAL_STAGE
     logging.debug(<span class="str">"CollectMaterials"</span>)
     <span class="kw">if</span> PLAYMODE != PlayModeType.MATERIAL:
         logging.debug(<span class="str">"Not in material collecting mode."</span>)
         <span class="kw">return</span>
-
-    matches = findAnyList(MATERIALS)
+    region = Region(clock.x, clock.y-<span class="dig">47</span>, <span class="dig">1000</span>, <span class="dig">673</span>)
+    matches = region.findAnyList(MATERIALS[MATERIAL_STAGE])
     <span class="kw">if</span> <span class="kw">not</span> matches:
         logging.debug(<span class="str">"Materials not found"</span>)
         <span class="kw">return</span>
 
     <span class="cmt"># Material found! Try to collect it.</span>
+    <span class="cmt"># Go back</span>
+    dragBack = Location(dragFrom.x-<span class="dig">20</span>, dragFrom.y)
+    hover(dragBack)
+    <span class="skw">wait</span>(<span class="dig">0.4</span>)
     <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
         <span class="kw">for</span> match <span class="kw">in</span> matches:
             index = match.getIndex()
             logging.debug(<span class="str">"Found a material with index [%d]"</span> % index)
-            material = exists(MATERIALS[index], <span class="dig">1</span>)
+            material = exists(MATERIALS[MATERIAL_STAGE][index], <span class="dig">0.001</span>)
             <span class="kw">if</span> material:
                 logging.debug(<span class="str">"Trying to collect a material with index [%d]"</span> % index)
                 <span class="skw">click</span>(material)
@@ -218,6 +235,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
 <span class="kw">def</span> DragForward():
+    <span class="kw">global</span> PLAYMODE
     logging.debug(<span class="str">"DragForward"</span>)
     start_time = time()
     clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
@@ -231,12 +249,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
-            <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">1</span>):
-                CollectMaterials(dragFrom, dragTo)
+            <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">0.001</span>):
+                CollectMaterials(clock, dragFrom, dragTo)
                 end_time = time()
                 time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
                 <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
                     <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+
             logging.debug(<span class="str">"in to drag soul mode"</span>)
 
 
@@ -376,18 +395,84 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     isFailed = False
     ClickStartFighting()
     WaitIntoStage()
-    <span class="kw">while</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>):
-        CollectMaterials(dragFrom=None, dragTo=None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
+    clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+    <span class="kw">while</span> clock:
+        CollectMaterials(clock, dragFrom=None, dragTo=None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
         DragForward()
         PlayDrag()
         <span class="kw">if</span> CheckLost():            <span class="cmt">#檢查有無輸</span>
             isFailed = True
             <span class="skw">wait</span>(<span class="dig">5</span>)
             <span class="kw">break</span>
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
     <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
         ClickFinish()
 
+<span class="kw">def</span> StartAsking():
+    <span class="kw">global</span> TURN
+    <span class="kw">global</span> PLAYMODE
+    <span class="kw">global</span> MATERIAL_STAGE
+    <span class="kw">global</span> MATERIAL_SUB_STAGE
+    <span class="cmt"># get the directory containing your running .sikuli</span>
+    iniPath = os.path.dirname(getBundlePath())
+    <span class="kw">if</span> <span class="kw">not</span> iniPath <span class="kw">in</span> sys.path: sys.path.append(iniPath)
+    iniPath = iniPath + <span class="str">"\\sdorica.sikuli\\config.ini"</span>
+    <span class="cmt">#read ini</span>
+    config = ConfigParser.ConfigParser()
+    config.optionxform = str
+    config.read(iniPath)
+    ini_mode = config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)
+    PLAYMODE = int(<span class="skw">input</span>(<span class="str">"Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest"</span>, ini_mode)) - <span class="dig">1</span>
+    <span class="kw">if</span> PLAYMODE &lt; <span class="dig">0</span>:
+        exit
+    ini_turn = config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>)
+    TURN = int(<span class="skw">input</span>(<span class="str">"How may turns?"</span>, ini_turn))
+    <span class="kw">if</span> TURN &lt; <span class="dig">0</span>:
+        exit
+    <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
+        ini_stage = config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
+        ini_sub_stage = config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
+        MATERIAL_STAGE = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
+        MATERIAL_SUB_STAGE = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
+        config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(MATERIAL_STAGE))
+        config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(MATERIAL_SUB_STAGE))
+    <span class="cmt">#write ini</span>
+    config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(PLAYMODE+<span class="dig">1</span>))
+    config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(TURN))
+    config.write(open(iniPath, <span class="str">'wb'</span>))
+
+<span class="kw">def</span> EnterStage():
+    <span class="kw">global</span> PLAYMODE
+    <span class="kw">global</span> MATERIAL_STAGE
+    <span class="kw">global</span> MATERIAL_SUB_STAGE
+    <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
+        region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> region_menu_btn:
+            <span class="skw">click</span>(region_menu_btn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        region_menu_btn_selected = exists(Pattern(<img src="menubtn_region_selected.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>)
+        <span class="kw">if</span> region_menu_btn_selected:
+            <span class="skw">click</span>(region_menu_btn_selected.getCenter().offset(-<span class="dig">300</span>,-<span class="dig">300</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        region_title = exists(Pattern(<img src="stage_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
+        <span class="kw">if</span> region_title:
+            <span class="kw">while</span> <span class="kw">not</span> exists(STAGE_TITLE[MATERIAL_STAGE-<span class="dig">1</span>],<span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
+                <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">640</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">2</span>
+            <span class="kw">for</span> i <span class="kw">in</span> range(MATERIAL_SUB_STAGE-<span class="dig">1</span>):
+                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">240</span>))
+
 <span class="kw">def</span> main():
+    <span class="kw">global</span> TURN
+    StartAsking()
+    EnterStage()
     <span class="kw">for</span> i <span class="kw">in</span> range(TURN):
         logging.debug(<span class="str">"Turn: %d"</span>, i)
         Play()
