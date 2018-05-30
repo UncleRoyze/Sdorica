@@ -211,7 +211,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">if</span> PLAYMODE != PlayModeType.MATERIAL:
         logging.debug(<span class="str">"Not in material collecting mode."</span>)
         <span class="kw">return</span>
-    region = Region(clock.x, clock.y-<span class="dig">47</span>, <span class="dig">1000</span>, <span class="dig">673</span>)
+    region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
     matches = region.findAnyList(MATERIALS[MATERIAL_STAGE])
     <span class="kw">if</span> <span class="kw">not</span> matches:
         logging.debug(<span class="str">"Materials not found"</span>)

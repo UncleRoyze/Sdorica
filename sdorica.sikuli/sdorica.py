@@ -139,7 +139,7 @@ def CollectMaterials(clock, dragFrom, dragTo):
     if PLAYMODE != PlayModeType.MATERIAL:
         logging.debug("Not in material collecting mode.")
         return
-    region = Region(clock.x, clock.y-47, 1000, 673)
+    region = Region(clock.x-130, clock.y-47, 1280, 720)
     matches = region.findAnyList(MATERIALS[MATERIAL_STAGE])
     if not matches:
         logging.debug("Materials not found")
