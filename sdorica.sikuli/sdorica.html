@@ -88,6 +88,7 @@ GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img 
 MATERIALS =  []
 <span class="kw">for</span> i <span class="kw">in</span> range (<span class="dig">0</span>, <span class="dig">10</span>):
     MATERIALS.append([])
+MATERIALS[<span class="dig">1</span>] = [Pattern(<img src="stone_2.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="stone_1.png" />).similar(<span class="dig">0.80</span>)]
 MATERIALS[<span class="dig">5</span>] = [Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), <img src="fruit_4.png" />, Pattern(<img src="1527664800770.png" />).similar(<span class="dig">0.80</span>)]
 MATERIALS[<span class="dig">7</span>] = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>)]
 STAGE_TITLE = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
@@ -219,9 +220,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="cmt"># Material found! Try to collect it.</span>
     <span class="cmt"># Go back</span>
-    dragBack = Location(dragFrom.x-<span class="dig">20</span>, dragFrom.y)
-    hover(dragBack)
-    <span class="skw">wait</span>(<span class="dig">0.4</span>)
+    <span class="kw">if</span> dragFrom &lt;&gt; None:
+        dragBack = Location(dragFrom.x-<span class="dig">20</span>, dragFrom.y)
+        hover(dragBack)
+        <span class="skw">wait</span>(<span class="dig">0.35</span>)
     <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
         <span class="kw">for</span> match <span class="kw">in</span> matches:
             index = match.getIndex()
