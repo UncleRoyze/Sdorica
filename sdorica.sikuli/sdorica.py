@@ -10,7 +10,7 @@ class PlayModeType:
     ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(4)
 
 # ----- global setting -----
-TARGET_LV = 55
+TARGET_LV = 57
 FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
 GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
 MATERIALS =  []
@@ -200,9 +200,12 @@ def ClickFinish():
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
             break
+        network_lost = exists("network_lost.png",0.001)
+        if network_lost:
+            click(network_lost.offset(0,140))
         end_time = time()
         time_taken = end_time - start_time # time_taken is in seconds
-        if(time_taken >= 30): # not found
+        if(time_taken >= 60): # not found
             break
 
 def PlayDots(color, number, dotLoc, dotColor):
@@ -320,7 +323,12 @@ def PlayDrag():
         wait(1)
 
 def WaitIntoStage():
-    exists(Pattern("clock.png").similar(0.90), 20)              #等到看到有時鐘才代表進入關卡
+    start_time = time()
+    while not exists(Pattern("clock.png").similar(0.90), 0.001):              #等到看到有時鐘才代表進入關卡
+        if exists("ok_btn_1.png", 0.001):
+                click("ok_btn_1.png")
+        if(start_time - time()  >= 30): # not found
+            break            #exit while not exists
     
 def Play():
     isFailed = False
@@ -335,6 +343,9 @@ def Play():
             isFailed = True
             wait(5)
             break
+        ok = exists("ok_btn_1.png", 0.001)
+        if ok:
+            click(ok)
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     if not isFailed:    #正常跳出才要去按Finish
         ClickFinish()

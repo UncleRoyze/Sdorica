@@ -82,7 +82,7 @@
     ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(<span class="dig">4</span>)
 
 <span class="cmt"># ----- global setting -----</span>
-TARGET_LV = <span class="dig">55</span>
+TARGET_LV = <span class="dig">57</span>
 FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
 GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
 MATERIALS =  []
@@ -272,9 +272,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">wait</span>(<span class="dig">2</span>)
             <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
             <span class="kw">break</span>
+        network_lost = exists(<img src="network_lost.png" />,<span class="dig">0.001</span>)
+        <span class="kw">if</span> network_lost:
+            <span class="skw">click</span>(network_lost.offset(<span class="dig">0</span>,<span class="dig">140</span>))
         end_time = time()
         time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
-        <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+        <span class="kw">if</span>(time_taken &gt;= <span class="dig">60</span>): <span class="cmt"># not found</span>
             <span class="kw">break</span>
 
 <span class="kw">def</span> PlayDots(color, number, dotLoc, dotColor):
@@ -392,7 +395,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
 <span class="kw">def</span> WaitIntoStage():
-    exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">20</span>)              <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
+    start_time = time()
+    <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):              <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
+        <span class="kw">if</span> exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>):
+                <span class="skw">click</span>(<img src="ok_btn_1.png" />)
+        <span class="kw">if</span>(start_time - time()  &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+            <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
 
 <span class="kw">def</span> Play():
     isFailed = False
@@ -407,6 +415,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             isFailed = True
             <span class="skw">wait</span>(<span class="dig">5</span>)
             <span class="kw">break</span>
+        ok = exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>)
+        <span class="kw">if</span> ok:
+            <span class="skw">click</span>(ok)
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
     <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
         ClickFinish()

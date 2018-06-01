@@ -8,8 +8,10 @@ def SelectLowLevelCharacter():
     TARGET_LV_TITLE = [Pattern] * 61
     TARGET_LV_SMALL = [Pattern] * 61
     TARGET_LV_TITLE[55] = Pattern("lv55_title.png").similar(0.85)
+    TARGET_LV_TITLE[57] = Pattern("lv57_title.png").similar(0.90)
     TARGET_LV_TITLE[58] = Pattern("lv58_title.png").similar(0.85)
     TARGET_LV_SMALL[55] = Pattern("lv55_small.png").similar(0.90)
+    TARGET_LV_SMALL[57] = Pattern("lv57_small.png").similar(0.90)
     TARGET_LV_SMALL[58] = Pattern("lv58_small.png").similar(0.90)
     topLeft = exists(Pattern("back_button-2.png").targetOffset(460,0),0.001).getCenter()
     bar = DragCharacterBar()
