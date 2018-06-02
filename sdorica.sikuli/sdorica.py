@@ -17,6 +17,7 @@ MATERIALS =  []
 for i in range (0, 10):                              
     MATERIALS.append([])              
 MATERIALS[1] = [Pattern("stone_2.png").similar(0.80),Pattern("stone_1.png").similar(0.80)]
+MATERIALS[4] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80)]
 MATERIALS[5] = [Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), "fruit_4.png", Pattern("1527664800770.png").similar(0.80)]
 MATERIALS[7] = [ Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.85),Pattern("masquerade_mask_5.png").similar(0.80),Pattern("masquerade_mask_4.png").similar(0.85)] #Pattern("masquerade_mask_1.png").similar(0.80)
 STAGE_TITLE = [Pattern("stage_title_r1.png").similar(0.90),Pattern("stage_title_r2.png").similar(0.90),Pattern("stage_title_r3.png").similar(0.90),Pattern("stage_title_r4.png").similar(0.90),Pattern("stage_title_r5.png").similar(0.90),Pattern("stage_title_r6.png").similar(0.90),Pattern("stage_title_r7.png").similar(0.90)]
