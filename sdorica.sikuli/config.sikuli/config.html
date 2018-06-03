@@ -1,0 +1,133 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>config.sikuli</h2> <a href="config.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="cmt"># -*- coding: UTF-8 -*-</span>
+<span class="kw">from</span> sikuli <span class="kw">import</span> *
+<span class="kw">import</span> ConfigParser
+<span class="kw">import</span> os
+
+<span class="kw">class</span> Singleton(object):
+    _instance = None
+    <span class="kw">def</span> __new__(class_, *args, **kwargs):
+        <span class="kw">if</span> <span class="kw">not</span> isinstance(class_._instance, class_):
+            class_._instance = object.__new__(class_, *args, **kwargs)
+        <span class="kw">return</span> class_._instance
+
+
+<span class="kw">class</span> Configuration(Singleton):
+
+    <span class="kw">def</span> __init__(self):
+        self._readConfig()
+        self._initGlobalConfig()
+
+    <span class="kw">def</span> _readConfig(self):
+        self.config = ConfigParser.ConfigParser()
+        <span class="cmt"># get the directory containing your running .sikuli</span>
+        self.ini_path = os.path.dirname(getBundlePath())
+        <span class="cmt">#if self.iniPath not in sys.path: </span>
+        <span class="cmt">#    sys.path.append(self.iniPath)</span>
+        self.ini_path = os.path.join(self.ini_path, <span class="str">"sdorica.sikuli"</span>, <span class="str">"config.ini"</span>)
+        <span class="cmt">#read ini</span>
+        self.config.optionxform = str
+        self.config.read(self.ini_path)
+
+    <span class="kw">def</span> _initGlobalConfig(self):
+        self.target_lv = <span class="dig">57</span>
+        self.friends = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
+        self.brainmen = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
+        self.materials = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="dig">10</span>)]
+        self.materials[<span class="dig">1</span>] = [Pattern(<img src="stone_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="stone_2.png" />).similar(<span class="dig">0.80</span>)]
+        self.materials[<span class="dig">4</span>] = [Pattern(<img src="tripod_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_5.png" />).similar(<span class="dig">0.80</span>)]
+        self.materials[<span class="dig">5</span>] = [Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_5.png" />).similar(<span class="dig">0.80</span>)]
+        self.materials[<span class="dig">7</span>] = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_5.png" />).similar(<span class="dig">0.80</span>)]
+        self.material_stage_title = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
+
+    <span class="kw">def</span> writeConfig(self):
+        self.config.write(open(self.ini_path, <span class="str">'wb'</span>))
+
+    <span class="kw">def</span> getTurns(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>))
+
+    <span class="kw">def</span> getPlayMode(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)) - <span class="dig">1</span>
+
+    <span class="kw">def</span> getMaterialStage(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>))
+
+    <span class="kw">def</span> getMaterialSubStage(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>))
+
+    <span class="kw">def</span> getAlgo(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>))
+</pre>
+</body>
+</html>

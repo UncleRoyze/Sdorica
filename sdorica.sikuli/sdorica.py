@@ -4,33 +4,19 @@ from java.awt import Robot
 from time import time
 import logging, sys
 import AutoLvUp
-import ConfigParser
+reload(AutoLvUp)
+import config
+reload(config)
+import PlayAlgo
+reload(PlayAlgo)
+
+configObj = config.Configuration()
+logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
+
 
 class PlayModeType:
-    ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(4)
+    ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST = range(4)
 
-# ----- global setting -----
-TARGET_LV = 57
-FRIENDS = ["apollo.png", "roy.png", "hcm.png"]
-GOOD_BRAINMAN = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
-MATERIALS =  []
-for i in range (0, 10):                              
-    MATERIALS.append([])              
-MATERIALS[1] = [Pattern("stone_2.png").similar(0.80),Pattern("stone_1.png").similar(0.80)]
-MATERIALS[4] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80)]
-MATERIALS[5] = [Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), "fruit_4.png", Pattern("1527664800770.png").similar(0.80)]
-MATERIALS[7] = [ Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.85),Pattern("masquerade_mask_5.png").similar(0.80),Pattern("masquerade_mask_4.png").similar(0.85)] #Pattern("masquerade_mask_1.png").similar(0.80)
-STAGE_TITLE = [Pattern("stage_title_r1.png").similar(0.90),Pattern("stage_title_r2.png").similar(0.90),Pattern("stage_title_r3.png").similar(0.90),Pattern("stage_title_r4.png").similar(0.90),Pattern("stage_title_r5.png").similar(0.90),Pattern("stage_title_r6.png").similar(0.90),Pattern("stage_title_r7.png").similar(0.90)]
-
-# ----- global variables -----
-
-# ----- global variables -----
-TURN = 0
-PLAYMODE = 0
-MATERIAL_STAGE = 0
-MATERIAL_SUB_STAGE = 0
-# ----- global setting -----
-logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 class MouseDragHandler:
 
@@ -77,6 +63,7 @@ class DragCharacterBar:
         Settings.MoveMouseDelay = 0.001
         hover(self.dragLeft)
 
+
 def SelectBrainman():
     logging.debug("SelectBrainman")
     bar = DragCharacterBar()
@@ -86,13 +73,13 @@ def SelectBrainman():
         Settings.MoveMouseDelay = 0.1
         
         selectCenter = None
-        trueFriendFound = False         
+        trueFriendFound = False
         with MouseDragHandler(dragFrom, dragTo):
-            matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
+            matches = findAnyList(configObj.friends + configObj.brainmen)
             if matches:
                 for match in matches:
                     matchCenter = match.getCenter()
-                    if match.getIndex() > len(FRIENDS) - 1:
+                    if match.getIndex() > len(configObj.friends) - 1:
                         selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
                         break
                     else:
@@ -118,7 +105,6 @@ def SelectBrainman():
 
 
 def ClickStartFighting():
-    global PLAYMODE
     logging.debug("ClickStartFighting")
     Settings.MoveMouseDelay = 0.1
     start = "gotofight.png" 
@@ -126,23 +112,24 @@ def ClickStartFighting():
         if not exists(Pattern("SelectFriend.png").similar(0.80), 0.001): # 在選關頁面
             click(start)
             wait(1)
-        if PLAYMODE == PlayModeType.AUTO_LV_UP:
-            SelectLowLevelCharacter()
+        if configObj.getPlayMode() == PlayModeType.AUTO_LV_UP:
+            SelectLowLevelCharacter(configObj.target_lv)
         SelectBrainman()
         
         wait(start)
         click(start)
         wait(1)
 
-def CollectMaterials(clock, dragFrom, dragTo): 
-    global PLAYMODE
-    global MATERIAL_STAGE
+
+def CollectMaterials(clock, dragFrom, dragTo):
     logging.debug("CollectMaterials")
-    if PLAYMODE != PlayModeType.MATERIAL:
+    if configObj.getPlayMode() != PlayModeType.MATERIAL:
         logging.debug("Not in material collecting mode.")
         return
+
     region = Region(clock.x-130, clock.y-47, 1280, 720)
-    matches = region.findAnyList(MATERIALS[MATERIAL_STAGE])
+    material_stage = configObj.getMaterialStage()
+    matches = region.findAnyList(configObj.materials[material_stage])
     if not matches:
         logging.debug("Materials not found")
         return
@@ -150,15 +137,16 @@ def CollectMaterials(clock, dragFrom, dragTo):
     # Material found! Try to collect it.
     # Go back
     logging.debug("Material found!")
-    if dragFrom <> None:
+    if dragFrom is not None:
         dragBack = Location(dragFrom.x-20, dragFrom.y)
         hover(dragBack)
         wait(0.35)
+
     with MouseDragHandler(dragFrom, dragTo, True):
         for match in matches:
             index = match.getIndex()
             logging.debug("Found a material with index [%d]" % index)
-            material = exists(MATERIALS[MATERIAL_STAGE][index], 0.001)
+            material = exists(configObj.materials[material_stage][index], 0.001)
             if material:
                 logging.debug("Trying to collect a material with index [%d]" % index)
                 click(material)
@@ -167,13 +155,12 @@ def CollectMaterials(clock, dragFrom, dragTo):
 
 
 def DragForward():
-    global PLAYMODE
     logging.debug("DragForward")
     start_time = time()
     clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     if clock:
         dragFrom = clock.getCenter().offset(100,400)
-        if PLAYMODE == PlayModeType.MATERIAL:
+        if configObj.getPlayMode() == PlayModeType.MATERIAL:
             # 不能走太快，不然會抓不到素材
             dragTo = Location(dragFrom.x+35, dragFrom.y)
         else:
@@ -209,66 +196,6 @@ def ClickFinish():
         if(time_taken >= 60): # not found
             break
 
-def PlayDots(color, number, dotLoc, dotColor):
-    if number == 1:
-        return PlayOneDot(color, dotLoc, dotColor)
-    elif number == 2:
-        return PlayTwoDot(color, dotLoc, dotColor)
-    elif number == 4:
-        return PlayFourDot(color, dotLoc, dotColor)
-    else:
-        return False
-
-def PlayOneDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = 0.1
-    for i in range(0, 7):
-        if dotColor[i] == color:
-            click(dotLoc[i])
-            return 1
-        elif dotColor[i+7] == color:
-            click(dotLoc[i+7])
-            return 1
-    return 0
-
-def PlayTwoDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = 0.5
-    for i in range(0, 7): #verical
-        if dotColor[i] == color and dotColor[i+7] == color :
-            dragDrop(dotLoc[i], dotLoc[i+7])
-            #print "%s, 2" % color
-            return 1
-    for i in range(0, 6): #horizontal
-        if dotColor[i] == color and dotColor[i+1] == color:
-            dragDrop(dotLoc[i], dotLoc[i+1])
-            #print "%s, 2" % color
-            return 1
-        if dotColor[i+7] == color and dotColor[i+8] == color:
-            dragDrop(dotLoc[i], dotLoc[i+1])
-            #print "%s, 2" % color
-            return 1
-    return 0
-
-def PlayFourDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = 0.5
-    for i in range(0, 6): #verical
-        if dotColor[i] == color and dotColor[i+1] == color and dotColor[i+7] == color and dotColor[i+8] == color:
-            dragDrop(dotLoc[i], dotLoc[i+8])
-            #print "%s, 4" % color
-            return 1
-    return 0
-
-
-def SimpleAlgo(dotLoc, dotColor):
-    for number in (4, 2, 1):   
-        for color in ("b", "w", "y"):
-            if PlayDots(color, number, dotLoc, dotColor):
-                return
-
-def C10_2_Algo(dotLoc, dotColor):
-    logging.debug("C10_2_Algo")
-    if PlayDots("b", 1, dotLoc, dotColor):
-        return
-    SimpleAlgo(dotLoc, dotColor)
 
 def CheckLost():
     logging.debug("CheckLost")
@@ -278,6 +205,7 @@ def CheckLost():
         logging.debug("lost")
         return 1
     return 0
+
 
 def GetDotBoard():
     logging.debug("GetDotBoard")
@@ -311,6 +239,7 @@ def GetDotBoard():
         #print dotColor[i]
     return 1, dotLoc, dotColor
         
+
 def PlayDrag():
     logging.debug("PlayDrag")
     if not exists("clock.png" , 0.001):
@@ -319,9 +248,12 @@ def PlayDrag():
         isFound, dotLoc, dotColor = GetDotBoard()
         if not isFound:
             break
-        C10_2_Algo(dotLoc, dotColor)
+        playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(), dotLoc, dotColor)
+        playAlgo.Play()
+        #C10_2_Algo(dotLoc, dotColor)
         #SimpleAlgo(dotLoc, dotColor)
         wait(1)
+
 
 def WaitIntoStage():
     start_time = time()
@@ -331,6 +263,7 @@ def WaitIntoStage():
         if(start_time - time()  >= 30): # not found
             break            #exit while not exists
     
+
 def Play():
     isFailed = False
     ClickStartFighting()
@@ -351,72 +284,71 @@ def Play():
     if not isFailed:    #正常跳出才要去按Finish
         ClickFinish()
 
-def StartAsking():
-    global TURN
-    global PLAYMODE
-    global MATERIAL_STAGE
-    global MATERIAL_SUB_STAGE
-    # get the directory containing your running .sikuli
-    iniPath = os.path.dirname(getBundlePath())
-    if not iniPath in sys.path: sys.path.append(iniPath)
-    iniPath = iniPath + "\\sdorica.sikuli\\config.ini"
-    #read ini
-    config = ConfigParser.ConfigParser()
-    config.optionxform = str
-    config.read(iniPath)
-    ini_mode = config.get("setting", "mode")
-    PLAYMODE = int(input("Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest", ini_mode)) - 1
-    if PLAYMODE < 0: 
-        exit
-    ini_turn = config.get("setting", "turn")
-    TURN = int(input("How may turns?", ini_turn))
-    if TURN < 0:
-        exit
-    if PLAYMODE == PlayModeType.MATERIAL:
-        ini_stage = config.get("material", "stage")
-        ini_sub_stage = config.get("material", "sub_stage")
-        MATERIAL_STAGE = int(input("Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll", ini_stage))
-        MATERIAL_SUB_STAGE = int(input("Please enter sub stage:", ini_sub_stage))
-        config.set("material", "stage", str(MATERIAL_STAGE))
-        config.set("material", "sub_stage", str(MATERIAL_SUB_STAGE))
-    #write ini
-    config.set("setting", "mode", str(PLAYMODE+1))
-    config.set("setting", "turn", str(TURN))
-    config.write(open(iniPath, 'wb'))
 
-def EnterStage():
-    global PLAYMODE
-    global MATERIAL_STAGE
-    global MATERIAL_SUB_STAGE
-    if PLAYMODE == PlayModeType.MATERIAL:
-        region_menu_btn = exists(Pattern("menubtn_region.png").similar(0.80), 0.001)
-        if region_menu_btn:
-            click(region_menu_btn)
+def StartAsking():
+    ini_mode = configObj.config.get("setting", "mode")
+    playmode = int(input("Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest", ini_mode)) - 1
+    if playmode < 0:
+        exit
+    configObj.config.set("setting", "mode", str(playmode + 1))
+    
+    ini_turn = configObj.config.get("setting", "turn")
+    turn = int(input("How may turns?", ini_turn))
+    if turn < 0:
+        exit
+    configObj.config.set("setting", "turn", str(turn))
+
+    ini_algo = configObj.config.get("setting", "algo")
+    algorithm = int(input("Please select algorithm:\n%s" % AlgoFactory.GenAlgoInfo(), ini_algo))
+    configObj.config.set("setting", "algo", str(algorithm))
+    
+    if playmode == PlayModeType.MATERIAL:
+        ini_stage = configObj.config.get("material", "stage")
+        ini_sub_stage = configObj.config.get("material", "sub_stage")
+        material_stage = int(input("Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll", ini_stage))
+        material_sub_stage = int(input("Please enter sub stage:", ini_sub_stage))
+        configObj.config.set("material", "stage", str(material_stage))
+        configObj.config.set("material", "sub_stage", str(material_sub_stage))
+    elif playmode == PlayModeType.AUTO_LV_UP:
+        ini_target_lv = configObj.config.get("setting", "target_lv")
+        target_lv = int(input("Please enter your targeted level:", ini_target_lv))
+        configObj.config.set("setting", "target_lv", str(target_lv))
+
+    #write ini
+    configObj.writeConfig()
+
+
+def SelectMaterialStage():
+    if configObj.getPlayMode() != PlayModeType.MATERIAL:
+        return    
+    region_menu_btn = exists(Pattern("menubtn_region.png").similar(0.80), 0.001)
+    if region_menu_btn:
+        click(region_menu_btn)
+        wait(1)
+    region_menu_btn_selected = exists(Pattern("menubtn_region_selected.png").similar(0.80), 0.001)
+    if region_menu_btn_selected:
+        click(region_menu_btn_selected.getCenter().offset(-300, -300))
+        wait(1)
+    region_title = exists(Pattern("stage_title.png").similar(0.80), 1)
+    if region_title:
+        while not exists(configObj.material_stage_title[configObj.getMaterialStage() - 1], 0.001):
+            click(Pattern("next_arrow.png").similar(0.85))
             wait(1)
-        region_menu_btn_selected = exists(Pattern("menubtn_region_selected.png").similar(0.80),0.001)
-        if region_menu_btn_selected:
-            click(region_menu_btn_selected.getCenter().offset(-300,-300))
-            wait(1)
-        region_title = exists(Pattern("stage_title.png").similar(0.80), 1)
-        if region_title:
-            while not exists(STAGE_TITLE[MATERIAL_STAGE-1],0.001):
-                click(Pattern("next_arrow.png").similar(0.85))
-                wait(1)
-            for i in range(3):
-                Settings.MoveMouseDelay = 0.1
-                Settings.DelayBeforeDrop = 0   # back to top
-                dragDrop(region_title.getCenter().offset(0,240), region_title.getCenter().offset(0,640))
-            wait(1)
+        for i in range(3):
             Settings.MoveMouseDelay = 0.1
-            Settings.DelayBeforeDrop = 2
-            for i in range(MATERIAL_SUB_STAGE-1):
-                dragDrop(region_title.getCenter().offset(0,440), region_title.getCenter().offset(0,240))
-         
+            Settings.DelayBeforeDrop = 0   # back to top
+            dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 640))
+        wait(1)
+        Settings.MoveMouseDelay = 0.1
+        Settings.DelayBeforeDrop = 2
+        for i in range(configObj.getMaterialSubStage() - 1):
+            dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
+
+
 def main():
-    global TURN
     StartAsking()
-    EnterStage()
-    for i in range(TURN):
+    SelectMaterialStage()
+    for i in range(configObj.getTurns()):
         logging.debug("Turn: %d", i)
         Play()
        

@@ -76,33 +76,19 @@
 <span class="kw">from</span> time <span class="kw">import</span> time
 <span class="kw">import</span> logging, sys
 <span class="kw">import</span> AutoLvUp
-<span class="kw">import</span> ConfigParser
+reload(AutoLvUp)
+<span class="kw">import</span> config
+reload(config)
+<span class="kw">import</span> PlayAlgo
+reload(PlayAlgo)
+
+configObj = config.Configuration()
+logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
+
 
 <span class="kw">class</span> PlayModeType:
-    ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST= range(<span class="dig">4</span>)
+    ONE_STAGE, AUTO_LV_UP, MATERIAL, QUEST = range(<span class="dig">4</span>)
 
-<span class="cmt"># ----- global setting -----</span>
-TARGET_LV = <span class="dig">57</span>
-FRIENDS = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
-GOOD_BRAINMAN = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
-MATERIALS =  []
-<span class="kw">for</span> i <span class="kw">in</span> range (<span class="dig">0</span>, <span class="dig">10</span>):
-    MATERIALS.append([])
-MATERIALS[<span class="dig">1</span>] = [Pattern(<img src="stone_2.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="stone_1.png" />).similar(<span class="dig">0.80</span>)]
-MATERIALS[<span class="dig">4</span>] = [Pattern(<img src="tripod_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_4.png" />).similar(<span class="dig">0.80</span>)]
-MATERIALS[<span class="dig">5</span>] = [Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), <img src="fruit_4.png" />, Pattern(<img src="1527664800770.png" />).similar(<span class="dig">0.80</span>)]
-MATERIALS[<span class="dig">7</span>] = [ Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.85</span>),Pattern(<img src="masquerade_mask_5.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.85</span>)] <span class="cmt">#Pattern("masquerade_mask_1.png").similar(0.80)</span>
-STAGE_TITLE = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>),Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
-
-<span class="cmt"># ----- global variables -----</span>
-
-<span class="cmt"># ----- global variables -----</span>
-TURN = <span class="dig">0</span>
-PLAYMODE = <span class="dig">0</span>
-MATERIAL_STAGE = <span class="dig">0</span>
-MATERIAL_SUB_STAGE = <span class="dig">0</span>
-<span class="cmt"># ----- global setting -----</span>
-logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
 <span class="kw">class</span> MouseDragHandler:
 
@@ -149,6 +135,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         hover(self.dragLeft)
 
+
 <span class="kw">def</span> SelectBrainman():
     logging.debug(<span class="str">"SelectBrainman"</span>)
     bar = DragCharacterBar()
@@ -160,11 +147,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         selectCenter = None
         trueFriendFound = False
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
-            matches = findAnyList(FRIENDS + GOOD_BRAINMAN)
+            matches = findAnyList(configObj.friends + configObj.brainmen)
             <span class="kw">if</span> matches:
                 <span class="kw">for</span> match <span class="kw">in</span> matches:
                     matchCenter = match.getCenter()
-                    <span class="kw">if</span> match.getIndex() &gt; len(FRIENDS) - <span class="dig">1</span>:
+                    <span class="kw">if</span> match.getIndex() &gt; len(configObj.friends) - <span class="dig">1</span>:
                         selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
                         <span class="kw">break</span>
                     <span class="kw">else</span>:
@@ -190,7 +177,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
 <span class="kw">def</span> ClickStartFighting():
-    <span class="kw">global</span> PLAYMODE
     logging.debug(<span class="str">"ClickStartFighting"</span>)
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     start = <img src="gotofight.png" />
@@ -198,23 +184,24 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
             <span class="skw">click</span>(start)
             <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">if</span> PLAYMODE == PlayModeType.AUTO_LV_UP:
-            SelectLowLevelCharacter()
+        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.AUTO_LV_UP:
+            SelectLowLevelCharacter(configObj.target_lv)
         SelectBrainman()
 
         <span class="skw">wait</span>(start)
         <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
+
 <span class="kw">def</span> CollectMaterials(clock, dragFrom, dragTo):
-    <span class="kw">global</span> PLAYMODE
-    <span class="kw">global</span> MATERIAL_STAGE
     logging.debug(<span class="str">"CollectMaterials"</span>)
-    <span class="kw">if</span> PLAYMODE != PlayModeType.MATERIAL:
+    <span class="kw">if</span> configObj.getPlayMode() != PlayModeType.MATERIAL:
         logging.debug(<span class="str">"Not in material collecting mode."</span>)
         <span class="kw">return</span>
+
     region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
-    matches = region.findAnyList(MATERIALS[MATERIAL_STAGE])
+    material_stage = configObj.getMaterialStage()
+    matches = region.findAnyList(configObj.materials[material_stage])
     <span class="kw">if</span> <span class="kw">not</span> matches:
         logging.debug(<span class="str">"Materials not found"</span>)
         <span class="kw">return</span>
@@ -222,15 +209,16 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="cmt"># Material found! Try to collect it.</span>
     <span class="cmt"># Go back</span>
     logging.debug(<span class="str">"Material found!"</span>)
-    <span class="kw">if</span> dragFrom &lt;&gt; None:
+    <span class="kw">if</span> dragFrom <span class="kw">is</span> <span class="kw">not</span> None:
         dragBack = Location(dragFrom.x-<span class="dig">20</span>, dragFrom.y)
         hover(dragBack)
         <span class="skw">wait</span>(<span class="dig">0.35</span>)
+
     <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
         <span class="kw">for</span> match <span class="kw">in</span> matches:
             index = match.getIndex()
             logging.debug(<span class="str">"Found a material with index [%d]"</span> % index)
-            material = exists(MATERIALS[MATERIAL_STAGE][index], <span class="dig">0.001</span>)
+            material = exists(configObj.materials[material_stage][index], <span class="dig">0.001</span>)
             <span class="kw">if</span> material:
                 logging.debug(<span class="str">"Trying to collect a material with index [%d]"</span> % index)
                 <span class="skw">click</span>(material)
@@ -239,13 +227,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
 <span class="kw">def</span> DragForward():
-    <span class="kw">global</span> PLAYMODE
     logging.debug(<span class="str">"DragForward"</span>)
     start_time = time()
     clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
     <span class="kw">if</span> clock:
         dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
-        <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
+        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.MATERIAL:
             <span class="cmt"># 不能走太快，不然會抓不到素材</span>
             dragTo = Location(dragFrom.x+<span class="dig">35</span>, dragFrom.y)
         <span class="kw">else</span>:
@@ -281,66 +268,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span>(time_taken &gt;= <span class="dig">60</span>): <span class="cmt"># not found</span>
             <span class="kw">break</span>
 
-<span class="kw">def</span> PlayDots(color, number, dotLoc, dotColor):
-    <span class="kw">if</span> number == <span class="dig">1</span>:
-        <span class="kw">return</span> PlayOneDot(color, dotLoc, dotColor)
-    <span class="kw">elif</span> number == <span class="dig">2</span>:
-        <span class="kw">return</span> PlayTwoDot(color, dotLoc, dotColor)
-    <span class="kw">elif</span> number == <span class="dig">4</span>:
-        <span class="kw">return</span> PlayFourDot(color, dotLoc, dotColor)
-    <span class="kw">else</span>:
-        <span class="kw">return</span> False
-
-<span class="kw">def</span> PlayOneDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = <span class="dig">0.1</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
-        <span class="kw">if</span> dotColor[i] == color:
-            <span class="skw">click</span>(dotLoc[i])
-            <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">elif</span> dotColor[i+<span class="dig">7</span>] == color:
-            <span class="skw">click</span>(dotLoc[i+<span class="dig">7</span>])
-            <span class="kw">return</span> <span class="dig">1</span>
-    <span class="kw">return</span> <span class="dig">0</span>
-
-<span class="kw">def</span> PlayTwoDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = <span class="dig">0.5</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>): <span class="cmt">#verical</span>
-        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">7</span>] == color :
-            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">7</span>])
-            <span class="cmt">#print "%s, 2" % color</span>
-            <span class="kw">return</span> <span class="dig">1</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#horizontal</span>
-        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">1</span>] == color:
-            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">1</span>])
-            <span class="cmt">#print "%s, 2" % color</span>
-            <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> dotColor[i+<span class="dig">7</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">8</span>] == color:
-            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">1</span>])
-            <span class="cmt">#print "%s, 2" % color</span>
-            <span class="kw">return</span> <span class="dig">1</span>
-    <span class="kw">return</span> <span class="dig">0</span>
-
-<span class="kw">def</span> PlayFourDot(color, dotLoc, dotColor):
-    Settings.MoveMouseDelay = <span class="dig">0.5</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#verical</span>
-        <span class="kw">if</span> dotColor[i] == color <span class="kw">and</span> dotColor[i+<span class="dig">1</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">7</span>] == color <span class="kw">and</span> dotColor[i+<span class="dig">8</span>] == color:
-            <span class="skw">dragDrop</span>(dotLoc[i], dotLoc[i+<span class="dig">8</span>])
-            <span class="cmt">#print "%s, 4" % color</span>
-            <span class="kw">return</span> <span class="dig">1</span>
-    <span class="kw">return</span> <span class="dig">0</span>
-
-
-<span class="kw">def</span> SimpleAlgo(dotLoc, dotColor):
-    <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-        <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
-            <span class="kw">if</span> PlayDots(color, number, dotLoc, dotColor):
-                <span class="kw">return</span>
-
-<span class="kw">def</span> C10_2_Algo(dotLoc, dotColor):
-    logging.debug(<span class="str">"C10_2_Algo"</span>)
-    <span class="kw">if</span> PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>, dotLoc, dotColor):
-        <span class="kw">return</span>
-    SimpleAlgo(dotLoc, dotColor)
 
 <span class="kw">def</span> CheckLost():
     logging.debug(<span class="str">"CheckLost"</span>)
@@ -350,6 +277,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         logging.debug(<span class="str">"lost"</span>)
         <span class="kw">return</span> <span class="dig">1</span>
     <span class="kw">return</span> <span class="dig">0</span>
+
 
 <span class="kw">def</span> GetDotBoard():
     logging.debug(<span class="str">"GetDotBoard"</span>)
@@ -383,6 +311,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="cmt">#print dotColor[i]</span>
     <span class="kw">return</span> <span class="dig">1</span>, dotLoc, dotColor
 
+
 <span class="kw">def</span> PlayDrag():
     logging.debug(<span class="str">"PlayDrag"</span>)
     <span class="kw">if</span> <span class="kw">not</span> exists(<img src="clock.png" /> , <span class="dig">0.001</span>):
@@ -391,9 +320,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         isFound, dotLoc, dotColor = GetDotBoard()
         <span class="kw">if</span> <span class="kw">not</span> isFound:
             <span class="kw">break</span>
-        C10_2_Algo(dotLoc, dotColor)
+        playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(), dotLoc, dotColor)
+        playAlgo.Play()
+        <span class="cmt">#C10_2_Algo(dotLoc, dotColor)</span>
         <span class="cmt">#SimpleAlgo(dotLoc, dotColor)</span>
         <span class="skw">wait</span>(<span class="dig">1</span>)
+
 
 <span class="kw">def</span> WaitIntoStage():
     start_time = time()
@@ -402,6 +334,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="skw">click</span>(<img src="ok_btn_1.png" />)
         <span class="kw">if</span>(start_time - time()  &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
             <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+
 
 <span class="kw">def</span> Play():
     isFailed = False
@@ -423,72 +356,71 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
         ClickFinish()
 
-<span class="kw">def</span> StartAsking():
-    <span class="kw">global</span> TURN
-    <span class="kw">global</span> PLAYMODE
-    <span class="kw">global</span> MATERIAL_STAGE
-    <span class="kw">global</span> MATERIAL_SUB_STAGE
-    <span class="cmt"># get the directory containing your running .sikuli</span>
-    iniPath = os.path.dirname(getBundlePath())
-    <span class="kw">if</span> <span class="kw">not</span> iniPath <span class="kw">in</span> sys.path: sys.path.append(iniPath)
-    iniPath = iniPath + <span class="str">"\\sdorica.sikuli\\config.ini"</span>
-    <span class="cmt">#read ini</span>
-    config = ConfigParser.ConfigParser()
-    config.optionxform = str
-    config.read(iniPath)
-    ini_mode = config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)
-    PLAYMODE = int(<span class="skw">input</span>(<span class="str">"Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest"</span>, ini_mode)) - <span class="dig">1</span>
-    <span class="kw">if</span> PLAYMODE &lt; <span class="dig">0</span>:
-        exit
-    ini_turn = config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>)
-    TURN = int(<span class="skw">input</span>(<span class="str">"How may turns?"</span>, ini_turn))
-    <span class="kw">if</span> TURN &lt; <span class="dig">0</span>:
-        exit
-    <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
-        ini_stage = config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
-        ini_sub_stage = config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
-        MATERIAL_STAGE = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
-        MATERIAL_SUB_STAGE = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
-        config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(MATERIAL_STAGE))
-        config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(MATERIAL_SUB_STAGE))
-    <span class="cmt">#write ini</span>
-    config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(PLAYMODE+<span class="dig">1</span>))
-    config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(TURN))
-    config.write(open(iniPath, <span class="str">'wb'</span>))
 
-<span class="kw">def</span> EnterStage():
-    <span class="kw">global</span> PLAYMODE
-    <span class="kw">global</span> MATERIAL_STAGE
-    <span class="kw">global</span> MATERIAL_SUB_STAGE
-    <span class="kw">if</span> PLAYMODE == PlayModeType.MATERIAL:
-        region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
-        <span class="kw">if</span> region_menu_btn:
-            <span class="skw">click</span>(region_menu_btn)
+<span class="kw">def</span> StartAsking():
+    ini_mode = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)
+    playmode = int(<span class="skw">input</span>(<span class="str">"Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest"</span>, ini_mode)) - <span class="dig">1</span>
+    <span class="kw">if</span> playmode &lt; <span class="dig">0</span>:
+        exit
+    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(playmode + <span class="dig">1</span>))
+
+    ini_turn = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>)
+    turn = int(<span class="skw">input</span>(<span class="str">"How may turns?"</span>, ini_turn))
+    <span class="kw">if</span> turn &lt; <span class="dig">0</span>:
+        exit
+    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(turn))
+
+    ini_algo = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>)
+    algorithm = int(<span class="skw">input</span>(<span class="str">"Please select algorithm:\n%s"</span> % AlgoFactory.GenAlgoInfo(), ini_algo))
+    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"algo"</span>, str(algorithm))
+
+    <span class="kw">if</span> playmode == PlayModeType.MATERIAL:
+        ini_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
+        ini_sub_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
+        material_stage = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
+        material_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
+        configObj.config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(material_stage))
+        configObj.config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(material_sub_stage))
+    <span class="kw">elif</span> playmode == PlayModeType.AUTO_LV_UP:
+        ini_target_lv = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>)
+        target_lv = int(<span class="skw">input</span>(<span class="str">"Please enter your targeted level:"</span>, ini_target_lv))
+        configObj.config.set(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>, str(target_lv))
+
+    <span class="cmt">#write ini</span>
+    configObj.writeConfig()
+
+
+<span class="kw">def</span> SelectMaterialStage():
+    <span class="kw">if</span> configObj.getPlayMode() != PlayModeType.MATERIAL:
+        <span class="kw">return</span>
+    region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+    <span class="kw">if</span> region_menu_btn:
+        <span class="skw">click</span>(region_menu_btn)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+    region_menu_btn_selected = exists(Pattern(<img src="menubtn_region_selected.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+    <span class="kw">if</span> region_menu_btn_selected:
+        <span class="skw">click</span>(region_menu_btn_selected.getCenter().offset(-<span class="dig">300</span>, -<span class="dig">300</span>))
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+    region_title = exists(Pattern(<img src="stage_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
+    <span class="kw">if</span> region_title:
+        <span class="kw">while</span> <span class="kw">not</span> exists(configObj.material_stage_title[configObj.getMaterialStage() - <span class="dig">1</span>], <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
-        region_menu_btn_selected = exists(Pattern(<img src="menubtn_region_selected.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>)
-        <span class="kw">if</span> region_menu_btn_selected:
-            <span class="skw">click</span>(region_menu_btn_selected.getCenter().offset(-<span class="dig">300</span>,-<span class="dig">300</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-        region_title = exists(Pattern(<img src="stage_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
-        <span class="kw">if</span> region_title:
-            <span class="kw">while</span> <span class="kw">not</span> exists(STAGE_TITLE[MATERIAL_STAGE-<span class="dig">1</span>],<span class="dig">0.001</span>):
-                <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
-                <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
-                Settings.MoveMouseDelay = <span class="dig">0.1</span>
-                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
-                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">640</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
-            Settings.DelayBeforeDrop = <span class="dig">2</span>
-            <span class="kw">for</span> i <span class="kw">in</span> range(MATERIAL_SUB_STAGE-<span class="dig">1</span>):
-                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>,<span class="dig">240</span>))
+            Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        Settings.DelayBeforeDrop = <span class="dig">2</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
+            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
 
 <span class="kw">def</span> main():
-    <span class="kw">global</span> TURN
     StartAsking()
-    EnterStage()
-    <span class="kw">for</span> i <span class="kw">in</span> range(TURN):
+    SelectMaterialStage()
+    <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getTurns()):
         logging.debug(<span class="str">"Turn: %d"</span>, i)
         Play()
 

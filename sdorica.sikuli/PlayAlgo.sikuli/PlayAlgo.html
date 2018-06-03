@@ -1,0 +1,179 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>PlayAlgo.sikuli</h2> <a href="PlayAlgo.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="cmt"># -*- coding: UTF-8 -*-</span>
+
+<span class="kw">class</span> AlgoFactory():
+
+    SIMPLE_ALGO = <span class="dig">1</span>
+    NOLVA_ALGO = <span class="dig">2</span>
+    ALGO_DICT = {SIMPLE_ALGO: <span class="str">"Simple"</span>,
+                 NOLVA_ALGO: <span class="str">"Nolva"</span>}
+
+    @staticmethod
+    <span class="kw">def</span> GenAlgo(choice, docLoc, docColor):
+        <span class="kw">if</span> choice == AlgoFactory.SIMPLE_ALGO:
+            <span class="kw">return</span> SimpleAlgo(docLoc, docColor)
+        <span class="kw">elif</span> choice == AlgoFactory.NOLVA_ALGO:
+            <span class="kw">return</span> NolvaAlgo(docLoc, docColor)
+        <span class="kw">else</span>:
+            <span class="kw">return</span> SimpleAlgo(docLoc, docColor)
+
+    @staticmethod
+    <span class="kw">def</span> GenAlgoInfo():
+        <span class="kw">return</span> <span class="str">""</span>.join([<span class="str">"%d. %s\n"</span> % (i, AlgoFactory.ALGO_DICT[i]) <span class="kw">for</span> i <span class="kw">in</span> AlgoFactory.ALGO_DICT.keys()])
+
+
+<span class="kw">class</span> PlayAlgo(object):
+
+    <span class="kw">def</span> __init__(self, dotLoc, dotColor):
+        self.dotLoc = dotLoc
+        self.dotColor = dotColor
+
+    <span class="kw">def</span> PlayDots(self, color, number):
+        <span class="kw">if</span> number == <span class="dig">1</span>:
+            <span class="kw">return</span> self.PlayOneDot(color)
+        <span class="kw">elif</span> number == <span class="dig">2</span>:
+            <span class="kw">return</span> self.PlayTwoDot(color)
+        <span class="kw">elif</span> number == <span class="dig">4</span>:
+            <span class="kw">return</span> self.PlayFourDot(color)
+        <span class="kw">else</span>:
+            <span class="kw">return</span> False
+
+    <span class="kw">def</span> PlayOneDot(self, color):
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
+            <span class="kw">if</span> self.dotColor[i] == color:
+                <span class="skw">click</span>(self.dotLoc[i])
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">elif</span> self.dotColor[i+<span class="dig">7</span>] == color:
+                <span class="skw">click</span>(self.dotLoc[i + <span class="dig">7</span>])
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> PlayTwoDot(self, color):
+        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>): <span class="cmt">#verical</span>
+            <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">7</span>] == color :
+                <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">7</span>])
+                <span class="cmt">#print "%s, 2" % color</span>
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#horizontal</span>
+            <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">1</span>] == color:
+                <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">1</span>])
+                <span class="cmt">#print "%s, 2" % color</span>
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i + <span class="dig">7</span>] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">8</span>] == color:
+                <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">1</span>])
+                <span class="cmt">#print "%s, 2" % color</span>
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> PlayFourDot(self, color):
+        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#verical</span>
+            <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span>\
+               self.dotColor[i + <span class="dig">1</span>] == color <span class="kw">and</span>\
+               self.dotColor[i + <span class="dig">7</span>] == color <span class="kw">and</span>\
+               self.dotColor[i + <span class="dig">8</span>] == color:
+                <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">8</span>])
+                <span class="cmt">#print "%s, 4" % color</span>
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> Play(self):
+        <span class="kw">return</span> NotImplemented
+
+
+<span class="kw">class</span> SimpleAlgo(PlayAlgo):
+
+    <span class="kw">def</span> Play(self):
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span>
+
+
+<span class="kw">class</span> NolvaAlgo(SimpleAlgo):
+
+    <span class="kw">def</span> Play(self):
+        <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>):
+            <span class="kw">return</span>
+        <span class="kw">print</span> <span class="str">"test"</span>
+        <span class="cmt"># super(SimpleAlgo, self).Play()</span>
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span>
+</pre>
+</body>
+</html>
