@@ -96,7 +96,6 @@ class NolvaAlgo(SimpleAlgo):
     def Play(self):
         if self.PlayDots("b", 1):
             return
-        print "test"
         # super(SimpleAlgo, self).Play()
         for number in (4, 2, 1):   
             for color in ("b", "w", "y"):

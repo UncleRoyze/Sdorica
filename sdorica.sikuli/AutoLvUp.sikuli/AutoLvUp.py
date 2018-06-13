@@ -10,7 +10,7 @@ def SelectLowLevelCharacter(target_lv):
     TARGET_LV_TITLE[55] = Pattern("lv55_title.png").similar(0.85)
     TARGET_LV_TITLE[57] = Pattern("lv57_title.png").similar(0.90)
     TARGET_LV_TITLE[58] = Pattern("lv58_title.png").similar(0.85)
-    TARGET_LV_TITLE[59] = Pattern("lv59_title.png").similar(0.90)
+    TARGET_LV_TITLE[59] = Pattern("lv59_title.png").similar(0.85)
     TARGET_LV_SMALL[55] = Pattern("lv55_small.png").similar(0.90)
     TARGET_LV_SMALL[57] = Pattern("lv57_small.png").similar(0.90)
     TARGET_LV_SMALL[58] = Pattern("lv58_small.png").similar(0.90)
@@ -25,7 +25,7 @@ def SelectLowLevelCharacter(target_lv):
         for j in range(4,-1,-1):    #檢查選單中的五個角色
             reg = Region()          #只檢查單一角色圖框的範圍
             reg.setROI(topLeft.x+115+j*160, topLeft.y+340, 190, 240) #從最右邊開始向左檢查
-            if not reg.exists(TARGET_LV_SMALL[TARGET_LV], 0.001):             #如果等級還沒練滿          
+            if not reg.exists(TARGET_LV_SMALL[target_lv], 0.001):             #如果等級還沒練滿          
                 if not reg.exists("using.png", 0.001):                #如果正在使用就不處理
                     reg.click(reg.getCenter())                       #如果沒在使用則點選該角色出陣
                 return True

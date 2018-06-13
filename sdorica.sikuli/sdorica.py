@@ -11,7 +11,7 @@ import PlayAlgo
 reload(PlayAlgo)
 
 configObj = config.Configuration()
-logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.INFO)
 
 
 class PlayModeType:
@@ -109,13 +109,13 @@ def ClickStartFighting():
     Settings.MoveMouseDelay = 0.1
     start = "gotofight.png" 
     if exists(start, 30):
-        if not exists(Pattern("SelectFriend.png").similar(0.80), 0.001): # 在選關頁面
+        wait(3)
+        if not exists(Pattern("SelectFriend.png").similar(0.90), 0.001): # 在選關頁面
             click(start)
             wait(1)
         if configObj.getPlayMode() == PlayModeType.AUTO_LV_UP:
             SelectLowLevelCharacter(configObj.target_lv)
         SelectBrainman()
-        
         wait(start)
         click(start)
         wait(1)
@@ -283,7 +283,7 @@ def Play():
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     if not isFailed:    #正常跳出才要去按Finish
         ClickFinish()
-
+    return isFailed
 
 def StartAsking():
     ini_mode = configObj.config.get("setting", "mode")
@@ -344,20 +344,24 @@ def SelectMaterialStage():
         for i in range(configObj.getMaterialSubStage() - 1):
             dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
 
+def ChangeStage(i):
+   if i % 10 == 0 and i != 0:
+        logging.debug("ChangeStage")
+        region_title = wait("stage_title_1.png", 10)
+        if region_title:
+            dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
 
 def main():
     StartAsking()
     SelectMaterialStage()
     for i in range(configObj.getTurns()):
-        logging.debug("Turn: %d", i)
-        Play()
-       
-    
+        logging.info("Turn: %d", i)
+        if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+            ChangeStage(i)
+        isFailed = Play()
+        if isFailed:    #打失敗了, 重新打這關而且不計次數
+            i = i - 1
+
 if __name__ == "__main__":
     main()
-    
-
-#    Pattern("GuildQuest_4.png").similar(0.90)
-#    Pattern("1526951100616.png").similar(0.90)
-#    Pattern("GuildQuest_no4.png").similar(0.90)
-#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""material_2.png""material_3.png"
+  

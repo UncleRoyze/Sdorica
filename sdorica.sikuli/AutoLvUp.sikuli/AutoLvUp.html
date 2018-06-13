@@ -82,7 +82,7 @@
     TARGET_LV_TITLE[<span class="dig">55</span>] = Pattern(<img src="lv55_title.png" />).similar(<span class="dig">0.85</span>)
     TARGET_LV_TITLE[<span class="dig">57</span>] = Pattern(<img src="lv57_title.png" />).similar(<span class="dig">0.90</span>)
     TARGET_LV_TITLE[<span class="dig">58</span>] = Pattern(<img src="lv58_title.png" />).similar(<span class="dig">0.85</span>)
-    TARGET_LV_TITLE[<span class="dig">59</span>] = Pattern(<img src="lv59_title.png" />).similar(<span class="dig">0.90</span>)
+    TARGET_LV_TITLE[<span class="dig">59</span>] = Pattern(<img src="lv59_title.png" />).similar(<span class="dig">0.85</span>)
     TARGET_LV_SMALL[<span class="dig">55</span>] = Pattern(<img src="lv55_small.png" />).similar(<span class="dig">0.90</span>)
     TARGET_LV_SMALL[<span class="dig">57</span>] = Pattern(<img src="lv57_small.png" />).similar(<span class="dig">0.90</span>)
     TARGET_LV_SMALL[<span class="dig">58</span>] = Pattern(<img src="lv58_small.png" />).similar(<span class="dig">0.90</span>)
@@ -97,7 +97,7 @@
         <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">4</span>,-<span class="dig">1</span>,-<span class="dig">1</span>):    <span class="cmt">#檢查選單中的五個角色</span>
             reg = Region()          <span class="cmt">#只檢查單一角色圖框的範圍</span>
             reg.setROI(topLeft.x+<span class="dig">115</span>+j*<span class="dig">160</span>, topLeft.y+<span class="dig">340</span>, <span class="dig">190</span>, <span class="dig">240</span>) <span class="cmt">#從最右邊開始向左檢查</span>
-            <span class="kw">if</span> <span class="kw">not</span> reg.exists(TARGET_LV_SMALL[TARGET_LV], <span class="dig">0.001</span>):             <span class="cmt">#如果等級還沒練滿          </span>
+            <span class="kw">if</span> <span class="kw">not</span> reg.exists(TARGET_LV_SMALL[target_lv], <span class="dig">0.001</span>):             <span class="cmt">#如果等級還沒練滿          </span>
                 <span class="kw">if</span> <span class="kw">not</span> reg.exists(<img src="using.png" />, <span class="dig">0.001</span>):                <span class="cmt">#如果正在使用就不處理</span>
                     reg.<span class="skw">click</span>(reg.getCenter())                       <span class="cmt">#如果沒在使用則點選該角色出陣</span>
                 <span class="kw">return</span> True

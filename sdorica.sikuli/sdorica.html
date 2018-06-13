@@ -83,7 +83,7 @@ reload(config)
 reload(PlayAlgo)
 
 configObj = config.Configuration()
-logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
+logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.INFO)
 
 
 <span class="kw">class</span> PlayModeType:
@@ -181,13 +181,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     start = <img src="gotofight.png" />
     <span class="kw">if</span> exists(start, <span class="dig">30</span>):
-        <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
+        <span class="skw">wait</span>(<span class="dig">3</span>)
+        <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>): <span class="cmt"># 在選關頁面</span>
             <span class="skw">click</span>(start)
             <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.AUTO_LV_UP:
             SelectLowLevelCharacter(configObj.target_lv)
         SelectBrainman()
-
         <span class="skw">wait</span>(start)
         <span class="skw">click</span>(start)
         <span class="skw">wait</span>(<span class="dig">1</span>)
@@ -355,7 +355,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
     <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
         ClickFinish()
-
+    <span class="kw">return</span> isFailed
 
 <span class="kw">def</span> StartAsking():
     ini_mode = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)
@@ -416,24 +416,26 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
             <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
 
+<span class="kw">def</span> ChangeStage(i):
+   <span class="kw">if</span> i % <span class="dig">10</span> == <span class="dig">0</span> <span class="kw">and</span> i != <span class="dig">0</span>:
+        logging.debug(<span class="str">"ChangeStage"</span>)
+        region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
+        <span class="kw">if</span> region_title:
+            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
 
 <span class="kw">def</span> main():
     StartAsking()
     SelectMaterialStage()
     <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getTurns()):
-        logging.debug(<span class="str">"Turn: %d"</span>, i)
-        Play()
-
+        logging.info(<span class="str">"Turn: %d"</span>, i)
+        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+            ChangeStage(i)
+        isFailed = Play()
+        <span class="kw">if</span> isFailed:    <span class="cmt">#打失敗了, 重新打這關而且不計次數</span>
+            i = i - <span class="dig">1</span>
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()
-
-
-<span class="cmt">#    Pattern("GuildQuest_4.png").similar(0.90)</span>
-<span class="cmt">#    Pattern("1526951100616.png").similar(0.90)</span>
-<span class="cmt">#    Pattern("GuildQuest_no4.png").similar(0.90)</span>
-<span class="cmt">#    "quest_button.png""guildQuest_button.png""material_1.png"Pattern("quest_20turn.png").similar(0.90)Pattern("quest_no4.png").similar(0.90)"back_button.png""material_2.png""material_3.png"</span>
-
 </pre>
 </body>
 </html>
