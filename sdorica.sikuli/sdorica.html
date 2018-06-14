@@ -178,6 +178,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> ClickStartFighting():
     logging.debug(<span class="str">"ClickStartFighting"</span>)
+    <span class="kw">if</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>):
+        <span class="kw">return</span>
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     start = <img src="gotofight.png" />
     <span class="kw">if</span> exists(start, <span class="dig">30</span>):
@@ -255,8 +257,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     start_time = time()
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">while</span> True:
+        <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):    <span class="cmt">#沒有庫倫了</span>
+            <span class="kw">return</span> False
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
-        <span class="kw">if</span> finish:
+        <span class="kw">if</span> finish:        <span class="cmt"># 因為一開始檢測到的按鈕位置會變動</span>
             <span class="skw">wait</span>(<span class="dig">2</span>)
             <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
             <span class="kw">break</span>
@@ -267,7 +271,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
         <span class="kw">if</span>(time_taken &gt;= <span class="dig">60</span>): <span class="cmt"># not found</span>
             <span class="kw">break</span>
-
+    <span class="kw">return</span> True
 
 <span class="kw">def</span> CheckLost():
     logging.debug(<span class="str">"CheckLost"</span>)
@@ -314,12 +318,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> PlayDrag():
     logging.debug(<span class="str">"PlayDrag"</span>)
-    <span class="kw">if</span> <span class="kw">not</span> exists(<img src="clock.png" /> , <span class="dig">0.001</span>):
+    clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+    <span class="kw">if</span> <span class="kw">not</span> clock:
         <span class="kw">return</span>
     <span class="kw">while</span> True:
         isFound, dotLoc, dotColor = GetDotBoard()
         <span class="kw">if</span> <span class="kw">not</span> isFound:
             <span class="kw">break</span>
+        <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">60</span>,<span class="dig">480</span>))
         playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(), dotLoc, dotColor)
         playAlgo.Play()
         <span class="cmt">#C10_2_Algo(dotLoc, dotColor)</span>
@@ -353,8 +359,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> ok:
             <span class="skw">click</span>(ok)
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-    <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
-        ClickFinish()
     <span class="kw">return</span> isFailed
 
 <span class="kw">def</span> StartAsking():
@@ -428,11 +432,16 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     SelectMaterialStage()
     <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getTurns()):
         logging.info(<span class="str">"Turn: %d"</span>, i)
-        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-            ChangeStage(i)
+        isReward = True
         isFailed = Play()
+        <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
+            isReward = ClickFinish()    <span class="cmt"># 檢查有沒有獎賞</span>
         <span class="kw">if</span> isFailed:    <span class="cmt">#打失敗了, 重新打這關而且不計次數</span>
-            i = i - <span class="dig">1</span>
+            i -= <span class="dig">1</span>
+        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+            <span class="kw">if</span> <span class="kw">not</span> isReward:    <span class="cmt">#刷到沒有獎勵的則跳出</span>
+                <span class="kw">break</span>
+            ChangeStage(i)
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()

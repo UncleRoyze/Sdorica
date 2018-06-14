@@ -106,6 +106,8 @@ def SelectBrainman():
 
 def ClickStartFighting():
     logging.debug("ClickStartFighting")
+    if exists(Pattern("clock.png").similar(0.90) , 0.001):
+        return
     Settings.MoveMouseDelay = 0.1
     start = "gotofight.png" 
     if exists(start, 30):
@@ -183,8 +185,10 @@ def ClickFinish():
     start_time = time()
     Settings.MoveMouseDelay = 0.1
     while True:
+        if exists(Pattern("zero_money.png").similar(0.90),0.001):    #沒有庫倫了
+            return False
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
-        if finish:
+        if finish:        # 因為一開始檢測到的按鈕位置會變動
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
             break
@@ -195,7 +199,7 @@ def ClickFinish():
         time_taken = end_time - start_time # time_taken is in seconds
         if(time_taken >= 60): # not found
             break
-
+    return True
 
 def CheckLost():
     logging.debug("CheckLost")
@@ -242,12 +246,14 @@ def GetDotBoard():
 
 def PlayDrag():
     logging.debug("PlayDrag")
-    if not exists("clock.png" , 0.001):
+    clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+    if not clock:
         return
     while True:
         isFound, dotLoc, dotColor = GetDotBoard()
         if not isFound:
             break
+        click(clock.getCenter().offset(60,480))
         playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(), dotLoc, dotColor)
         playAlgo.Play()
         #C10_2_Algo(dotLoc, dotColor)
@@ -281,8 +287,6 @@ def Play():
         if ok:
             click(ok)
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
-    if not isFailed:    #正常跳出才要去按Finish
-        ClickFinish()
     return isFailed
 
 def StartAsking():
@@ -356,11 +360,16 @@ def main():
     SelectMaterialStage()
     for i in range(configObj.getTurns()):
         logging.info("Turn: %d", i)
-        if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-            ChangeStage(i)
+        isReward = True
         isFailed = Play()
+        if not isFailed:    #正常跳出才要去按Finish
+            isReward = ClickFinish()    # 檢查有沒有獎賞
         if isFailed:    #打失敗了, 重新打這關而且不計次數
-            i = i - 1
+            i -= 1
+        if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+            if not isReward:    #刷到沒有獎勵的則跳出
+                break        
+            ChangeStage(i)
 
 if __name__ == "__main__":
     main()
