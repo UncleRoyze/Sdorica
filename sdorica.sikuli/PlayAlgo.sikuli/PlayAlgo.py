@@ -61,7 +61,7 @@ class PlayAlgo(object):
                 #print "%s, 2" % color
                 return 1
             if self.dotColor[i + 7] == color and self.dotColor[i + 8] == color:
-                dragDrop(self.dotLoc[i], self.dotLoc[i + 1])
+                dragDrop(self.dotLoc[i + 7], self.dotLoc[i + 8])
                 #print "%s, 2" % color
                 return 1
         return 0

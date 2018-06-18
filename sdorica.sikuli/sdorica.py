@@ -185,10 +185,11 @@ def ClickFinish():
     start_time = time()
     Settings.MoveMouseDelay = 0.1
     while True:
-        if exists(Pattern("zero_money.png").similar(0.90),0.001):    #沒有庫倫了
-            return False
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:        # 因為一開始檢測到的按鈕位置會變動
+            if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+                if exists(Pattern("zero_money.png").exact(), 0.001):    #沒有庫倫了, 則跳出
+                    return False
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
             break
@@ -220,9 +221,9 @@ def GetDotBoard():
             return 0, 0, 0
     clock = exists("clock.png", 0.001)
     dotLoc = []
-    dotLoc.append(clock.getCenter().offset(221,471))
+    dotLoc.append(clock.getCenter().offset(221,475))
     stepX = 96
-    stepY = 99
+    stepY = 97
     for i in range(1, 7):
         dotLoc.append(Location(dotLoc[i-1].x+stepX, dotLoc[i-1].y))
     for i in range(0, 7):
@@ -353,7 +354,7 @@ def ChangeStage(i):
         logging.debug("ChangeStage")
         region_title = wait("stage_title_1.png", 10)
         if region_title:
-            dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
+            dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 440))
 
 def main():
     StartAsking()

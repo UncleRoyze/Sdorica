@@ -257,10 +257,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     start_time = time()
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
     <span class="kw">while</span> True:
-        <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):    <span class="cmt">#沒有庫倫了</span>
-            <span class="kw">return</span> False
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
         <span class="kw">if</span> finish:        <span class="cmt"># 因為一開始檢測到的按鈕位置會變動</span>
+            <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
+                <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">0.001</span>):    <span class="cmt">#沒有庫倫了, 則跳出</span>
+                    <span class="kw">return</span> False
             <span class="skw">wait</span>(<span class="dig">2</span>)
             <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
             <span class="kw">break</span>
@@ -292,9 +293,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span> <span class="dig">0</span>, <span class="dig">0</span>, <span class="dig">0</span>
     clock = exists(<img src="clock.png" />, <span class="dig">0.001</span>)
     dotLoc = []
-    dotLoc.append(clock.getCenter().offset(<span class="dig">221</span>,<span class="dig">471</span>))
+    dotLoc.append(clock.getCenter().offset(<span class="dig">221</span>,<span class="dig">475</span>))
     stepX = <span class="dig">96</span>
-    stepY = <span class="dig">99</span>
+    stepY = <span class="dig">97</span>
     <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">7</span>):
         dotLoc.append(Location(dotLoc[i-<span class="dig">1</span>].x+stepX, dotLoc[i-<span class="dig">1</span>].y))
     <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
@@ -425,7 +426,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         logging.debug(<span class="str">"ChangeStage"</span>)
         region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
         <span class="kw">if</span> region_title:
-            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
 
 <span class="kw">def</span> main():
     StartAsking()

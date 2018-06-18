@@ -33,7 +33,7 @@ class Configuration(Singleton):
         self.friends = ["apollo.png", "roy.png", "hcm.png"]
         self.brainmen = ["delan_sp.png", "Fatima_lv2.png", "Sione_sp.png", "Shirley_lv3.png", "Shirley_lv2.png", "YanBo_lv3.png"]
         self.materials = [[] for _ in range(10)]
-        self.materials[1] = [Pattern("stone_1.png").similar(0.80), Pattern("stone_2.png").similar(0.80)]
+        self.materials[1] = [Pattern("stone_1.png").similar(0.80), Pattern("stone_2.png").similar(0.80),Pattern("stone_3.png").similar(0.80)]
         self.materials[3] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80), Pattern("tripod_5.png").similar(0.80)]
         self.materials[4] = [Pattern("bottle_0.png").similar(0.80),Pattern("bottle_1.png").similar(0.80)]
         self.materials[5] = [Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), Pattern("fruit_4.png").similar(0.80), Pattern("fruit_5.png").similar(0.80)]
