@@ -260,7 +260,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
         <span class="kw">if</span> finish:        <span class="cmt"># 因為一開始檢測到的按鈕位置會變動</span>
             <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-                <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">0.001</span>):    <span class="cmt">#沒有庫倫了, 則跳出</span>
+                <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">1</span>):    <span class="cmt">#沒有庫倫了, 則跳出</span>
                     <span class="kw">return</span> False
             <span class="skw">wait</span>(<span class="dig">2</span>)
             <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))

@@ -188,7 +188,7 @@ def ClickFinish():
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:        # 因為一開始檢測到的按鈕位置會變動
             if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-                if exists(Pattern("zero_money.png").exact(), 0.001):    #沒有庫倫了, 則跳出
+                if exists(Pattern("zero_money.png").exact(), 1):    #沒有庫倫了, 則跳出
                     return False
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
