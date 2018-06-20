@@ -188,7 +188,7 @@ def ClickFinish():
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:        # 因為一開始檢測到的按鈕位置會變動
             if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-                if exists(Pattern("zero_money.png").exact(), 1):    #沒有庫倫了, 則跳出
+                if exists(Pattern("zero_money.png").exact(), 2):    #沒有庫倫了, 則跳出
                     return False
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
@@ -359,6 +359,7 @@ def ChangeStage(i):
 def main():
     StartAsking()
     SelectMaterialStage()
+    zero_reward_count = 0
     for i in range(configObj.getTurns()):
         logging.info("Turn: %d", i)
         isReward = True
@@ -369,7 +370,9 @@ def main():
             i -= 1
         if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
             if not isReward:    #刷到沒有獎勵的則跳出
-                break        
+                zero_reward_count += 1
+            if zero_reward_count == 3:
+                break
             ChangeStage(i)
 
 if __name__ == "__main__":
