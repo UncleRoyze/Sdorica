@@ -184,12 +184,13 @@ def ClickFinish():
     logging.debug("ClickFinish")
     start_time = time()
     Settings.MoveMouseDelay = 0.1
+    isReward = True
     while True:
         finish = exists(Pattern("finish_button.png").similar(0.80),1)
         if finish:        # 因為一開始檢測到的按鈕位置會變動
             if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
                 if exists(Pattern("zero_money.png").exact(), 2):    #沒有庫倫了, 則跳出
-                    return False
+                    isReward = False
             wait(2)
             click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
             break
@@ -200,7 +201,7 @@ def ClickFinish():
         time_taken = end_time - start_time # time_taken is in seconds
         if(time_taken >= 60): # not found
             break
-    return True
+    return isReward
 
 def CheckLost():
     logging.debug("CheckLost")
@@ -369,11 +370,13 @@ def main():
         if isFailed:    #打失敗了, 重新打這關而且不計次數
             i -= 1
         if configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-            if not isReward:    #刷到沒有獎勵的則跳出
-                zero_reward_count += 1
-            if zero_reward_count == 3:
-                break
-            ChangeStage(i)
+            if not isReward:           #沒有獎勵則強制換關
+                zero_reward_count += 1 
+                if zero_reward_count == 3: #連刷三次沒有獎勵則跳出
+                    break
+                ChangeStage(10) 
+            else:                      #有獎勵
+                ChangeStage(i)         #檢查看是否滿10次需要換關   
 
 if __name__ == "__main__":
     main()

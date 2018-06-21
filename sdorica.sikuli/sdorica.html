@@ -256,12 +256,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     logging.debug(<span class="str">"ClickFinish"</span>)
     start_time = time()
     Settings.MoveMouseDelay = <span class="dig">0.1</span>
+    isReward = True
     <span class="kw">while</span> True:
         finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>),<span class="dig">1</span>)
         <span class="kw">if</span> finish:        <span class="cmt"># 因為一開始檢測到的按鈕位置會變動</span>
             <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
                 <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">2</span>):    <span class="cmt">#沒有庫倫了, 則跳出</span>
-                    <span class="kw">return</span> False
+                    isReward = False
             <span class="skw">wait</span>(<span class="dig">2</span>)
             <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
             <span class="kw">break</span>
@@ -272,7 +273,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
         <span class="kw">if</span>(time_taken &gt;= <span class="dig">60</span>): <span class="cmt"># not found</span>
             <span class="kw">break</span>
-    <span class="kw">return</span> True
+    <span class="kw">return</span> isReward
 
 <span class="kw">def</span> CheckLost():
     logging.debug(<span class="str">"CheckLost"</span>)
@@ -441,11 +442,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> isFailed:    <span class="cmt">#打失敗了, 重新打這關而且不計次數</span>
             i -= <span class="dig">1</span>
         <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-            <span class="kw">if</span> <span class="kw">not</span> isReward:    <span class="cmt">#刷到沒有獎勵的則跳出</span>
+            <span class="kw">if</span> <span class="kw">not</span> isReward:           <span class="cmt">#沒有獎勵則強制換關</span>
                 zero_reward_count += <span class="dig">1</span>
-            <span class="kw">if</span> zero_reward_count == <span class="dig">3</span>:
-                <span class="kw">break</span>
-            ChangeStage(i)
+                <span class="kw">if</span> zero_reward_count == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
+                    <span class="kw">break</span>
+                ChangeStage(<span class="dig">10</span>)
+            <span class="kw">else</span>:                      <span class="cmt">#有獎勵</span>
+                ChangeStage(i)         <span class="cmt">#檢查看是否滿10次需要換關   </span>
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()
