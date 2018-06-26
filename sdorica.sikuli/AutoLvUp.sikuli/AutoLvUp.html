@@ -75,6 +75,20 @@
 <span class="cmt">#自動選擇白位、金位、參謀裡面等級不夠的角色出陣來練等</span>
 <span class="cmt">#參謀裡面只選黑位, 用諾瓦1帶3鍊等</span>
 
+<span class="kw">import</span> ModeClass
+reload(ModeClass)
+<span class="kw">from</span> ModeClass <span class="kw">import</span> BasicMode
+
+<span class="kw">class</span> AutoLvUpMode(BasicMode):
+
+    <span class="kw">def</span> InputSetting():
+        ini_target_lv = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>)
+        target_lv = int(<span class="skw">input</span>(<span class="str">"Please enter your targeted level:"</span>, ini_target_lv))
+        configObj.config.set(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>, str(target_lv))
+
+    <span class="kw">def</span> SelectFighter(self):
+        SelectLowLevelCharacter(configObj.target_lv)
+
 <span class="kw">def</span> SelectLowLevelCharacter(target_lv):
     logging.debug(<span class="str">"SelectLowLevelCharacter"</span>)
     TARGET_LV_TITLE = [Pattern] * <span class="dig">61</span>

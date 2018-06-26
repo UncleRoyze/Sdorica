@@ -2,6 +2,20 @@
 
 #自動選擇白位、金位、參謀裡面等級不夠的角色出陣來練等
 #參謀裡面只選黑位, 用諾瓦1帶3鍊等
+
+import ModeClass
+reload(ModeClass)
+from ModeClass import BasicMode
+
+class AutoLvUpMode(BasicMode):
+
+    def InputSetting():
+        ini_target_lv = configObj.config.get("setting", "target_lv")
+        target_lv = int(input("Please enter your targeted level:", ini_target_lv))
+        configObj.config.set("setting", "target_lv", str(target_lv))
+        
+    def SelectFighter(self):
+        SelectLowLevelCharacter(configObj.target_lv)
         
 def SelectLowLevelCharacter(target_lv):
     logging.debug("SelectLowLevelCharacter")
