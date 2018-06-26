@@ -74,31 +74,96 @@
 
 <span class="kw">class</span> AlgoFactory():
 
-    SIMPLE_ALGO = <span class="dig">1</span>
-    NOLVA_ALGO = <span class="dig">2</span>
+    SIMPLE_ALGO = <span class="dig">0</span>
+    NOLVA_ALGO = <span class="dig">1</span>
+    JIN2_ALGO = <span class="dig">2</span>
+    FRIDAY3_ALGO = <span class="dig">3</span>
     ALGO_DICT = {SIMPLE_ALGO: <span class="str">"Simple"</span>,
-                 NOLVA_ALGO: <span class="str">"Nolva"</span>}
+                 NOLVA_ALGO: <span class="str">"Nolva"</span>,
+                 JIN2_ALGO : <span class="str">"Jin2"</span>,
+                 FRIDAY3_ALGO : <span class="str">"Friday 3"</span>}
 
     @staticmethod
-    <span class="kw">def</span> GenAlgo(choice, docLoc, docColor):
+    <span class="kw">def</span> GenAlgo(choice, clock):
         <span class="kw">if</span> choice == AlgoFactory.SIMPLE_ALGO:
-            <span class="kw">return</span> SimpleAlgo(docLoc, docColor)
+            <span class="kw">return</span> SimpleAlgo(clock)
         <span class="kw">elif</span> choice == AlgoFactory.NOLVA_ALGO:
-            <span class="kw">return</span> NolvaAlgo(docLoc, docColor)
+            <span class="kw">return</span> NolvaAlgo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.JIN2_ALGO:
+            <span class="kw">return</span> Jin2Algo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.FRIDAY3_ALGO:
+            <span class="kw">return</span> Friday3Algo(clock)
         <span class="kw">else</span>:
-            <span class="kw">return</span> SimpleAlgo(docLoc, docColor)
+            <span class="kw">return</span> SimpleAlgo(clock)
 
     @staticmethod
     <span class="kw">def</span> GenAlgoInfo():
-        <span class="kw">return</span> <span class="str">""</span>.join([<span class="str">"%d. %s\n"</span> % (i, AlgoFactory.ALGO_DICT[i]) <span class="kw">for</span> i <span class="kw">in</span> AlgoFactory.ALGO_DICT.keys()])
+        dictlist = []
+        <span class="kw">for</span> key, name <span class="kw">in</span> AlgoFactory.ALGO_DICT.iteritems():
+            dictlist.append(name)
+        <span class="kw">return</span> dictlist
+
+    @staticmethod
+    <span class="kw">def</span> GetAlgoIndex(search_name):
+        <span class="kw">for</span> key, name <span class="kw">in</span> AlgoFactory.ALGO_DICT.iteritems():
+            <span class="kw">if</span> name == search_name:
+                <span class="kw">return</span> key
+        <span class="kw">return</span> -<span class="dig">1</span>
 
 
 <span class="kw">class</span> PlayAlgo(object):
 
-    <span class="kw">def</span> __init__(self, dotLoc, dotColor):
+    <span class="kw">def</span> __init__(self, clock):
+        self.clock = clock
+
+    <span class="kw">def</span> SetBoard(self, dotLoc, dotColor):
         self.dotLoc = dotLoc
         self.dotColor = dotColor
 
+    <span class="kw">def</span> GetDotBoard(self):
+        logging.debug(<span class="str">"GetDotBoard"</span>)
+        <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
+            <span class="kw">return</span> -<span class="dig">1</span>
+        <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="soul_normal.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>):
+            <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="soul_dead.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>):
+                <span class="kw">return</span> -<span class="dig">1</span>
+
+        dotLoc = []
+        dotColor = []
+        dotLoc.append(self.clock.getCenter().offset(<span class="dig">222</span>,<span class="dig">477</span>))
+        stepX = <span class="dig">95</span>
+        stepY = <span class="dig">97</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">7</span>):
+            dotLoc.append(Location(dotLoc[i-<span class="dig">1</span>].x+stepX, dotLoc[i-<span class="dig">1</span>].y))
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
+            dotLoc.append( Location(dotLoc[i].x, dotLoc[i].y+stepY))
+
+        r = Robot()
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">14</span>):
+            c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) <span class="cmt"># get the color object</span>
+            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">1</span>,<span class="dig">4</span>):
+                color = self.CheckColor(c)                     <span class="cmt"># 檢查該點的顏色</span>
+                <span class="kw">if</span> color &lt;&gt; <span class="str">"?"</span>:
+                    <span class="kw">break</span>
+                c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y-j*<span class="dig">3</span>) <span class="cmt"># 換位置再找一次</span>
+            <span class="kw">if</span> color == <span class="str">"?"</span>:
+                <span class="kw">return</span> <span class="dig">0</span>
+                <span class="kw">break</span>
+            dotColor.append(color)
+            <span class="cmt">#crgb = ( c.getRed(), c.getGreen(), c.getBlue() ) # decode to RGB values</span>
+            <span class="cmt">#print dotColor[i]</span>
+        self.SetBoard(dotLoc, dotColor)
+        <span class="kw">return</span> <span class="dig">1</span>
+
+    <span class="kw">def</span> CheckColor(self, c):
+        <span class="kw">if</span> c.getRed() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getGreen() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getBlue() &gt; <span class="dig">200</span>:
+            <span class="kw">return</span> <span class="str">"b"</span>
+        <span class="kw">elif</span> c.getRed() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getGreen() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getBlue() &lt; <span class="dig">150</span>:
+            <span class="kw">return</span> <span class="str">"g"</span>
+        <span class="kw">elif</span> c.getRed() &gt; <span class="dig">220</span> <span class="kw">and</span> c.getGreen() &gt; <span class="dig">220</span> <span class="kw">and</span> c.getBlue() &gt; <span class="dig">220</span>:
+            <span class="kw">return</span> <span class="str">"w"</span>
+        <span class="kw">else</span>:
+            <span class="kw">return</span> <span class="str">"?"</span>
     <span class="kw">def</span> PlayDots(self, color, number):
         <span class="kw">if</span> number == <span class="dig">1</span>:
             <span class="kw">return</span> self.PlayOneDot(color)
@@ -150,29 +215,97 @@
                 <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">0</span>
 
+    <span class="kw">def</span> Make2Dot(self, color):
+         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">5</span>): <span class="cmt">#horizontal</span>
+            <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">2</span>] == color:
+                <span class="skw">click</span>(self.dotLoc[i+<span class="dig">1</span>])
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i + <span class="dig">7</span>] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">9</span>] == color:
+                <span class="skw">click</span>(self.dotLoc[i+<span class="dig">8</span>])
+                <span class="kw">return</span> <span class="dig">1</span>
+         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#verical</span>
+              <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">8</span>] == color:
+                  <span class="skw">click</span>(self.dotLoc[i+<span class="dig">7</span>])
+                  <span class="kw">return</span> <span class="dig">1</span>
+              <span class="kw">if</span> self.dotColor[i+<span class="dig">1</span>] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">7</span>] == color:
+                  <span class="skw">click</span>(self.dotLoc[i])
+                  <span class="kw">return</span> <span class="dig">1</span>
+
     <span class="kw">def</span> Play(self):
         <span class="kw">return</span> NotImplemented
 
 
 <span class="kw">class</span> SimpleAlgo(PlayAlgo):
 
-    <span class="kw">def</span> Play(self):
+    <span class="kw">def</span> Play(self, num):
         <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
                 <span class="kw">if</span> self.PlayDots(color, number):
                     <span class="kw">return</span>
 
+<span class="kw">class</span> Jin2Algo(PlayAlgo):
+
+    strengthen_count = <span class="dig">0</span>
+
+    <span class="kw">def</span> Play(self, num):
+        <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
+            <span class="kw">return</span>
+
+        <span class="kw">if</span> num == <span class="dig">0</span>:
+            self.strengthen_count = <span class="dig">0</span>
+
+        <span class="kw">if</span> self.strengthen_count == <span class="dig">0</span>:
+            <span class="cmt">#if self.PlayDots("w", 4):</span>
+            <span class="cmt">#    self.strengthen_count += 3</span>
+            <span class="cmt">#    return</span>
+            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
+                self.strengthen_count += <span class="dig">1</span>
+                <span class="kw">return</span>
+
+        <span class="kw">if</span> self.strengthen_count &lt; <span class="dig">3</span>:
+            <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
+                self.strengthen_count += <span class="dig">2</span>
+                <span class="kw">return</span>
+            <span class="kw">else</span>:
+                <span class="kw">if</span> self.Make2Dot(<span class="str">"g"</span>): <span class="cmt">#做出讓下回合有兩金</span>
+                    <span class="kw">return</span>
+                <span class="kw">else</span>:
+                    self.strengthen_count = <span class="dig">0</span>
+
+        <span class="cmt">#敵方有人要攻擊了, 讓鱷魚嘲諷坦</span>
+        <span class="kw">if</span> exists(Pattern(<img src="turn1.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
+            <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">1</span>):
+                <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, number):
+                    <span class="kw">return</span>
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"w"</span>, <span class="str">"b"</span>, <span class="str">"g"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span>
 
 <span class="kw">class</span> NolvaAlgo(SimpleAlgo):
 
-    <span class="kw">def</span> Play(self):
+    <span class="kw">def</span> Play(self, num):
         <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>):
             <span class="kw">return</span>
         <span class="cmt"># super(SimpleAlgo, self).Play()</span>
         <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"y"</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
                 <span class="kw">if</span> self.PlayDots(color, number):
                     <span class="kw">return</span>
+
+<span class="kw">class</span> Friday3Algo(SimpleAlgo):
+
+    <span class="kw">def</span> Play1(self):
+        <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
+            <span class="kw">return</span>
+    <span class="kw">def</span> Play2(self):
+        <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
+            <span class="kw">return</span>
+    <span class="kw">def</span> Play3(self):
+        <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
+            <span class="kw">return</span>
+        <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">2</span>):
+            <span class="kw">return</span>
 </pre>
 </body>
 </html>
