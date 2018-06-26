@@ -227,7 +227,7 @@ class BasicMode(object):
         
         #等到看到有時鐘才代表進入關卡
         start_time = time()
-        while not exists(Pattern("clock-1.png").similar(0.90), 0.001):              
+        while not exists(Pattern("clock.png").similar(0.90), 0.001):              
             if exists("ok_btn_1.png", 0.001):    #如果跳出網路不好的圖示, 點擊OK
                     click("ok_btn_1.png")
             if(start_time - time()  >= 30): # not found
@@ -278,14 +278,14 @@ class BasicMode(object):
     
     def Playing(self):
         logging.debug("Playing")
-        clock = exists(Pattern("clock-2.png").similar(0.90) , 0.001)
+        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
         while clock:
             self.DragForward(clock) 
             self.PlayDrag(clock)
             self.CheckFailed()            #檢查有無輸
             if self.Failed:
                 break
-            clock = exists(Pattern("clock-3.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
+            clock = exists(Pattern("clock.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
 
     def LeavePlay(self):
         logging.debug("LeavePlay")
@@ -328,7 +328,7 @@ class FarmMode(BasicMode):
             if self.ZeroRewardCount == 3: #連刷三次沒有獎勵則跳出
                 self.Quit = True
             else:
-                selfChangeStage(10)   #沒有獎勵則強制換關
+                self.ChangeStage(10)   #沒有獎勵則強制換關
         else:
             self.ChangeStage(self.TurnCount)      #檢查看是否滿10次需要換關   
             
@@ -386,7 +386,7 @@ class MaterialMode(BasicMode):
                 
     def Playing(self):
         logging.debug("Playing")
-        clock = exists(Pattern("clock-2.png").similar(0.90) , 0.001)
+        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
         while clock:
             self.CollectMaterials(clock, None, None)  # 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次
             self.DragForward(clock) 
@@ -394,7 +394,7 @@ class MaterialMode(BasicMode):
             self.CheckFailed()            #檢查有無輸
             if self.Failed:
                 break
-            clock = exists(Pattern("clock-3.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
+            clock = exists(Pattern("clock.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
             
     def CollectMaterials(self, clock, dragFrom, dragTo):
         logging.debug("CollectMaterials")

@@ -299,7 +299,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
         <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
         start_time = time()
-        <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="clock-1.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+        <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="kw">if</span> exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>):    <span class="cmt">#如果跳出網路不好的圖示, 點擊OK</span>
                     <span class="skw">click</span>(<img src="ok_btn_1.png" />)
             <span class="kw">if</span>(start_time - time()  &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
@@ -350,14 +350,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
-        clock = exists(Pattern(<img src="clock-2.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
         <span class="kw">while</span> clock:
             self.DragForward(clock)
             self.PlayDrag(clock)
             self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
             <span class="kw">if</span> self.Failed:
                 <span class="kw">break</span>
-            clock = exists(Pattern(<img src="clock-3.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
+            clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
 
     <span class="kw">def</span> LeavePlay(self):
         logging.debug(<span class="str">"LeavePlay"</span>)
@@ -400,7 +400,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">if</span> self.ZeroRewardCount == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
                 self.Quit = True
             <span class="kw">else</span>:
-                selfChangeStage(<span class="dig">10</span>)   <span class="cmt">#沒有獎勵則強制換關</span>
+                self.ChangeStage(<span class="dig">10</span>)   <span class="cmt">#沒有獎勵則強制換關</span>
         <span class="kw">else</span>:
             self.ChangeStage(self.TurnCount)      <span class="cmt">#檢查看是否滿10次需要換關   </span>
 
@@ -458,7 +458,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
-        clock = exists(Pattern(<img src="clock-2.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
         <span class="kw">while</span> clock:
             self.CollectMaterials(clock, None, None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
             self.DragForward(clock)
@@ -466,7 +466,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
             <span class="kw">if</span> self.Failed:
                 <span class="kw">break</span>
-            clock = exists(Pattern(<img src="clock-3.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
+            clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
 
     <span class="kw">def</span> CollectMaterials(self, clock, dragFrom, dragTo):
         logging.debug(<span class="str">"CollectMaterials"</span>)
