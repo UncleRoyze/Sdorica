@@ -112,6 +112,7 @@
         self.materials[<span class="dig">5</span>] = [Pattern(<img src="fruit_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="fruit_5.png" />).similar(<span class="dig">0.80</span>)]
         self.materials[<span class="dig">7</span>] = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_5.png" />).similar(<span class="dig">0.80</span>)]
         self.material_stage_title = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
+        self.challenge_stage_title = [Pattern(<img src="challenge_title_t.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="challenge_title_c1.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_c2.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_c3.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_hero.png" />).similar(<span class="dig">0.90</span>)]
 
     <span class="kw">def</span> writeConfig(self):
         self.config.write(open(self.ini_path, <span class="str">'wb'</span>))
@@ -128,8 +129,17 @@
     <span class="kw">def</span> getMaterialSubStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>))
 
+    <span class="kw">def</span> getChallengeStage(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>))
+
+    <span class="kw">def</span> getChallengeSubStage(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>))
+
     <span class="kw">def</span> getAlgo(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>))
+
+    <span class="kw">def</span> getDesignatedHour(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>))
 </pre>
 </body>
 </html>

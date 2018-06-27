@@ -40,6 +40,7 @@ class Configuration(Singleton):
         self.materials[5] = [Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), Pattern("fruit_4.png").similar(0.80), Pattern("fruit_5.png").similar(0.80)]
         self.materials[7] = [Pattern("masquerade_mask_1.png").similar(0.80), Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.80), Pattern("masquerade_mask_4.png").similar(0.80), Pattern("masquerade_mask_5.png").similar(0.80)]
         self.material_stage_title = [Pattern("stage_title_r1.png").similar(0.90), Pattern("stage_title_r2.png").similar(0.90), Pattern("stage_title_r3.png").similar(0.90), Pattern("stage_title_r4.png").similar(0.90), Pattern("stage_title_r5.png").similar(0.90), Pattern("stage_title_r6.png").similar(0.90), Pattern("stage_title_r7.png").similar(0.90)]
+        self.challenge_stage_title = [Pattern("challenge_title_t.png").similar(0.90), Pattern("challenge_title_c1.png").similar(0.95), Pattern("challenge_title_c2.png").similar(0.95), Pattern("challenge_title_c3.png").similar(0.95), Pattern("challenge_title_hero.png").similar(0.90)]
 
     def writeConfig(self):
         self.config.write(open(self.ini_path, 'wb'))
@@ -56,5 +57,15 @@ class Configuration(Singleton):
     def getMaterialSubStage(self):
         return int(self.config.get("material", "sub_stage"))
 
+    def getChallengeStage(self):
+        return int(self.config.get("challenge", "stage"))
+
+    def getChallengeSubStage(self):
+        return int(self.config.get("challenge", "sub_stage"))
+
     def getAlgo(self):
         return int(self.config.get("setting", "algo"))
+
+    def getDesignatedHour(self):
+        return int(self.config.get("setting", "designated_hour"))
+    

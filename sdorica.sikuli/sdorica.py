@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from java.awt import Color
 from java.awt import Robot
+import datetime
 from time import time
 import logging, sys
 import AutoLvUp
@@ -291,6 +292,7 @@ def Play():
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
     return isFailed
 
+
 def StartAsking():
     ini_mode = configObj.config.get("setting", "mode")
     playmode = int(input("Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest", ini_mode)) - 1
@@ -303,10 +305,6 @@ def StartAsking():
     if turn < 0:
         exit
     configObj.config.set("setting", "turn", str(turn))
-
-    ini_algo = configObj.config.get("setting", "algo")
-    algorithm = int(input("Please select algorithm:\n%s" % AlgoFactory.GenAlgoInfo(), ini_algo))
-    configObj.config.set("setting", "algo", str(algorithm))
     
     if playmode == PlayModeType.MATERIAL:
         ini_stage = configObj.config.get("material", "stage")
@@ -315,15 +313,125 @@ def StartAsking():
         material_sub_stage = int(input("Please enter sub stage:", ini_sub_stage))
         configObj.config.set("material", "stage", str(material_stage))
         configObj.config.set("material", "sub_stage", str(material_sub_stage))
-    elif playmode == PlayModeType.AUTO_LV_UP:
-        ini_target_lv = configObj.config.get("setting", "target_lv")
-        target_lv = int(input("Please enter your targeted level:", ini_target_lv))
-        configObj.config.set("setting", "target_lv", str(target_lv))
+    elif playmode in (PlayModeType.AUTO_LV_UP, PlayModeType.ONE_STAGE):
+        ini_challenge_stage = configObj.config.get("challenge", "stage")
+        ini_challenge_sub_stage = configObj.config.get("challenge", "sub_stage")
+        challenge_stage = int(input("Please enter challenge stage: (1~13)", ini_challenge_stage))
+        challenge_sub_stage = int(input("Please enter challenge sub stage: (1~5)", ini_challenge_sub_stage))
+        configObj.config.set("challenge", "stage", str(challenge_stage))
+        configObj.config.set("challenge", "sub_stage", str(challenge_sub_stage))
+        if playmode == PlayModeType.AUTO_LV_UP:
+            ini_target_lv = configObj.config.get("setting", "target_lv")
+            target_lv = int(input("Please enter your targeted level:", ini_target_lv))
+            configObj.config.set("setting", "target_lv", str(target_lv))
+
+    ini_algo = configObj.config.get("setting", "algo")
+    algorithm = int(input("Please select algorithm:\n%s" % AlgoFactory.GenAlgoInfo(), ini_algo))
+    configObj.config.set("setting", "algo", str(algorithm))
+
+    ini_designated_hour = configObj.config.get("setting", "designated_hour")
+    designated_hour = int(input("Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)", ini_designated_hour))
+    if designated_hour not in range(0, 24):
+        designated_hour = -1
+    configObj.config.set("setting", "designated_hour", str(designated_hour))
 
     #write ini
     configObj.writeConfig()
 
 
+def WaitForDesignatedTime():
+    logging.debug("Enter WaitForDesignatedTime")
+    designated_hour = configObj.getDesignatedHour()
+    print "designated hour is %d" % designated_hour
+    if designated_hour < 0:
+        logging.debug("Run the script right away!")
+        return  # run the script right away
+
+    designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, 0))
+    timedelta = designated_time - datetime.datetime.today()
+    print "timedelta 1 %s" % timedelta
+    if timedelta.days < 0:
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, 0)) - datetime.datetime.today()
+    print "timedelta 2 %s" % timedelta
+    print "The script is gonna excute in %d seconds." % timedelta.seconds
+    wait(timedelta.seconds)
+
+
+def EnterSdorica():
+    app = exists("Sdorica.png", 1)
+    if app:
+        click(app)
+        wait(20)
+    else:
+        logging.debug("Cannot find Sdorica app")
+        return
+    app_title = exists("AppTitle.png", 1)
+    if app_title:
+        click(app_title)
+        wait(20)
+    else:
+        logging.debug("Cannot find Sdorica title")
+        return
+        
+    ad_cancel = exists(Pattern("AdCancel.png").similar(0.90), 1)
+    if ad_cancel:
+        click(ad_cancel)
+        wait(1)
+    else:
+        logging.debug("Cannot find advertisement cancel button")
+
+
+def SelectChallengeStage():
+    def GetChallengePageAndCount(stage, sub_stage):
+        page, count = 0, 0
+        if stage in range(1, 6):
+            page = 1
+            if sub_stage in range(1, 5):
+                count = (stage - 1) * 4 + sub_stage - 1
+        elif stage in range(6, 14):
+            page = ((stage - 6) / 4) + 2
+            count = ((stage - 6) % 4) * 5 + sub_stage - 1
+        elif stage == 14:
+            page = 4
+            count = sub_stage - 1
+        return page, count
+
+    if configObj.getPlayMode() not in (PlayModeType.ONE_STAGE, PlayModeType.AUTO_LV_UP):
+        return
+    challenge_btn = exists("ChallengeBtn.png", 0.001) 
+    if challenge_btn:
+        click(challenge_btn)
+        wait(1)
+    else:
+        logging.debug("Cannot find challenge button, try to find the selected one.")
+        
+    challenge_btn_selected = exists("ChallengeBtnSelected.png", 0.001)
+    if challenge_btn_selected:
+        click(challenge_btn_selected)
+        wait(1)
+    else:
+        
+        logging.debug("Cannot find seletected challenge button.")
+        
+    challenge_title = exists(Pattern("challenge_title.png").similar(0.80), 1)
+    if not challenge_title:
+        return
+    challenge_page, challenge_count = GetChallengePageAndCount(configObj.getChallengeStage(), configObj.getChallengeSubStage())
+    while not exists(configObj.challenge_stage_title[challenge_page], 0.001):
+        click(Pattern("next_arrow.png").similar(0.85))
+        wait(1)
+    for i in range(7):
+        Settings.MoveMouseDelay = 0.1
+        Settings.DelayBeforeDrop = 0   # back to top
+        dragDrop(challenge_title.getCenter().offset(0, 240), challenge_title.getCenter().offset(0, 640))
+    wait(1)
+    Settings.MoveMouseDelay = 0.1
+    Settings.DelayBeforeDrop = 2
+    for i in range(challenge_count):
+        dragDrop(challenge_title.getCenter().offset(0, 440), challenge_title.getCenter().offset(0, 240))
+    
+    
 def SelectMaterialStage():
     if configObj.getPlayMode() != PlayModeType.MATERIAL:
         return    
@@ -359,6 +467,9 @@ def ChangeStage(i):
 
 def main():
     StartAsking()
+    WaitForDesignatedTime()
+    EnterSdorica()
+    SelectChallengeStage()
     SelectMaterialStage()
     zero_reward_count = 0
     for i in range(configObj.getTurns()):
