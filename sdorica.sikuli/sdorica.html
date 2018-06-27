@@ -124,7 +124,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">def</span> main():
     StartAsking()
     playMode = ModeFactory.GenMode(configObj.getPlayMode())
+    start_time = time()
     playMode.Run()
+    end_time = time()
+    time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+    <span class="skw">popup</span>(<span class="str">"Duration: %d min."</span> % (time_taken/<span class="dig">60</span>))
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()

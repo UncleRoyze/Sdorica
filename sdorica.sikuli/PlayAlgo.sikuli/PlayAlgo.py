@@ -176,21 +176,10 @@ class Jin2Algo(PlayAlgo):
     strengthen_count = 0
     
     def Play(self, num):
-        if self.PlayDots("b", 4):
-            return
-        
         if num == 0:
             self.strengthen_count = 0 
 
-        if self.strengthen_count == 0: 
-            #if self.PlayDots("w", 4):
-            #    self.strengthen_count += 3
-            #    return
-            if self.PlayDots("w", 1):
-                self.strengthen_count += 1
-                return
-
-        if self.strengthen_count < 3:
+        if self.strengthen_count < 2: 
             if self.PlayDots("g", 2):
                 self.strengthen_count += 2
                 return
@@ -198,10 +187,18 @@ class Jin2Algo(PlayAlgo):
                 if self.Make2Dot("g"): #做出讓下回合有兩金
                     return
                 else:
-                    self.strengthen_count = 0
+                    self.strengthen_count = 0 
+                    
+        if self.strengthen_count < 3:
+            if self.PlayDots("w", 2):
+                self.strengthen_count += 1
+                return
+            if self.PlayDots("w", 1):
+                self.strengthen_count += 1
+                return
 
         #敵方有人要攻擊了, 讓鱷魚嘲諷坦
-        if exists(Pattern("turn1.png").similar(0.80), 0.001):
+        if exists(Pattern("turn1.png").similar(0.80), 0.001) and not exists("dead_crocodile.png",0.001):
             for number in (4, 1):
                 if self.PlayDots("g", number):
                     return

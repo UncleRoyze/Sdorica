@@ -119,7 +119,6 @@ class BasicMode(object):
         
     def Run(self):
         self.InputSetting()
-        start_time = time()
         self.SelectStaringStage()
         for self.TurnCount in range(configObj.getTurns()):  
             logging.info("Turn: %d", self.TurnCount)
@@ -130,12 +129,10 @@ class BasicMode(object):
             self.IntoPlay()
             self.Playing()
             self.LeavePlay()
+            self.WaitToMenu()
             self.ToNextStage()
             if self.Quit:
                 break
-        end_time = time()
-        time_taken = end_time - start_time # time_taken is in seconds
-        popup("Duration: $d min." % time_taken/60)
 
     # 是否在關卡選單內        
     def IsInStage(self):
@@ -242,6 +239,13 @@ class BasicMode(object):
             logging.debug("Failed")
             self.Failed = True
 
+    def InSoulBoard(self, clock):
+        region = Region(clock.x-70, clock.y+270, 170, 130)
+        if exists(Pattern("white_icon.png").exact(),0.001) or exists(Pattern("black_icon.png").exact(),0.001) or exists(Pattern("gold_icon.png").exact(),0.001):
+            return True
+        else:
+            return False
+
     def DragForward(self, clock):
         logging.debug("DragForward")
         if not clock:
@@ -252,7 +256,7 @@ class BasicMode(object):
         Settings.MoveMouseDelay = 0.5
     
         with MouseDragHandler(dragFrom, dragTo):
-            while not exists("board.png", 0.001):
+            while not self.InSoulBoard(clock):
                 end_time = time()
                 time_taken = end_time - start_time # time_taken is in seconds
                 if(time_taken >= 30): # not found
@@ -292,19 +296,21 @@ class BasicMode(object):
         if self.Failed:
             return
         Settings.MoveMouseDelay = 0.1
-        finish = exists(Pattern("finish_button.png").similar(0.80), 60)
-        if not finish:  # 檢查網路是否不穩
-            if exists("network_lost.png",0.001):
-                click(Pattern("network_lost.png").targetOffset(0,140))
-            return self.LeavePlay()
+        for i in range(60):
+            
+            if exists(Pattern("finish_button.png").similar(0.80), 1):
+                break
+            if exists("network_lost.png",0.001):# 檢查網路是否不穩
+                click(Pattern("network_lost.png").targetOffset(0,140))       # 有網路不穩則點擊後跳出
+                return 
         
         if exists(Pattern("zero_money.png").exact(), 2):    #沒有庫倫了
             self.Reward = False
             self.ZeroRewardCount += 1
-        wait(2)
         click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
 
-        #等待回到選單
+    def WaitToMenu(self): #等待回到選單
+        logging.debug("WaitToMenu")
         start = "gotofight.png" 
         if exists(start, 30):
             wait(3)
@@ -377,7 +383,7 @@ class MaterialMode(BasicMode):
         Settings.MoveMouseDelay = 0.5
     
         with MouseDragHandler(dragFrom, dragTo):
-            while not exists("board.png", 0.001):
+            while not self.InSoulBoard():
                 self.CollectMaterials(clock, dragFrom, dragTo)
                 end_time = time()
                 time_taken = end_time - start_time # time_taken is in seconds

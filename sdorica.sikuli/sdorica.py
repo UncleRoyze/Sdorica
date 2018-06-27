@@ -52,8 +52,12 @@ def StartAsking():
 def main():
     StartAsking()
     playMode = ModeFactory.GenMode(configObj.getPlayMode())
+    start_time = time()
     playMode.Run()
-
+    end_time = time()
+    time_taken = end_time - start_time # time_taken is in seconds
+    popup("Duration: %d min." % (time_taken/60))
+        
 if __name__ == "__main__":
     main()
   

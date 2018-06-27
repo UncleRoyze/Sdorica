@@ -191,7 +191,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> Run(self):
         self.InputSetting()
-        start_time = time()
         self.SelectStaringStage()
         <span class="kw">for</span> self.TurnCount <span class="kw">in</span> range(configObj.getTurns()):
             logging.info(<span class="str">"Turn: %d"</span>, self.TurnCount)
@@ -202,12 +201,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.IntoPlay()
             self.Playing()
             self.LeavePlay()
+            self.WaitToMenu()
             self.ToNextStage()
             <span class="kw">if</span> self.Quit:
                 <span class="kw">break</span>
-        end_time = time()
-        time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
-        <span class="skw">popup</span>(<span class="str">"Duration: $d min."</span> % time_taken/<span class="dig">60</span>)
 
     <span class="cmt"># 是否在關卡選單內        </span>
     <span class="kw">def</span> IsInStage(self):
@@ -314,6 +311,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             logging.debug(<span class="str">"Failed"</span>)
             self.Failed = True
 
+    <span class="kw">def</span> InSoulBoard(self, clock):
+        region = Region(clock.x-<span class="dig">70</span>, clock.y+<span class="dig">270</span>, <span class="dig">170</span>, <span class="dig">130</span>)
+        <span class="kw">if</span> exists(Pattern(<img src="white_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="black_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="gold_icon.png" />).exact(),<span class="dig">0.001</span>):
+            <span class="kw">return</span> True
+        <span class="kw">else</span>:
+            <span class="kw">return</span> False
+
     <span class="kw">def</span> DragForward(self, clock):
         logging.debug(<span class="str">"DragForward"</span>)
         <span class="kw">if</span> <span class="kw">not</span> clock:
@@ -324,7 +328,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
-            <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">0.001</span>):
+            <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
                 end_time = time()
                 time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
                 <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
@@ -364,19 +368,21 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> self.Failed:
             <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        finish = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">60</span>)
-        <span class="kw">if</span> <span class="kw">not</span> finish:  <span class="cmt"># 檢查網路是否不穩</span>
-            <span class="kw">if</span> exists(<img src="network_lost.png" />,<span class="dig">0.001</span>):
-                <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))
-            <span class="kw">return</span> self.LeavePlay()
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">60</span>):
+
+            <span class="kw">if</span> exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
+                <span class="kw">break</span>
+            <span class="kw">if</span> exists(<img src="network_lost.png" />,<span class="dig">0.001</span>):<span class="cmt"># 檢查網路是否不穩</span>
+                <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))       <span class="cmt"># 有網路不穩則點擊後跳出</span>
+                <span class="kw">return</span>
 
         <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">2</span>):    <span class="cmt">#沒有庫倫了</span>
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
-        <span class="skw">wait</span>(<span class="dig">2</span>)
         <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
 
-        <span class="cmt">#等待回到選單</span>
+    <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
+        logging.debug(<span class="str">"WaitToMenu"</span>)
         start = <img src="gotofight.png" />
         <span class="kw">if</span> exists(start, <span class="dig">30</span>):
             <span class="skw">wait</span>(<span class="dig">3</span>)
@@ -449,7 +455,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.5</span>
 
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
-            <span class="kw">while</span> <span class="kw">not</span> exists(<img src="board.png" />, <span class="dig">0.001</span>):
+            <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard():
                 self.CollectMaterials(clock, dragFrom, dragTo)
                 end_time = time()
                 time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
