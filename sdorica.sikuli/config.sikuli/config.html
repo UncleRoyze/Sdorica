@@ -103,7 +103,7 @@
     <span class="kw">def</span> _initGlobalConfig(self):
         self.target_lv = <span class="dig">59</span>
         self.friends = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
-        self.brainmen = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />]
+        self.brainmen = [<img src="delan_sp.png" />, <img src="Fatima_lv2.png" />, <img src="Sione_sp.png" />, <img src="Shirley_lv3.png" />, <img src="Shirley_lv2.png" />, <img src="YanBo_lv3.png" />,<img src="Darkmoon_lv3.png" />]
         self.materials = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="dig">10</span>)]
         self.materials[<span class="dig">1</span>] = [Pattern(<img src="stone_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="stone_2.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="stone_3.png" />).similar(<span class="dig">0.80</span>)]
         self.materials[<span class="dig">2</span>] = [Pattern(<img src="tripod_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="tripod_5.png" />).similar(<span class="dig">0.80</span>)]
@@ -121,7 +121,7 @@
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>))
 
     <span class="kw">def</span> getPlayMode(self):
-        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)) - <span class="dig">1</span>
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>))
 
     <span class="kw">def</span> getMaterialStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>))

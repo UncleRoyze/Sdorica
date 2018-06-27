@@ -1,0 +1,612 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>ModeClass.sikuli</h2> <a href="ModeClass.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+<span class="cmt"># -*- coding: UTF-8 -*-</span>
+<span class="kw">from</span> java.awt <span class="kw">import</span> Color
+<span class="kw">from</span> java.awt <span class="kw">import</span> Robot
+<span class="kw">from</span> time <span class="kw">import</span> time
+<span class="kw">import</span> logging, sys
+<span class="kw">import</span> config
+reload(config)
+
+configObj = config.Configuration()
+logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
+
+<span class="kw">class</span> PlayModeType:
+    FARM, AUTO_LV_UP, MATERIAL, AUTO_FARM = range(<span class="dig">4</span>)
+
+<span class="kw">class</span> MouseDragHandler:
+
+    <span class="kw">def</span> __init__(self, dragFrom, dragTo, reverseOperation=False):
+        self.dragFrom = dragFrom
+        self.dragTo = dragTo
+        self.reverseOperation = reverseOperation
+
+    <span class="kw">def</span> __enter__(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.reverseOperation:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+        <span class="kw">else</span>:
+            dropAt(self.dragTo)
+
+    <span class="kw">def</span> __exit__(self, <span class="skw">type</span>, value, traceback):
+        <span class="kw">if</span> <span class="kw">not</span> self.reverseOperation:
+            dropAt(self.dragTo)
+        <span class="kw">else</span>:
+            drag(self.dragFrom)
+            hover(self.dragTo)
+
+
+<span class="kw">class</span> DragCharacterBar:
+
+    <span class="kw">def</span> __init__(self):
+        topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
+        self.dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+        self.dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
+
+    <span class="cmt">#角色選單拉到最右邊</span>
+    <span class="kw">def</span> ToRightEnd(self, dragTimes):
+        <span class="kw">for</span> i <span class="kw">in</span> range(dragTimes):
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
+            <span class="skw">dragDrop</span>(self.dragRight, self.dragLeft)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="cmt">#角色選單拉往左, 一次拉一整排五位位置都正好換掉</span>
+    <span class="kw">def</span> ToLeft(self):
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        drag(self.dragLeft)
+        Settings.MoveMouseDelay = <span class="dig">1.5</span>
+        dropAt(self.dragRight)
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        hover(self.dragLeft)
+
+    <span class="cmt">#角色選單拉往右, 一次拉一整排五位位置都正好換掉</span>
+    <span class="kw">def</span> ToRight(self):
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        drag(self.dragRight)
+        Settings.MoveMouseDelay = <span class="dig">1.5</span>
+        dropAt(self.dragLeft)
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        hover(self.dragRight)
+
+<span class="kw">class</span> ModeFactory():
+    FARM = <span class="dig">0</span>
+    AUTO_LV_UP = <span class="dig">1</span>
+    MATERIAL = <span class="dig">2</span>
+    AUTO_FARM = <span class="dig">3</span>
+    MODE_DICT = {FARM: <span class="str">"Farm"</span>,
+                 AUTO_LV_UP: <span class="str">"Auto Lelve Up"</span>,
+                 MATERIAL : <span class="str">"Material"</span>,
+                 AUTO_FARM : <span class="str">"Auto Farm"</span>}
+
+    @staticmethod
+    <span class="kw">def</span> GenMode(choice):
+        <span class="kw">if</span> choice == ModeFactory.FARM:
+            <span class="kw">return</span> FarmMode()
+        <span class="kw">elif</span> choice == ModeFactory.AUTO_LV_UP:
+            <span class="kw">return</span> AutoLvUpMode()
+        <span class="kw">elif</span> choice == ModeFactory.MATERIAL:
+            <span class="kw">return</span> MaterialMode()
+        <span class="kw">elif</span> choice == ModeFactory.AUTO_FARM:
+            <span class="kw">return</span> AutoFarmMode()
+        <span class="kw">else</span>:
+            <span class="kw">return</span> BasicMode()
+
+    @staticmethod
+    <span class="kw">def</span> GenModeInfo():
+        dictlist = []
+        <span class="kw">for</span> key, name <span class="kw">in</span> ModeFactory.MODE_DICT.iteritems():
+            dictlist.append(name)
+        <span class="kw">return</span> dictlist
+
+    @staticmethod
+    <span class="kw">def</span> GetModeIndex(search_name):
+        <span class="kw">for</span> key, name <span class="kw">in</span> ModeFactory.MODE_DICT.iteritems():
+            <span class="kw">if</span> name == search_name:
+                <span class="kw">return</span> key
+        <span class="kw">return</span> -<span class="dig">1</span>
+
+<span class="kw">class</span> BasicMode(object):
+
+    <span class="kw">def</span> __init__(self):
+        self.Failed = False
+        self.Reward = True
+        self.Quit = False
+        self.TurnCount = <span class="dig">0</span>
+        self.ZeroRewardCount = <span class="dig">0</span>
+        self.MoveSpeed = <span class="dig">500</span>
+
+    <span class="kw">def</span> InitParameter(self):
+        self.Failed = False
+        self.Reward = True
+
+    <span class="kw">def</span> Run(self):
+        self.InputSetting()
+        self.WaitForDesignatedTime()
+        self.EnterSdorica()
+        self.SelectStage()
+        <span class="kw">for</span> self.TurnCount <span class="kw">in</span> range(configObj.getTurns()):
+            logging.info(<span class="str">"Turn: %d"</span>, self.TurnCount)
+            self.InitParameter()
+            self.IntoStage()
+            self.SelectFighter()
+            self.SelectBrainman()
+            self.IntoPlay()
+            self.Playing()
+            self.LeavePlay()
+            self.WaitToMenu()
+            self.ToNextStage()
+            <span class="kw">if</span> self.Quit:
+                <span class="kw">break</span>
+
+    <span class="kw">def</span> WaitForDesignatedTime(self):
+        logging.debug(<span class="str">"Enter WaitForDesignatedTime"</span>)
+        designated_hour = configObj.getDesignatedHour()
+        <span class="kw">print</span> <span class="str">"designated hour is %d"</span> % designated_hour
+        <span class="kw">if</span> designated_hour &lt; <span class="dig">0</span>:
+            logging.debug(<span class="str">"Run the script right away!"</span>)
+            <span class="kw">return</span>  <span class="cmt"># run the script right away</span>
+
+        designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, <span class="dig">0</span>))
+        timedelta = designated_time - datetime.datetime.today()
+        <span class="kw">print</span> <span class="str">"timedelta 1 %s"</span> % timedelta
+        <span class="kw">if</span> timedelta.days &lt; <span class="dig">0</span>:
+            tomorrow = datetime.date.today() + datetime.timedelta(days=<span class="dig">1</span>)
+            timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, <span class="dig">0</span>)) - datetime.datetime.today()
+        <span class="kw">print</span> <span class="str">"timedelta 2 %s"</span> % timedelta
+        <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
+        <span class="skw">wait</span>(timedelta.seconds)
+
+    <span class="kw">def</span> EnterSdorica(self):
+        app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
+        <span class="kw">if</span> app:
+            <span class="skw">click</span>(app)
+            <span class="skw">wait</span>(<span class="dig">20</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
+            <span class="kw">return</span>
+        app_title = exists(<img src="app_title.png" />, <span class="dig">1</span>)
+        <span class="kw">if</span> app_title:
+            <span class="skw">click</span>(app_title)
+            <span class="skw">wait</span>(<span class="dig">20</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
+            <span class="kw">return</span>
+
+        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>)
+        <span class="kw">if</span> ad_cancel:
+            <span class="skw">click</span>(ad_cancel)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find advertisement cancel button"</span>)
+
+    <span class="cmt"># 是否在關卡選單內        </span>
+    <span class="kw">def</span> IsInStage(self):
+        <span class="kw">if</span> exists(Pattern(<img src="Brainman.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="kw">return</span> True
+        <span class="kw">else</span>:
+            <span class="kw">return</span> False
+
+    <span class="cmt"># 是否在遊戲關卡內        </span>
+    <span class="kw">def</span> IsInPlaying(self):
+        <span class="kw">if</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>):
+            <span class="kw">return</span> True
+        <span class="kw">else</span>:
+            <span class="kw">return</span> False
+
+    <span class="kw">def</span> InputSetting(self):
+        logging.debug(<span class="str">"InputSetting"</span>)
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> SelectStage(self):
+        logging.debug(<span class="str">"self.SelectStage"</span>)
+        <span class="kw">if</span> self.IsInPlaying() <span class="kw">or</span> self.IsInStage():
+            <span class="kw">return</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> IntoStage(self):
+        logging.debug(<span class="str">"IntoStage"</span>)
+        <span class="kw">if</span> self.IsInPlaying() <span class="kw">or</span> self.IsInStage():
+            <span class="kw">return</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        start = <img src="gotofight.png" />
+        <span class="kw">if</span> exists(start, <span class="dig">0.001</span>):
+            <span class="skw">click</span>(start)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+
+    <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+    <span class="kw">def</span> SelectBrainman(self):
+        logging.debug(<span class="str">"SelectBrainman"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        bar = DragCharacterBar()
+        <span class="kw">def</span> _findBrainman():
+            dragFrom = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">240</span>)
+            dragTo = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">100</span>)
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+
+            selectCenter = None
+            trueFriendFound = False
+            <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
+                matches = findAnyList(configObj.friends + configObj.brainmen)
+                <span class="kw">if</span> matches:
+                    <span class="kw">for</span> match <span class="kw">in</span> matches:
+                        matchCenter = match.getCenter()
+                        <span class="kw">if</span> match.getIndex() &gt; len(configObj.friends) - <span class="dig">1</span>:
+                            selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
+                            <span class="kw">break</span>
+                        <span class="kw">else</span>:
+                            reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y + <span class="dig">20</span>, <span class="dig">140</span>, <span class="dig">200</span>)
+                            <span class="kw">if</span> reg.exists(<img src="using.png" />):
+                                <span class="cmt"># 好友的參謀跟自己隊伍的角色相同，只好不選他了 </span>
+                                <span class="kw">continue</span>
+                            selectCenter = reg.getCenter()
+                            trueFriendFound = True
+                            <span class="kw">break</span>
+            <span class="skw">click</span>(selectCenter)
+            <span class="kw">return</span> trueFriendFound
+
+        friendSlot = exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>)
+        <span class="kw">if</span> <span class="kw">not</span> friendSlot:
+            <span class="kw">return</span>
+        <span class="skw">click</span>(friendSlot)
+        friendSlotCenter = friendSlot.getCenter()
+        bar.ToRightEnd(<span class="dig">1</span>)
+        <span class="kw">if</span> <span class="kw">not</span> _findBrainman():  <span class="cmt"># drag and drop to second half friends</span>
+            bar.ToLeft()
+            _findBrainman()
+
+    <span class="kw">def</span> IntoPlay(self):
+        logging.debug(<span class="str">"IntoPlay"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        start = <img src="gotofight.png" />
+        <span class="skw">wait</span>(start)
+        <span class="skw">click</span>(start)
+
+        <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
+        start_time = time()
+        <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="kw">if</span> exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>):    <span class="cmt">#如果跳出網路不好的圖示, 點擊OK</span>
+                    <span class="skw">click</span>(<img src="ok_btn_1.png" />)
+            <span class="kw">if</span>(start_time - time()  &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+                <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+
+    <span class="kw">def</span> CheckFailed(self):
+        logging.debug(<span class="str">"CheckFailed"</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="lost_message.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">130</span>))
+            <span class="skw">wait</span>(<span class="dig">5</span>)
+            logging.debug(<span class="str">"Failed"</span>)
+            self.Failed = True
+
+    <span class="kw">def</span> InSoulBoard(self, clock):
+        region = Region(clock.x-<span class="dig">70</span>, clock.y+<span class="dig">270</span>, <span class="dig">170</span>, <span class="dig">130</span>)
+        <span class="kw">if</span> exists(Pattern(<img src="white_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="black_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="gold_icon.png" />).exact(),<span class="dig">0.001</span>):
+            <span class="kw">return</span> True
+        <span class="kw">else</span>:
+            <span class="kw">return</span> False
+
+    <span class="kw">def</span> DragForward(self, clock):
+        logging.debug(<span class="str">"DragForward"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> clock:
+            <span class="kw">return</span>
+        start_time = time()
+        dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
+        dragTo = Location(dragFrom.x+self.MoveSpeed, dragFrom.y)
+        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
+            <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
+                end_time = time()
+                time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+                <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+                    <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+
+    <span class="kw">def</span> PlayDrag(self, clock):
+        logging.debug(<span class="str">"PlayDrag"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> clock:
+            <span class="kw">return</span>
+        turn = <span class="dig">0</span>
+        playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(),clock)
+        <span class="kw">while</span> True:
+            status = playAlgo.GetDotBoard()
+            <span class="kw">if</span> status == -<span class="dig">1</span>: <span class="cmt">#沒找到棋盤</span>
+                <span class="kw">break</span>
+            <span class="kw">elif</span> status == <span class="dig">0</span>: <span class="cmt">#敵人攻擊中, 棋盤辨識不出來</span>
+                <span class="kw">continue</span>
+            <span class="cmt">#click(clock.getCenter().offset(60,480)) #點擊自己的參謀</span>
+            <span class="cmt">#click(clock.getCenter().offset(970,480)) #點擊公會的參謀</span>
+            playAlgo.Play(turn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            turn += <span class="dig">1</span>
+
+    <span class="kw">def</span> Playing(self):
+        logging.debug(<span class="str">"Playing"</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        <span class="kw">while</span> clock:
+            self.DragForward(clock)
+            self.PlayDrag(clock)
+            self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
+            <span class="kw">if</span> self.Failed:
+                <span class="kw">break</span>
+            clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
+
+    <span class="kw">def</span> LeavePlay(self):
+        logging.debug(<span class="str">"LeavePlay"</span>)
+        <span class="kw">if</span> self.Failed:
+            <span class="kw">return</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">60</span>):
+
+            <span class="kw">if</span> exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
+                <span class="kw">break</span>
+            <span class="kw">if</span> exists(<img src="network_lost.png" />,<span class="dig">0.001</span>):<span class="cmt"># 檢查網路是否不穩</span>
+                <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))       <span class="cmt"># 有網路不穩則點擊後跳出</span>
+                <span class="kw">return</span>
+
+        <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">2</span>):    <span class="cmt">#沒有庫倫了</span>
+            self.Reward = False
+            self.ZeroRewardCount += <span class="dig">1</span>
+        <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
+
+    <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
+        logging.debug(<span class="str">"WaitToMenu"</span>)
+        start = <img src="gotofight.png" />
+        <span class="kw">if</span> exists(start, <span class="dig">30</span>):
+            <span class="skw">wait</span>(<span class="dig">3</span>)
+
+    <span class="kw">def</span> ToNextStage(self):
+         <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">class</span> ChallengeMode(BasicMode):
+
+    <span class="kw">def</span> InputSetting(self):
+        ini_challenge_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>)
+        ini_challenge_sub_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>)
+        challenge_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge stage: (1~13)"</span>, ini_challenge_stage))
+        challenge_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge sub stage: (1~5)"</span>, ini_challenge_sub_stage))
+        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"stage"</span>, str(challenge_stage))
+        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>, str(challenge_sub_stage))
+        <span class="cmt">#write ini</span>
+        configObj.writeConfig()
+
+    <span class="kw">def</span> SelectStage(self):
+        <span class="kw">def</span> GetChallengePageAndCount(stage, sub_stage):
+            page, count = <span class="dig">0</span>, <span class="dig">0</span>
+            <span class="kw">if</span> stage <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">6</span>):
+                page = <span class="dig">1</span>
+                <span class="kw">if</span> sub_stage <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">5</span>):
+                    count = (stage - <span class="dig">1</span>) * <span class="dig">4</span> + sub_stage - <span class="dig">1</span>
+            <span class="kw">elif</span> stage <span class="kw">in</span> range(<span class="dig">6</span>, <span class="dig">14</span>):
+                page = ((stage - <span class="dig">6</span>) / <span class="dig">4</span>) + <span class="dig">2</span>
+                count = ((stage - <span class="dig">6</span>) % <span class="dig">4</span>) * <span class="dig">5</span> + sub_stage - <span class="dig">1</span>
+            <span class="kw">elif</span> stage == <span class="dig">14</span>:
+                page = <span class="dig">4</span>
+                count = sub_stage - <span class="dig">1</span>
+            <span class="kw">return</span> page, count
+
+        challenge_btn = exists(<img src="challenge_btn.png" />, <span class="dig">0.001</span>)
+        <span class="kw">if</span> challenge_btn:
+            <span class="skw">click</span>(challenge_btn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find challenge button, try to find the selected one."</span>)
+
+        challenge_btn_selected = exists(<img src="challenge_btn_selected.png" />, <span class="dig">0.001</span>)
+        <span class="kw">if</span> challenge_btn_selected:
+            <span class="skw">click</span>(challenge_btn_selected)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find seletected challenge button."</span>)
+
+        challenge_title = exists(Pattern(<img src="challenge_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
+        <span class="kw">if</span> <span class="kw">not</span> challenge_title:
+            <span class="kw">return</span>
+        challenge_page, challenge_count = GetChallengePageAndCount(configObj.getChallengeStage(), configObj.getChallengeSubStage())
+        <span class="kw">while</span> <span class="kw">not</span> exists(configObj.challenge_stage_title[challenge_page], <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+            <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        Settings.DelayBeforeDrop = <span class="dig">2</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
+            <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
+
+<span class="kw">class</span> FarmMode(ChallengeMode):
+
+    <span class="kw">def</span> ChangeStage(self, i):
+        <span class="kw">if</span> i % <span class="dig">10</span> == <span class="dig">0</span> <span class="kw">and</span> i != <span class="dig">0</span>:
+            logging.debug(<span class="str">"ChangeStage"</span>)
+            region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
+            <span class="kw">if</span> region_title:
+                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
+
+    <span class="kw">def</span> ToNextStage(self):
+        <span class="kw">if</span> self.Failed:
+            self.TurnCount -= <span class="dig">1</span>
+        <span class="kw">if</span> <span class="kw">not</span> self.Reward:
+            <span class="kw">if</span> self.ZeroRewardCount == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
+                self.Quit = True
+            <span class="kw">else</span>:
+                self.ChangeStage(<span class="dig">10</span>)   <span class="cmt">#沒有獎勵則強制換關</span>
+        <span class="kw">else</span>:
+            self.ChangeStage(self.TurnCount)      <span class="cmt">#檢查看是否滿10次需要換關   </span>
+
+
+<span class="kw">class</span> MaterialMode(BasicMode):
+
+    <span class="kw">def</span> InputSetting(self):
+        self.MoveSpeed = <span class="dig">35</span>
+        ini_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
+        ini_sub_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
+        material_stage = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
+        material_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
+        configObj.config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(material_stage))
+        configObj.config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(material_sub_stage))
+        <span class="cmt">#write ini</span>
+        configObj.writeConfig()
+
+    <span class="kw">def</span> SelectStage(self):
+        region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> region_menu_btn:
+            <span class="skw">click</span>(region_menu_btn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        region_menu_btn_selected = exists(Pattern(<img src="menubtn_region_selected.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> region_menu_btn_selected:
+            <span class="skw">click</span>(region_menu_btn_selected.getCenter().offset(-<span class="dig">300</span>, -<span class="dig">300</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        region_title = exists(Pattern(<img src="stage_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
+        <span class="kw">if</span> region_title:
+            <span class="kw">while</span> <span class="kw">not</span> exists(configObj.material_stage_title[configObj.getMaterialStage() - <span class="dig">1</span>], <span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
+                <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">2</span>
+            <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
+                <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
+    <span class="kw">def</span> DragForward(self, clock):
+        logging.debug(<span class="str">"DragForward"</span>)
+        <span class="kw">if</span> <span class="kw">not</span> clock:
+            <span class="kw">return</span>
+        start_time = time()
+        dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
+        dragTo = Location(dragFrom.x+self.MoveSpeed, dragFrom.y)
+        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
+            <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
+                self.CollectMaterials(clock, dragFrom, dragTo)
+                end_time = time()
+                time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
+                <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
+                    <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+
+    <span class="kw">def</span> Playing(self):
+        logging.debug(<span class="str">"Playing"</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        <span class="kw">while</span> clock:
+            self.CollectMaterials(clock, None, None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
+            self.DragForward(clock)
+            self.PlayDrag(clock)
+            self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
+            <span class="kw">if</span> self.Failed:
+                <span class="kw">break</span>
+            clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
+
+    <span class="kw">def</span> CollectMaterials(self, clock, dragFrom, dragTo):
+        logging.debug(<span class="str">"CollectMaterials"</span>)
+
+        region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
+        material_stage = configObj.getMaterialStage()
+        matches = region.findAnyList(configObj.materials[material_stage])
+        <span class="kw">if</span> <span class="kw">not</span> matches:
+            logging.debug(<span class="str">"Materials not found"</span>)
+            <span class="kw">return</span>
+
+        <span class="cmt"># Material found! Try to collect it.</span>
+        <span class="cmt"># Go back</span>
+        logging.debug(<span class="str">"Material found!"</span>)
+        <span class="kw">if</span> dragFrom <span class="kw">is</span> <span class="kw">not</span> None:
+            dragBack = Location(dragFrom.x-<span class="dig">20</span>, dragFrom.y)
+            hover(dragBack)
+            <span class="skw">wait</span>(<span class="dig">0.35</span>)
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
+            <span class="kw">for</span> match <span class="kw">in</span> matches:
+                index = match.getIndex()
+                logging.debug(<span class="str">"Found a material with index [%d]"</span> % index)
+                material = exists(configObj.materials[material_stage][index], <span class="dig">0.001</span>)
+                <span class="kw">if</span> material:
+                    logging.debug(<span class="str">"Trying to collect a material with index [%d]"</span> % index)
+                    <span class="skw">click</span>(material)
+                <span class="kw">else</span>:
+                    logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
+</pre>
+</body>
+</html>
