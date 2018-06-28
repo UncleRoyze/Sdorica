@@ -4,21 +4,21 @@ from java.awt import Robot
 import datetime
 from time import time
 import logging, sys
-import AutoLvUp
-reload(AutoLvUp)
 import config
 reload(config)
 import PlayAlgo
 reload(PlayAlgo)
 import ModeClass
 reload(ModeClass)
+import AutoLvUp
+reload(AutoLvUp)
+
 
 configObj = config.Configuration()
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 def StartAsking():
     ini_mode = int(configObj.config.get("setting", "mode"))
-    #modes = ("Farm", "Auto Lelve Up", "Material", "Auto Farm")
     modes = ModeFactory.GenModeInfo()
     algos = AlgoFactory.GenAlgoInfo()
     ini_turn = configObj.config.get("setting", "turn")

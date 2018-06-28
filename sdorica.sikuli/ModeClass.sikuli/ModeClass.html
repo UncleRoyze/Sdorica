@@ -81,9 +81,6 @@ reload(config)
 configObj = config.Configuration()
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
-<span class="kw">class</span> PlayModeType:
-    FARM, AUTO_LV_UP, MATERIAL, AUTO_FARM = range(<span class="dig">4</span>)
-
 <span class="kw">class</span> MouseDragHandler:
 
     <span class="kw">def</span> __init__(self, dragFrom, dragTo, reverseOperation=False):
@@ -143,10 +140,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     AUTO_LV_UP = <span class="dig">1</span>
     MATERIAL = <span class="dig">2</span>
     AUTO_FARM = <span class="dig">3</span>
+    THURSDAY_4 = <span class="dig">4</span>
     MODE_DICT = {FARM: <span class="str">"Farm"</span>,
                  AUTO_LV_UP: <span class="str">"Auto Lelve Up"</span>,
                  MATERIAL : <span class="str">"Material"</span>,
-                 AUTO_FARM : <span class="str">"Auto Farm"</span>}
+                 AUTO_FARM : <span class="str">"Auto Farm"</span>,
+                 THURSDAY_4 : <span class="str">"Thursday 4"</span>}
 
     @staticmethod
     <span class="kw">def</span> GenMode(choice):
@@ -158,6 +157,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span> MaterialMode()
         <span class="kw">elif</span> choice == ModeFactory.AUTO_FARM:
             <span class="kw">return</span> AutoFarmMode()
+        <span class="kw">elif</span> choice == ModeFactory.THURSDAY_4:
+            <span class="kw">return</span> Thursday4Mode()
         <span class="kw">else</span>:
             <span class="kw">return</span> BasicMode()
 
@@ -355,8 +356,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Failed = True
 
     <span class="kw">def</span> InSoulBoard(self, clock):
-        region = Region(clock.x-<span class="dig">70</span>, clock.y+<span class="dig">270</span>, <span class="dig">170</span>, <span class="dig">130</span>)
-        <span class="kw">if</span> exists(Pattern(<img src="white_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="black_icon.png" />).exact(),<span class="dig">0.001</span>) <span class="kw">or</span> exists(Pattern(<img src="gold_icon.png" />).exact(),<span class="dig">0.001</span>):
+        region = Region(clock.x+<span class="dig">170</span>, clock.y+<span class="dig">430</span>, <span class="dig">650</span>, <span class="dig">200</span>)
+        <span class="kw">if</span> region.exists(Pattern(<img src="soul.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="soul_dead.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>):
+            logging.debug(<span class="str">"InSoulBoard"</span>)
             <span class="kw">return</span> True
         <span class="kw">else</span>:
             <span class="kw">return</span> False
@@ -372,35 +374,47 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
             <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
+                self.ActionDuringDrag(clock, dragFrom, dragTo)
                 end_time = time()
                 time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
                 <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
                     <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
 
+    <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
+        <span class="kw">return</span>
+
     <span class="kw">def</span> PlayDrag(self, clock):
         logging.debug(<span class="str">"PlayDrag"</span>)
         <span class="kw">if</span> <span class="kw">not</span> clock:
-            <span class="kw">return</span>
+            <span class="kw">return</span> <span class="dig">0</span>
         turn = <span class="dig">0</span>
         playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(),clock)
         <span class="kw">while</span> True:
-            status = playAlgo.GetDotBoard()
+            <span class="kw">if</span> <span class="kw">not</span> self.InSoulBoard(clock):
+                <span class="kw">break</span>
+            status = playAlgo.GetDotBoard(clock)
             <span class="kw">if</span> status == -<span class="dig">1</span>: <span class="cmt">#沒找到棋盤</span>
                 <span class="kw">break</span>
             <span class="kw">elif</span> status == <span class="dig">0</span>: <span class="cmt">#敵人攻擊中, 棋盤辨識不出來</span>
                 <span class="kw">continue</span>
             <span class="cmt">#click(clock.getCenter().offset(60,480)) #點擊自己的參謀</span>
             <span class="cmt">#click(clock.getCenter().offset(970,480)) #點擊公會的參謀</span>
-            playAlgo.Play(turn)
+            status = playAlgo.Play(turn, clock)
+            <span class="kw">if</span> status == -<span class="dig">1</span>: <span class="cmt">#跑結束</span>
+                <span class="kw">return</span> <span class="dig">0</span>
+            <span class="kw">elif</span> status == <span class="dig">0</span>: <span class="cmt">#沒有點擊</span>
+                <span class="kw">continue</span>
             <span class="skw">wait</span>(<span class="dig">1</span>)
             turn += <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">1</span>
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
         <span class="kw">while</span> clock:
             self.DragForward(clock)
-            self.PlayDrag(clock)
+            <span class="kw">if</span> <span class="kw">not</span> self.PlayDrag(clock):  <span class="cmt">#跑結束</span>
+                <span class="kw">break</span>
             self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
             <span class="kw">if</span> self.Failed:
                 <span class="kw">break</span>
@@ -550,22 +564,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
                 <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
 
-    <span class="kw">def</span> DragForward(self, clock):
-        logging.debug(<span class="str">"DragForward"</span>)
-        <span class="kw">if</span> <span class="kw">not</span> clock:
-            <span class="kw">return</span>
-        start_time = time()
-        dragFrom = clock.getCenter().offset(<span class="dig">100</span>,<span class="dig">400</span>)
-        dragTo = Location(dragFrom.x+self.MoveSpeed, dragFrom.y)
-        Settings.MoveMouseDelay = <span class="dig">0.5</span>
-
-        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
-            <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
-                self.CollectMaterials(clock, dragFrom, dragTo)
-                end_time = time()
-                time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
-                <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
-                    <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
+    <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
+        self.CollectMaterials(clock, dragFrom, dragTo)
+        <span class="kw">return</span>
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
@@ -607,6 +608,43 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                     <span class="skw">click</span>(material)
                 <span class="kw">else</span>:
                     logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
+
+
+<span class="kw">class</span> Thursday4Mode(BasicMode):
+
+    <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
+        logging.debug(<span class="str">"ActionDuringDrag"</span>)
+        region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
+        <span class="kw">if</span> <span class="kw">not</span> region.exists(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="kw">return</span>
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
+            <span class="skw">click</span>(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>))
+            <span class="skw">click</span>(<img src="ok_btn_buff.png" />)
+
+    <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        bar = DragCharacterBar()
+        <span class="skw">click</span>(Pattern(<img src="gotofight.png" />).targetOffset(-<span class="dig">934</span>,-<span class="dig">72</span>))
+        bar.ToRight()
+        <span class="kw">if</span> exists(<img src="lisa.png" />,<span class="dig">0.001</span>):
+            <span class="skw">click</span>(<img src="lisa.png" />)
+        <span class="kw">else</span>:
+            self.Quit = True
+        <span class="kw">return</span>
+
+    <span class="kw">def</span> SelectBrainman(self):
+        <span class="kw">return</span>
+
+    <span class="kw">def</span> LeavePlay(self):
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        <span class="kw">if</span> clock:
+            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
+        <span class="kw">return</span>
 </pre>
 </body>
 </html>

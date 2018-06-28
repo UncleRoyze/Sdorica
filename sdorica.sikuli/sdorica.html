@@ -76,60 +76,35 @@
 <span class="kw">import</span> datetime
 <span class="kw">from</span> time <span class="kw">import</span> time
 <span class="kw">import</span> logging, sys
-<span class="kw">import</span> AutoLvUp
-reload(AutoLvUp)
 <span class="kw">import</span> config
 reload(config)
 <span class="kw">import</span> PlayAlgo
 reload(PlayAlgo)
 <span class="kw">import</span> ModeClass
 reload(ModeClass)
+<span class="kw">import</span> AutoLvUp
+reload(AutoLvUp)
+
 
 configObj = config.Configuration()
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
 <span class="kw">def</span> StartAsking():
     ini_mode = int(configObj.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>))
-    <span class="cmt">#modes = ("Farm", "Auto Lelve Up", "Material", "Auto Farm")</span>
     modes = ModeFactory.GenModeInfo()
     algos = AlgoFactory.GenAlgoInfo()
     ini_turn = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>)
     ini_algo = int(configObj.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>))
+    ini_designated_hour = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>)
 
-    msg = <span class="str">"Current setting: \n Mode: %s \n Algo: %s \n Max Turn: %s  \n\n Use this setting?"</span> \
-           % (modes[ini_mode], algos[ini_algo], ini_turn)
+    msg = <span class="str">"Current setting: \n Mode: %s \n Algo: %s \n Turns: %s \n Designated Time: %s \n\n Use this setting?"</span> \
+           % (modes[ini_mode], algos[ini_algo], ini_turn, ini_designated_hour)
     answer = popAsk(msg)
     <span class="kw">if</span> answer:
         <span class="kw">return</span>
 
-<<<<<<< HEAD
-<span class="kw">def</span> Play():
-    isFailed = False
-    ClickStartFighting()
-    WaitIntoStage()
-    clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-    <span class="kw">while</span> clock:
-        CollectMaterials(clock, dragFrom=None, dragTo=None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
-        DragForward()
-        PlayDrag()
-        <span class="kw">if</span> CheckLost():            <span class="cmt">#檢查有無輸</span>
-            isFailed = True
-            <span class="skw">wait</span>(<span class="dig">5</span>)
-            <span class="kw">break</span>
-        ok = exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>)
-        <span class="kw">if</span> ok:
-            <span class="skw">click</span>(ok)
-        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-    <span class="kw">return</span> isFailed
-
-
-<span class="kw">def</span> StartAsking():
-    ini_mode = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>)
-    playmode = int(<span class="skw">input</span>(<span class="str">"Please enter Mode:\n1.One stage\n2.Auto level up\n3.Material\n4.Quest"</span>, ini_mode)) - <span class="dig">1</span>
-=======
     selected_mode = select(<span class="str">"Please select mode"</span>, options = modes, default = modes[ini_mode])
     playmode = ModeFactory.GetModeIndex(selected_mode)
->>>>>>> ModeClass
     <span class="kw">if</span> playmode &lt; <span class="dig">0</span>:
         exit(<span class="dig">1</span>)
     configObj.config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(playmode))
@@ -145,31 +120,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         exit
     configObj.config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(turn))
 
-<<<<<<< HEAD
-    <span class="kw">if</span> playmode == PlayModeType.MATERIAL:
-        ini_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
-        ini_sub_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
-        material_stage = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
-        material_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
-        configObj.config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(material_stage))
-        configObj.config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(material_sub_stage))
-    <span class="kw">elif</span> playmode <span class="kw">in</span> (PlayModeType.AUTO_LV_UP, PlayModeType.ONE_STAGE):
-        ini_challenge_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>)
-        ini_challenge_sub_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>)
-        challenge_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge stage: (1~13)"</span>, ini_challenge_stage))
-        challenge_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge sub stage: (1~5)"</span>, ini_challenge_sub_stage))
-        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"stage"</span>, str(challenge_stage))
-        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>, str(challenge_sub_stage))
-        <span class="kw">if</span> playmode == PlayModeType.AUTO_LV_UP:
-            ini_target_lv = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>)
-            target_lv = int(<span class="skw">input</span>(<span class="str">"Please enter your targeted level:"</span>, ini_target_lv))
-            configObj.config.set(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>, str(target_lv))
-
-    ini_algo = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>)
-    algorithm = int(<span class="skw">input</span>(<span class="str">"Please select algorithm:\n%s"</span> % AlgoFactory.GenAlgoInfo(), ini_algo))
-    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"algo"</span>, str(algorithm))
-
-    ini_designated_hour = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>)
     designated_hour = int(<span class="skw">input</span>(<span class="str">"Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)"</span>, ini_designated_hour))
     <span class="kw">if</span> designated_hour <span class="kw">not</span> <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">24</span>):
         designated_hour = -<span class="dig">1</span>
@@ -179,168 +129,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     configObj.writeConfig()
 
 
-<span class="kw">def</span> WaitForDesignatedTime():
-    logging.debug(<span class="str">"Enter WaitForDesignatedTime"</span>)
-    designated_hour = configObj.getDesignatedHour()
-    <span class="kw">print</span> <span class="str">"designated hour is %d"</span> % designated_hour
-    <span class="kw">if</span> designated_hour &lt; <span class="dig">0</span>:
-        logging.debug(<span class="str">"Run the script right away!"</span>)
-        <span class="kw">return</span>  <span class="cmt"># run the script right away</span>
-
-    designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, <span class="dig">0</span>))
-    timedelta = designated_time - datetime.datetime.today()
-    <span class="kw">print</span> <span class="str">"timedelta 1 %s"</span> % timedelta
-    <span class="kw">if</span> timedelta.days &lt; <span class="dig">0</span>:
-        tomorrow = datetime.date.today() + datetime.timedelta(days=<span class="dig">1</span>)
-        timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, <span class="dig">0</span>)) - datetime.datetime.today()
-    <span class="kw">print</span> <span class="str">"timedelta 2 %s"</span> % timedelta
-    <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
-    <span class="skw">wait</span>(timedelta.seconds)
-
-
-<span class="kw">def</span> EnterSdorica():
-    app = exists(<img src="Sdorica.png" />, <span class="dig">1</span>)
-    <span class="kw">if</span> app:
-        <span class="skw">click</span>(app)
-        <span class="skw">wait</span>(<span class="dig">20</span>)
-    <span class="kw">else</span>:
-        logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
-        <span class="kw">return</span>
-    app_title = exists(<img src="AppTitle.png" />, <span class="dig">1</span>)
-    <span class="kw">if</span> app_title:
-        <span class="skw">click</span>(app_title)
-        <span class="skw">wait</span>(<span class="dig">20</span>)
-    <span class="kw">else</span>:
-        logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
-        <span class="kw">return</span>
-
-    ad_cancel = exists(Pattern(<img src="AdCancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>)
-    <span class="kw">if</span> ad_cancel:
-        <span class="skw">click</span>(ad_cancel)
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    <span class="kw">else</span>:
-        logging.debug(<span class="str">"Cannot find advertisement cancel button"</span>)
-
-
-<span class="kw">def</span> SelectChallengeStage():
-    <span class="kw">def</span> GetChallengePageAndCount(stage, sub_stage):
-        page, count = <span class="dig">0</span>, <span class="dig">0</span>
-        <span class="kw">if</span> stage <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">6</span>):
-            page = <span class="dig">1</span>
-            <span class="kw">if</span> sub_stage <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">5</span>):
-                count = (stage - <span class="dig">1</span>) * <span class="dig">4</span> + sub_stage - <span class="dig">1</span>
-        <span class="kw">elif</span> stage <span class="kw">in</span> range(<span class="dig">6</span>, <span class="dig">14</span>):
-            page = ((stage - <span class="dig">6</span>) / <span class="dig">4</span>) + <span class="dig">2</span>
-            count = ((stage - <span class="dig">6</span>) % <span class="dig">4</span>) * <span class="dig">5</span> + sub_stage - <span class="dig">1</span>
-        <span class="kw">elif</span> stage == <span class="dig">14</span>:
-            page = <span class="dig">4</span>
-            count = sub_stage - <span class="dig">1</span>
-        <span class="kw">return</span> page, count
-
-    <span class="kw">if</span> configObj.getPlayMode() <span class="kw">not</span> <span class="kw">in</span> (PlayModeType.ONE_STAGE, PlayModeType.AUTO_LV_UP):
-        <span class="kw">return</span>
-    challenge_btn = exists(<img src="ChallengeBtn.png" />, <span class="dig">0.001</span>)
-    <span class="kw">if</span> challenge_btn:
-        <span class="skw">click</span>(challenge_btn)
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    <span class="kw">else</span>:
-        logging.debug(<span class="str">"Cannot find challenge button, try to find the selected one."</span>)
-
-    challenge_btn_selected = exists(<img src="ChallengeBtnSelected.png" />, <span class="dig">0.001</span>)
-    <span class="kw">if</span> challenge_btn_selected:
-        <span class="skw">click</span>(challenge_btn_selected)
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    <span class="kw">else</span>:
-
-        logging.debug(<span class="str">"Cannot find seletected challenge button."</span>)
-
-    challenge_title = exists(Pattern(<img src="challenge_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
-    <span class="kw">if</span> <span class="kw">not</span> challenge_title:
-        <span class="kw">return</span>
-    challenge_page, challenge_count = GetChallengePageAndCount(configObj.getChallengeStage(), configObj.getChallengeSubStage())
-    <span class="kw">while</span> <span class="kw">not</span> exists(configObj.challenge_stage_title[challenge_page], <span class="dig">0.001</span>):
-        <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
-        <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
-    <span class="skw">wait</span>(<span class="dig">1</span>)
-    Settings.MoveMouseDelay = <span class="dig">0.1</span>
-    Settings.DelayBeforeDrop = <span class="dig">2</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
-        <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
-
-
-<span class="kw">def</span> SelectMaterialStage():
-    <span class="kw">if</span> configObj.getPlayMode() != PlayModeType.MATERIAL:
-        <span class="kw">return</span>
-    region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
-    <span class="kw">if</span> region_menu_btn:
-        <span class="skw">click</span>(region_menu_btn)
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    region_menu_btn_selected = exists(Pattern(<img src="menubtn_region_selected.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
-    <span class="kw">if</span> region_menu_btn_selected:
-        <span class="skw">click</span>(region_menu_btn_selected.getCenter().offset(-<span class="dig">300</span>, -<span class="dig">300</span>))
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-    region_title = exists(Pattern(<img src="stage_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
-    <span class="kw">if</span> region_title:
-        <span class="kw">while</span> <span class="kw">not</span> exists(configObj.material_stage_title[configObj.getMaterialStage() - <span class="dig">1</span>], <span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">3</span>):
-            Settings.MoveMouseDelay = <span class="dig">0.1</span>
-            Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
-            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        Settings.DelayBeforeDrop = <span class="dig">2</span>
-        <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
-            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
-
-<span class="kw">def</span> ChangeStage(i):
-   <span class="kw">if</span> i % <span class="dig">10</span> == <span class="dig">0</span> <span class="kw">and</span> i != <span class="dig">0</span>:
-        logging.debug(<span class="str">"ChangeStage"</span>)
-        region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
-        <span class="kw">if</span> region_title:
-            <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
-
-<span class="kw">def</span> main():
-    StartAsking()
-    WaitForDesignatedTime()
-    EnterSdorica()
-    SelectChallengeStage()
-    SelectMaterialStage()
-    zero_reward_count = <span class="dig">0</span>
-    <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getTurns()):
-        logging.info(<span class="str">"Turn: %d"</span>, i)
-        isReward = True
-        isFailed = Play()
-        <span class="kw">if</span> <span class="kw">not</span> isFailed:    <span class="cmt">#正常跳出才要去按Finish</span>
-            isReward = ClickFinish()    <span class="cmt"># 檢查有沒有獎賞</span>
-        <span class="kw">if</span> isFailed:    <span class="cmt">#打失敗了, 重新打這關而且不計次數</span>
-            i -= <span class="dig">1</span>
-        <span class="kw">if</span> configObj.getPlayMode() == PlayModeType.ONE_STAGE:
-            <span class="kw">if</span> <span class="kw">not</span> isReward:           <span class="cmt">#沒有獎勵則強制換關</span>
-                zero_reward_count += <span class="dig">1</span>
-                <span class="kw">if</span> zero_reward_count == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
-                    <span class="kw">break</span>
-                ChangeStage(<span class="dig">10</span>)
-            <span class="kw">else</span>:                      <span class="cmt">#有獎勵</span>
-                ChangeStage(i)         <span class="cmt">#檢查看是否滿10次需要換關   </span>
-=======
-    <span class="cmt">#write ini</span>
-    configObj.writeConfig()
-
 <span class="kw">def</span> main():
     StartAsking()
     playMode = ModeFactory.GenMode(configObj.getPlayMode())
     start_time = time()
     playMode.Run()
-    end_time = time()
-    time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
-    <span class="skw">popup</span>(<span class="str">"Duration: %d min."</span> % (time_taken/<span class="dig">60</span>))
->>>>>>> ModeClass
+    time_taken = time() - start_time  <span class="cmt"># time_taken is in seconds</span>
+    <span class="skw">popup</span>(<span class="str">"Duration: %d min."</span> % (time_taken / <span class="dig">60</span>))
+
 
 <span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
     main()

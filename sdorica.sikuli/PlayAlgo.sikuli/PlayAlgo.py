@@ -6,10 +6,12 @@ class AlgoFactory():
     NOLVA_ALGO = 1
     JIN2_ALGO = 2
     FRIDAY3_ALGO = 3
+    THURSDAY4_ALGO = 4
     ALGO_DICT = {SIMPLE_ALGO: "Simple",
                  NOLVA_ALGO: "Nolva",
                  JIN2_ALGO : "Jin2",
-                 FRIDAY3_ALGO : "Friday 3"}
+                 FRIDAY3_ALGO : "Friday 3",
+                 THURSDAY4_ALGO: "Thrsday 4"}
 
     @staticmethod
     def GenAlgo(choice, clock):
@@ -21,6 +23,8 @@ class AlgoFactory():
             return Jin2Algo(clock)
         elif choice == AlgoFactory.FRIDAY3_ALGO:
             return Friday3Algo(clock)
+        elif choice == AlgoFactory.THURSDAY4_ALGO:
+            return Thursday4Algo(clock)
         else:
             return SimpleAlgo(clock)
 
@@ -48,17 +52,13 @@ class PlayAlgo(object):
         self.dotLoc = dotLoc
         self.dotColor = dotColor
         
-    def GetDotBoard(self):
+    def GetDotBoard(self, clock):
         logging.debug("GetDotBoard")
         if exists("lost_message.png", 0.001): 
             return -1
-        if not exists(Pattern("soul_normal.png").similar(0.85), 1):
-            if not exists(Pattern("soul_dead.png").similar(0.85), 1):
-                return -1
-
         dotLoc = []
         dotColor = []
-        dotLoc.append(self.clock.getCenter().offset(222,477))
+        dotLoc.append(self.clock.getCenter().offset(221,477))
         stepX = 95
         stepY = 97
         for i in range(1, 7):
@@ -75,8 +75,9 @@ class PlayAlgo(object):
                     break
                 c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y-j*3) # 換位置再找一次
             if color == "?":
+                hover(dotLoc[i])
                 return 0
-                break
+
             dotColor.append(color)
             #crgb = ( c.getRed(), c.getGreen(), c.getBlue() ) # decode to RGB values
             #print dotColor[i]
@@ -165,69 +166,100 @@ class PlayAlgo(object):
 
 class SimpleAlgo(PlayAlgo):
     
-    def Play(self, num):  
+    def Play(self, num, clock):  
         for number in (4, 2, 1):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
-                    return
+                    return 1
+        return 0
 
 class Jin2Algo(PlayAlgo):
     
     strengthen_count = 0
     
-    def Play(self, num):
+    def Play(self, num, clock):
         if num == 0:
             self.strengthen_count = 0 
 
         if self.strengthen_count < 2: 
             if self.PlayDots("g", 2):
                 self.strengthen_count += 2
-                return
+                return 1
             else:
                 if self.Make2Dot("g"): #做出讓下回合有兩金
-                    return
+                    return 1
                 else:
                     self.strengthen_count = 0 
                     
         if self.strengthen_count < 3:
             if self.PlayDots("w", 2):
                 self.strengthen_count += 1
-                return
+                return 1
             if self.PlayDots("w", 1):
                 self.strengthen_count += 1
-                return
+                return 1
 
         #敵方有人要攻擊了, 讓鱷魚嘲諷坦
         if exists(Pattern("turn1.png").similar(0.80), 0.001) and not exists("dead_crocodile.png",0.001):
             for number in (4, 1):
                 if self.PlayDots("g", number):
-                    return
+                    return 1
         for number in (4, 2, 1):   
             for color in ("w", "b", "g"):
                 if self.PlayDots(color, number):
-                    return
+                    return 1
+        return 0
 
 class NolvaAlgo(SimpleAlgo):
 
-    def Play(self, num):
+    def Play(self, num, clock):
         if self.PlayDots("b", 1):
-            return
+            return 1
         # super(SimpleAlgo, self).Play()
         for number in (4, 2, 1):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
-                    return
+                    return 1
+        return 0
 
 class Friday3Algo(SimpleAlgo):
 
-    def Play1(self):
-        if self.PlayDots("w", 1):
-            return
-    def Play2(self):
-        if self.PlayDots("w", 1):
-            return
-    def Play3(self):
-        if self.PlayDots("b", 4):
-            return
-        if self.PlayDots("b", 2):
-            return
+    def Play(self, num, clock):
+        if num == 0:
+            if not self.PlayDots("w", 1):
+                return -1
+        if num == 1:
+            if not self.PlayDots("w", 1):
+                return -1
+        if num == 2:
+            if not self.PlayDots("b", 4):
+                if not self.PlayDots("b", 2):
+                    return -1
+        return 0
+
+class Thursday4Algo(SimpleAlgo):
+
+    def Play(self, num, clock):
+        if num == 0:
+            if not self.PlayDots("g", 2):
+                return -1
+            else:
+                return 1
+        if num == 1:
+            if not self.PlayDots("w", 2):
+                return -1
+            else:
+                return 1
+        if num == 2:
+            if not self.PlayDots("w", 2):
+                return -1
+            else:
+                return 1
+        if num == 3:
+            if not self.PlayDots("g", 1):
+                return -1
+            wait(40)
+            click(clock.getCenter().offset(60,480)) #點擊自己的參謀
+            wait(5)
+            return -1
+        return 0

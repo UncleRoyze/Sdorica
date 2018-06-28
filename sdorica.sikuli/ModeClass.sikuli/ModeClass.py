@@ -9,9 +9,6 @@ reload(config)
 configObj = config.Configuration()
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
-class PlayModeType:
-    FARM, AUTO_LV_UP, MATERIAL, AUTO_FARM = range(4)
-
 class MouseDragHandler:
 
     def __init__(self, dragFrom, dragTo, reverseOperation=False):
@@ -71,10 +68,12 @@ class ModeFactory():
     AUTO_LV_UP = 1
     MATERIAL = 2
     AUTO_FARM = 3
+    THURSDAY_4 = 4
     MODE_DICT = {FARM: "Farm",
                  AUTO_LV_UP: "Auto Lelve Up",
                  MATERIAL : "Material",
-                 AUTO_FARM : "Auto Farm"}
+                 AUTO_FARM : "Auto Farm",
+                 THURSDAY_4 : "Thursday 4"}
 
     @staticmethod
     def GenMode(choice):
@@ -86,6 +85,8 @@ class ModeFactory():
             return MaterialMode()
         elif choice == ModeFactory.AUTO_FARM:
             return AutoFarmMode()
+        elif choice == ModeFactory.THURSDAY_4:
+            return Thursday4Mode()
         else:
             return BasicMode()
 
@@ -283,8 +284,9 @@ class BasicMode(object):
             self.Failed = True
 
     def InSoulBoard(self, clock):
-        region = Region(clock.x-70, clock.y+270, 170, 130)
-        if exists(Pattern("white_icon.png").exact(),0.001) or exists(Pattern("black_icon.png").exact(),0.001) or exists(Pattern("gold_icon.png").exact(),0.001):
+        region = Region(clock.x+170, clock.y+430, 650, 200)
+        if region.exists(Pattern("soul.png").similar(0.80),0.001) or region.exists(Pattern("soul_dead.png").similar(0.80),0.001):
+            logging.debug("InSoulBoard")
             return True
         else:
             return False
@@ -300,35 +302,47 @@ class BasicMode(object):
     
         with MouseDragHandler(dragFrom, dragTo):
             while not self.InSoulBoard(clock):
+                self.ActionDuringDrag(clock, dragFrom, dragTo)
                 end_time = time()
                 time_taken = end_time - start_time # time_taken is in seconds
                 if(time_taken >= 30): # not found
                     break            #exit while not exists
-            
+                
+    def ActionDuringDrag(self, clock, dragFrom, dragTo):
+        return
+        
     def PlayDrag(self, clock):
         logging.debug("PlayDrag")
         if not clock:
-            return
+            return 0
         turn = 0
         playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(),clock)
         while True:
-            status = playAlgo.GetDotBoard()
+            if not self.InSoulBoard(clock):
+                break
+            status = playAlgo.GetDotBoard(clock)
             if status == -1: #沒找到棋盤
                 break
             elif status == 0: #敵人攻擊中, 棋盤辨識不出來
                 continue
             #click(clock.getCenter().offset(60,480)) #點擊自己的參謀
             #click(clock.getCenter().offset(970,480)) #點擊公會的參謀
-            playAlgo.Play(turn)
+            status = playAlgo.Play(turn, clock)
+            if status == -1: #跑結束
+                return 0
+            elif status == 0: #沒有點擊
+                continue
             wait(1)
             turn += 1
+        return 1
     
     def Playing(self):
         logging.debug("Playing")
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
         while clock:
             self.DragForward(clock) 
-            self.PlayDrag(clock)
+            if not self.PlayDrag(clock):  #跑結束
+                break
             self.CheckFailed()            #檢查有無輸
             if self.Failed:
                 break
@@ -478,23 +492,10 @@ class MaterialMode(BasicMode):
             for i in range(configObj.getMaterialSubStage() - 1):
                 dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
 
-    def DragForward(self, clock):
-        logging.debug("DragForward")
-        if not clock:
-            return
-        start_time = time()
-        dragFrom = clock.getCenter().offset(100,400)
-        dragTo = Location(dragFrom.x+self.MoveSpeed, dragFrom.y)
-        Settings.MoveMouseDelay = 0.5
-    
-        with MouseDragHandler(dragFrom, dragTo):
-            while not self.InSoulBoard(clock):
-                self.CollectMaterials(clock, dragFrom, dragTo)
-                end_time = time()
-                time_taken = end_time - start_time # time_taken is in seconds
-                if(time_taken >= 30): # not found
-                    break            #exit while not exists
-                
+    def ActionDuringDrag(self, clock, dragFrom, dragTo):
+        self.CollectMaterials(clock, dragFrom, dragTo)
+        return
+        
     def Playing(self):
         logging.debug("Playing")
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
@@ -535,3 +536,40 @@ class MaterialMode(BasicMode):
                     click(material)
                 else:
                     logging.warning("Material seems disappear, keep moving...")
+
+
+class Thursday4Mode(BasicMode):
+
+    def ActionDuringDrag(self, clock, dragFrom, dragTo):
+        logging.debug("ActionDuringDrag")
+        region = Region(clock.x-130, clock.y-47, 1280, 720)
+        if not region.exists(Pattern("buff2.png").similar(0.95),0.001):
+            return 
+    
+        with MouseDragHandler(dragFrom, dragTo, True):
+            click(Pattern("buff2.png").similar(0.95))
+            click("ok_btn_buff.png")
+        
+    def SelectFighter(self):
+        if not self.IsInStage():
+            return
+        bar = DragCharacterBar()
+        click(Pattern("gotofight.png").targetOffset(-934,-72))
+        bar.ToRight()
+        if exists("lisa.png",0.001):
+            click("lisa.png")
+        else:
+            self.Quit = True
+        return
+
+    def SelectBrainman(self):
+        return
+    
+    def LeavePlay(self):
+        wait(1)
+        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        if clock:
+            click(clock.getCenter().offset(-78,0))
+            wait(1)
+            click("ok_btn_quit.png")
+        return
