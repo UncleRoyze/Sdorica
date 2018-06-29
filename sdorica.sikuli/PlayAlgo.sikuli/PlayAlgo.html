@@ -71,7 +71,7 @@
 </div>
 <pre class="sikuli-code">
 <span class="cmt"># -*- coding: UTF-8 -*-</span>
-
+<span class="kw">from</span> java.awt <span class="kw">import</span> Robot
 <span class="kw">class</span> AlgoFactory():
 
     SIMPLE_ALGO = <span class="dig">0</span>
@@ -232,6 +232,48 @@
                   <span class="skw">click</span>(self.dotLoc[i])
                   <span class="kw">return</span> <span class="dig">1</span>
 
+    <span class="kw">def</span> Make_4x_by_z(self, colorX, colorZ):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">5</span>):
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">1</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">8</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">9</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">7</span>] == colorZ:   <span class="cmt"># x x</span>
+                    <span class="skw">click</span>(self.dotLoc[i+<span class="dig">7</span>])        <span class="cmt"># z x x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">8</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">1</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">2</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i] == colorZ:     <span class="cmt"># z x x</span>
+                    <span class="skw">click</span>(self.dotLoc[i])          <span class="cmt"># x x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">2</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">8</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">1</span>] == colorZ:   <span class="cmt"># x z x</span>
+                    <span class="skw">click</span>(self.dotLoc[i+<span class="dig">1</span>])        <span class="cmt"># x x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">1</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">9</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">8</span>] == colorZ:   <span class="cmt"># x x</span>
+                    <span class="skw">click</span>(self.dotLoc[i+<span class="dig">8</span>])        <span class="cmt"># x z x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">2</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">9</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">1</span>] == colorZ <span class="kw">and</span> self.dotColor[i+<span class="dig">8</span>] == colorZ :  <span class="cmt"># x z x</span>
+                    <span class="skw">dragDrop</span>(self.dotLoc[i + <span class="dig">1</span>], self.dotLoc[i + <span class="dig">8</span>])                <span class="cmt"># x z x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">4</span>):
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">1</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">9</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">10</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">7</span>] == colorZ <span class="kw">and</span> self.dotColor[i+<span class="dig">8</span>] == colorZ: <span class="cmt"># x x</span>
+                    <span class="skw">dragDrop</span>(self.dotLoc[i + <span class="dig">7</span>], self.dotLoc[i + <span class="dig">8</span>])              <span class="cmt"># z z x x</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">8</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">2</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">3</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i] == colorZ <span class="kw">and</span> self.dotColor[i+<span class="dig">1</span>] == colorZ:   <span class="cmt"># z z x x</span>
+                      <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">1</span>])                <span class="cmt"># x x</span>
+                      <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">1</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">10</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">8</span>] == colorZ <span class="kw">and</span> self.dotColor[i+<span class="dig">9</span>] == colorZ: <span class="cmt"># x x</span>
+                      <span class="skw">dragDrop</span>(self.dotLoc[i+<span class="dig">8</span>], self.dotLoc[i+<span class="dig">9</span>])                <span class="cmt"># x z z x</span>
+                      <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.dotColor[i+<span class="dig">7</span>] == colorX <span class="kw">and</span> self.dotColor[i + <span class="dig">8</span>] == colorX <span class="kw">and</span> self.dotColor[i] == colorX <span class="kw">and</span> self.dotColor[i+<span class="dig">3</span>] == colorX:
+                <span class="kw">if</span> self.dotColor[i+<span class="dig">1</span>] == colorZ <span class="kw">and</span> self.dotColor[i+<span class="dig">2</span>] == colorZ: <span class="cmt"># x z z x</span>
+                      <span class="skw">dragDrop</span>(self.dotLoc[i+<span class="dig">1</span>], self.dotLoc[i+<span class="dig">2</span>])                <span class="cmt"># x x</span>
+                      <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
     <span class="kw">def</span> Play(self):
         <span class="kw">return</span> NotImplemented
 
@@ -250,6 +292,7 @@
     strengthen_count = <span class="dig">0</span>
 
     <span class="kw">def</span> Play(self, num, clock):
+
         <span class="kw">if</span> num == <span class="dig">0</span>:
             self.strengthen_count = <span class="dig">0</span>
 
@@ -296,17 +339,38 @@
 
 <span class="kw">class</span> Friday3Algo(SimpleAlgo):
 
+    <span class="kw">def</span> __init__(self, clock):
+        self.clock = clock
+        self.is_4_b = False
+
     <span class="kw">def</span> Play(self, num, clock):
+
+        <span class="cmt">#開場4白或2白</span>
         <span class="kw">if</span> num == <span class="dig">0</span>:
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
-                <span class="kw">return</span> -<span class="dig">1</span>
-        <span class="kw">if</span> num == <span class="dig">1</span>:
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
-                <span class="kw">return</span> -<span class="dig">1</span>
-        <span class="kw">if</span> num == <span class="dig">2</span>:
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
-                <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">2</span>):
-                    <span class="kw">return</span> -<span class="dig">1</span>
+            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">4</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="cmt">#如果沒有用過4黑則用4黑</span>
+        <span class="kw">if</span> <span class="kw">not</span> self.is_4_b:
+            <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
+                self.is_4_b = True
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">else</span>:
+                <span class="kw">if</span> self.Make_4x_by_z(<span class="str">"b"</span>, <span class="str">"g"</span>): <span class="cmt"># 如果沒有4黑, 試著下回合作出4黑</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">if</span> (num % <span class="dig">3</span>) == <span class="dig">0</span> <span class="kw">and</span> num &lt;&gt; <span class="dig">0</span>:
+            <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">4</span>):
+            <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">1</span>):
+            <span class="kw">return</span> <span class="dig">1</span>
+
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"g"</span>, <span class="str">"b"</span>, <span class="str">"w"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">0</span>
 
 <span class="kw">class</span> Thursday4Algo(SimpleAlgo):

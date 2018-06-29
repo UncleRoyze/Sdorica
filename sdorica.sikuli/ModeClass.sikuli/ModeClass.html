@@ -141,11 +141,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     MATERIAL = <span class="dig">2</span>
     QUEST = <span class="dig">3</span>
     THURSDAY_4 = <span class="dig">4</span>
+    FRIDAY_3 = <span class="dig">5</span>
     MODE_DICT = {FARM: <span class="str">"Farm"</span>,
                  AUTO_LV_UP: <span class="str">"Auto Lelve Up"</span>,
                  MATERIAL : <span class="str">"Material"</span>,
                  QUEST : <span class="str">"Quest"</span>,
-                 THURSDAY_4 : <span class="str">"Thursday 4"</span>}
+                 THURSDAY_4 : <span class="str">"Thursday 4"</span>,
+                 FRIDAY_3 : <span class="str">"Friday 3"</span>}
 
     @staticmethod
     <span class="kw">def</span> GenMode(choice):
@@ -159,6 +161,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span> QuestMode()
         <span class="kw">elif</span> choice == ModeFactory.THURSDAY_4:
             <span class="kw">return</span> Thursday4Mode()
+        <span class="kw">elif</span> choice == ModeFactory.FRIDAY_3:
+            <span class="kw">return</span> Friday3Mode()
         <span class="kw">else</span>:
             <span class="kw">return</span> BasicMode()
 
@@ -185,6 +189,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self.TurnCount = <span class="dig">0</span>
         self.ZeroRewardCount = <span class="dig">0</span>
         self.MoveSpeed = <span class="dig">500</span>
+        self.Algo = configObj.getAlgo()
 
     <span class="kw">def</span> InitParameter(self):
         self.Failed = False
@@ -358,10 +363,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> InSoulBoard(self, clock):
         region = Region(clock.x+<span class="dig">170</span>, clock.y+<span class="dig">430</span>, <span class="dig">650</span>, <span class="dig">200</span>)
-        <span class="kw">if</span> region.exists(Pattern(<img src="soul.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="soul_dead.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>):
-            <span class="cmt">#logging.debug("InSoulBoard")</span>
+        <span class="kw">if</span> region.exists(Pattern(<img src="soul.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="soul_dead.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt"># 判斷魂盤</span>
             <span class="kw">return</span> True
         <span class="kw">else</span>:
+            region = Region(clock.x-<span class="dig">70</span>, clock.y+<span class="dig">270</span>, <span class="dig">170</span>, <span class="dig">130</span>)  <span class="cmt"># 判斷角色icon</span>
+            <span class="kw">if</span> region.exists(Pattern(<img src="white_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="black_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="gold_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+                <span class="kw">return</span> True
+            logging.debug(<span class="str">"no soul board"</span>)
             <span class="kw">return</span> False
 
     <span class="kw">def</span> DragForward(self, clock):
@@ -392,7 +400,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> clock:
             <span class="kw">return</span> <span class="dig">0</span>
         turn = <span class="dig">0</span>
-        playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(),clock)
+        playAlgo = AlgoFactory.GenAlgo(self.Algo,clock)
         <span class="kw">while</span> True:
             <span class="kw">if</span> <span class="kw">not</span> self.InSoulBoard(clock):
                 <span class="kw">break</span>
@@ -429,7 +437,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> self.Failed:
             <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">60</span>):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">30</span>):
 
             <span class="kw">if</span> exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
                 <span class="kw">break</span>
@@ -437,6 +445,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))       <span class="cmt"># 有網路不穩則點擊後跳出</span>
                 i = <span class="dig">60</span>
                 <span class="kw">continue</span>
+            <span class="kw">if</span> exists(<img src="gotofight.png" />, <span class="dig">0.001</span>): <span class="cmt">#回到主畫面了</span>
+                <span class="kw">return</span>
 
         <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">2</span>):    <span class="cmt">#沒有庫倫了</span>
             self.Reward = False
@@ -618,6 +628,17 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">class</span> QuestMode(BasicMode):
 
+    <span class="kw">def</span> _click_quest(self):
+        <span class="kw">if</span> exists(<img src="quest_btn.png" />,<span class="dig">0.001</span>):
+            <span class="skw">click</span>(<img src="quest_btn.png" />)
+
+    <span class="kw">def</span> SelectStage(self):
+        _click_quest()
+        <span class="kw">return</span>
+
+    <span class="kw">def</span> ToNextStage(self):
+        _click_quest()
+        <span class="kw">return</span>
 
 <span class="kw">class</span> Thursday4Mode(BasicMode):
 
@@ -653,6 +674,43 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
+        <span class="kw">return</span>
+
+<span class="kw">class</span> Friday3Mode(BasicMode):
+
+    <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
+        logging.debug(<span class="str">"ActionDuringDrag"</span>)
+        region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
+        <span class="kw">if</span> <span class="kw">not</span> region.exists(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="kw">return</span>
+
+        <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
+            <span class="skw">click</span>(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>))
+            <span class="skw">click</span>(<img src="ok_btn_buff.png" />)
+
+    <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        bar = DragCharacterBar()
+        start =  exists(<img src="gotofight.png" />, <span class="dig">30</span>)
+        <span class="kw">if</span> <span class="kw">not</span> start:
+            exit
+        <span class="kw">if</span> exists(Pattern(<img src="jahan_a.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#有紀錄的隊伍了</span>
+            <span class="kw">return</span>
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(<img src="cosp.png" />)
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">734</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(<img src="cat.png" />)
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">526</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(<img src="crocodile.png" />)
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">344</span>,-<span class="dig">60</span>))
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
+            <span class="kw">if</span> exists(<img src="jahan.png" />,<span class="dig">0.001</span>):
+                <span class="skw">click</span>(<img src="jahan.png" />)
+                <span class="kw">break</span>
+            bar.ToRight()
+
+    <span class="kw">def</span> SelectBrainman(self):
         <span class="kw">return</span>
 </pre>
 </body>

@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-
+from java.awt import Robot
 class AlgoFactory():
 
     SIMPLE_ALGO = 0
@@ -159,7 +159,49 @@ class PlayAlgo(object):
               if self.dotColor[i+1] == color and self.dotColor[i + 7] == color:
                   click(self.dotLoc[i])
                   return 1
-               
+
+    def Make_4x_by_z(self, colorX, colorZ):
+        for i in range(0, 5):
+            if self.dotColor[i] == colorX and self.dotColor[i + 1] == colorX and self.dotColor[i+8] == colorX and self.dotColor[i+9] == colorX:
+                if self.dotColor[i+7] == colorZ:   # x x
+                    click(self.dotLoc[i+7])        # z x x
+                    return 1                       
+            if self.dotColor[i+7] == colorX and self.dotColor[i + 8] == colorX and self.dotColor[i+1] == colorX and self.dotColor[i+2] == colorX:
+                if self.dotColor[i] == colorZ:     # z x x
+                    click(self.dotLoc[i])          # x x
+                    return 1
+            if self.dotColor[i] == colorX and self.dotColor[i + 2] == colorX and self.dotColor[i+7] == colorX and self.dotColor[i+8] == colorX:
+                if self.dotColor[i+1] == colorZ:   # x z x
+                    click(self.dotLoc[i+1])        # x x
+                    return 1
+            if self.dotColor[i] == colorX and self.dotColor[i+1] == colorX and self.dotColor[i+7] == colorX and self.dotColor[i+9] == colorX:
+                if self.dotColor[i+8] == colorZ:   # x x
+                    click(self.dotLoc[i+8])        # x z x
+                    return 1
+            if self.dotColor[i] == colorX and self.dotColor[i + 2] == colorX and self.dotColor[i+7] == colorX and self.dotColor[i+9] == colorX:
+                if self.dotColor[i+1] == colorZ and self.dotColor[i+8] == colorZ :  # x z x
+                    dragDrop(self.dotLoc[i + 1], self.dotLoc[i + 8])                # x z x
+                    return 1
+            
+        for i in range(0, 4):
+            if self.dotColor[i] == colorX and self.dotColor[i + 1] == colorX and self.dotColor[i+9] == colorX and self.dotColor[i+10] == colorX:
+                if self.dotColor[i+7] == colorZ and self.dotColor[i+8] == colorZ: # x x
+                    dragDrop(self.dotLoc[i + 7], self.dotLoc[i + 8])              # z z x x
+                    return 1
+            if self.dotColor[i+7] == colorX and self.dotColor[i + 8] == colorX and self.dotColor[i+2] == colorX and self.dotColor[i+3] == colorX:
+                if self.dotColor[i] == colorZ and self.dotColor[i+1] == colorZ:   # z z x x
+                      dragDrop(self.dotLoc[i], self.dotLoc[i + 1])                # x x
+                      return 1
+            if self.dotColor[i] == colorX and self.dotColor[i + 1] == colorX and self.dotColor[i+7] == colorX and self.dotColor[i+10] == colorX:
+                if self.dotColor[i+8] == colorZ and self.dotColor[i+9] == colorZ: # x x
+                      dragDrop(self.dotLoc[i+8], self.dotLoc[i+9])                # x z z x
+                      return 1
+            if self.dotColor[i+7] == colorX and self.dotColor[i + 8] == colorX and self.dotColor[i] == colorX and self.dotColor[i+3] == colorX:
+                if self.dotColor[i+1] == colorZ and self.dotColor[i+2] == colorZ: # x z z x
+                      dragDrop(self.dotLoc[i+1], self.dotLoc[i+2])                # x x
+                      return 1
+        return 0
+                  
     def Play(self):
         return NotImplemented
 
@@ -178,6 +220,7 @@ class Jin2Algo(PlayAlgo):
     strengthen_count = 0
     
     def Play(self, num, clock):
+ 
         if num == 0:
             self.strengthen_count = 0 
 
@@ -224,17 +267,38 @@ class NolvaAlgo(SimpleAlgo):
 
 class Friday3Algo(SimpleAlgo):
 
+    def __init__(self, clock):
+        self.clock = clock
+        self.is_4_b = False
+              
     def Play(self, num, clock):
+        
+        #開場4白或2白
         if num == 0:
-            if not self.PlayDots("w", 1):
-                return -1
-        if num == 1:
-            if not self.PlayDots("w", 1):
-                return -1
-        if num == 2:
-            if not self.PlayDots("b", 4):
-                if not self.PlayDots("b", 2):
-                    return -1
+            if self.PlayDots("w", 4):
+                return 1
+            if self.PlayDots("w", 2):
+                return 1
+        #如果沒有用過4黑則用4黑
+        if not self.is_4_b:
+            if self.PlayDots("b", 4):
+                self.is_4_b = True
+                return 1
+            else:
+                if self.Make_4x_by_z("b", "g"): # 如果沒有4黑, 試著下回合作出4黑
+                    return 1
+        if (num % 3) == 0 and num <> 0:
+            if self.PlayDots("g", 2):
+                return 1
+        if self.PlayDots("g", 4):
+            return 1
+        if self.PlayDots("g", 1):
+            return 1
+
+        for number in (4, 2, 1):   
+            for color in ("g", "b", "w"):
+                if self.PlayDots(color, number):
+                    return 1
         return 0
 
 class Thursday4Algo(SimpleAlgo):

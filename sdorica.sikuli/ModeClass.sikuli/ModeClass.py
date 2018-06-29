@@ -69,11 +69,13 @@ class ModeFactory():
     MATERIAL = 2
     QUEST = 3
     THURSDAY_4 = 4
+    FRIDAY_3 = 5
     MODE_DICT = {FARM: "Farm",
                  AUTO_LV_UP: "Auto Lelve Up",
                  MATERIAL : "Material",
                  QUEST : "Quest",
-                 THURSDAY_4 : "Thursday 4"}
+                 THURSDAY_4 : "Thursday 4",
+                 FRIDAY_3 : "Friday 3"}
 
     @staticmethod
     def GenMode(choice):
@@ -87,6 +89,8 @@ class ModeFactory():
             return QuestMode()
         elif choice == ModeFactory.THURSDAY_4:
             return Thursday4Mode()
+        elif choice == ModeFactory.FRIDAY_3:
+            return Friday3Mode()
         else:
             return BasicMode()
 
@@ -113,6 +117,7 @@ class BasicMode(object):
         self.TurnCount = 0
         self.ZeroRewardCount = 0
         self.MoveSpeed = 500
+        self.Algo = configObj.getAlgo()
 
     def InitParameter(self):
         self.Failed = False
@@ -286,10 +291,13 @@ class BasicMode(object):
 
     def InSoulBoard(self, clock):
         region = Region(clock.x+170, clock.y+430, 650, 200)
-        if region.exists(Pattern("soul.png").similar(0.80),0.001) or region.exists(Pattern("soul_dead.png").similar(0.80),0.001):
-            #logging.debug("InSoulBoard")
+        if region.exists(Pattern("soul.png").similar(0.80),0.001) or region.exists(Pattern("soul_dead.png").similar(0.80),0.001): # 判斷魂盤
             return True
         else:
+            region = Region(clock.x-70, clock.y+270, 170, 130)  # 判斷角色icon
+            if region.exists(Pattern("white_icon.png").similar(0.95),0.001) or region.exists(Pattern("black_icon.png").similar(0.95),0.001) or region.exists(Pattern("gold_icon.png").similar(0.95),0.001):
+                return True
+            logging.debug("no soul board")
             return False
 
     def DragForward(self, clock):
@@ -319,8 +327,8 @@ class BasicMode(object):
         logging.debug("PlayDrag")
         if not clock:
             return 0
-        turn = 0
-        playAlgo = AlgoFactory.GenAlgo(configObj.getAlgo(),clock)
+        turn = 0    
+        playAlgo = AlgoFactory.GenAlgo(self.Algo,clock)
         while True:
             if not self.InSoulBoard(clock):
                 break
@@ -357,7 +365,7 @@ class BasicMode(object):
         if self.Failed:
             return
         Settings.MoveMouseDelay = 0.1
-        for i in range(60):
+        for i in range(30):
             
             if exists(Pattern("finish_button.png").similar(0.80), 1):
                 break
@@ -365,6 +373,8 @@ class BasicMode(object):
                 click(Pattern("network_lost.png").targetOffset(0,140))       # 有網路不穩則點擊後跳出
                 i = 60
                 continue 
+            if exists("gotofight.png", 0.001): #回到主畫面了
+                return
         
         if exists(Pattern("zero_money.png").exact(), 2):    #沒有庫倫了
             self.Reward = False
@@ -545,7 +555,18 @@ class MaterialMode(BasicMode):
                     logging.warning("Material seems disappear, keep moving...")
 
 class QuestMode(BasicMode):
-    
+
+    def _click_quest(self):
+        if exists("quest_btn.png",0.001):
+            click("quest_btn.png")
+            
+    def SelectStage(self):
+        _click_quest()
+        return
+
+    def ToNextStage(self):
+        _click_quest()
+        return
 
 class Thursday4Mode(BasicMode):
 
@@ -582,3 +603,41 @@ class Thursday4Mode(BasicMode):
             wait(1)
             click("ok_btn_quit.png")
         return
+
+class Friday3Mode(BasicMode):
+
+    def ActionDuringDrag(self, clock, dragFrom, dragTo):
+        logging.debug("ActionDuringDrag")
+        region = Region(clock.x-130, clock.y-47, 1280, 720)
+        if not region.exists(Pattern("buff2.png").similar(0.95),0.001):
+            return 
+    
+        with MouseDragHandler(dragFrom, dragTo, True):
+            click(Pattern("buff2.png").similar(0.95))
+            click("ok_btn_buff.png")
+        
+    def SelectFighter(self):
+        if not self.IsInStage():
+            return
+        bar = DragCharacterBar()
+        start =  exists("gotofight.png", 30)
+        if not start:
+            exit
+        if exists(Pattern("jahan_a.png").similar(0.80),0.001): #有紀錄的隊伍了
+            return
+        click(start.getCenter().offset(-936,-80))
+        click("cosp.png")
+        click(start.getCenter().offset(-734,-80))
+        click("cat.png")
+        click(start.getCenter().offset(-526,-80))
+        click("crocodile.png")
+        click(start.getCenter().offset(-344,-60))
+        for i in range(5):
+            if exists("jahan.png",0.001):
+                click("jahan.png")
+                break
+            bar.ToRight()
+
+    def SelectBrainman(self):
+        return
+    
