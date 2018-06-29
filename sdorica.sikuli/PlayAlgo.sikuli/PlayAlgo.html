@@ -125,7 +125,7 @@
         self.dotColor = dotColor
 
     <span class="kw">def</span> GetDotBoard(self, clock):
-        logging.debug(<span class="str">"GetDotBoard"</span>)
+        <span class="cmt">#logging.debug("GetDotBoard")</span>
         <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
             <span class="kw">return</span> -<span class="dig">1</span>
         dotLoc = []
@@ -311,6 +311,16 @@
 
 <span class="kw">class</span> Thursday4Algo(SimpleAlgo):
 
+    <span class="kw">def</span> _check_hp_zero(self, clock):
+        <span class="skw">wait</span>(<span class="dig">5</span>)
+        drag(clock.getCenter().offset(<span class="dig">348</span>,<span class="dig">124</span>))
+
+        <span class="kw">if</span> exists(Pattern(<img src="zero_hp.png" />).similar(<span class="dig">0.80</span>), <span class="dig">5</span>):
+            dropAt(clock.getCenter().offset(<span class="dig">348</span>,<span class="dig">124</span>))
+            <span class="kw">return</span> <span class="dig">1</span>
+        dropAt(clock.getCenter().offset(<span class="dig">348</span>,<span class="dig">124</span>))
+        <span class="kw">return</span> <span class="dig">0</span>
+
     <span class="kw">def</span> Play(self, num, clock):
         <span class="kw">if</span> num == <span class="dig">0</span>:
             <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
@@ -321,18 +331,28 @@
             <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
                 <span class="kw">return</span> -<span class="dig">1</span>
             <span class="kw">else</span>:
-                <span class="kw">return</span> <span class="dig">1</span>
+                <span class="kw">if</span> self._check_hp_zero(clock):
+                    <span class="kw">return</span> -<span class="dig">1</span>
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">if</span> num == <span class="dig">2</span>:
             <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
                 <span class="kw">return</span> -<span class="dig">1</span>
             <span class="kw">else</span>:
-                <span class="kw">return</span> <span class="dig">1</span>
+                <span class="kw">if</span> self._check_hp_zero(clock):
+                    <span class="kw">return</span> -<span class="dig">1</span>
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">if</span> num == <span class="dig">3</span>:
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">1</span>):
+            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
                 <span class="kw">return</span> -<span class="dig">1</span>
-            <span class="skw">wait</span>(<span class="dig">40</span>)
+            <span class="kw">else</span>:
+                <span class="kw">if</span> self._check_hp_zero(clock):
+                    <span class="kw">return</span> -<span class="dig">1</span>
+
+            <span class="skw">wait</span>(<span class="dig">50</span>)
             <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">60</span>,<span class="dig">480</span>)) <span class="cmt">#點擊自己的參謀</span>
-            <span class="skw">wait</span>(<span class="dig">5</span>)
+            <span class="skw">wait</span>(<span class="dig">10</span>)
             <span class="kw">return</span> -<span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">0</span>
 </pre>

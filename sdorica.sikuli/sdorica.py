@@ -8,11 +8,9 @@ import config
 reload(config)
 import PlayAlgo
 reload(PlayAlgo)
+from PlayAlgo import AlgoFactory
 import ModeClass
 reload(ModeClass)
-import AutoLvUp
-reload(AutoLvUp)
-
 
 configObj = config.Configuration()
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)

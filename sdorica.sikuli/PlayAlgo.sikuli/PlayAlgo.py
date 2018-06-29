@@ -53,7 +53,7 @@ class PlayAlgo(object):
         self.dotColor = dotColor
         
     def GetDotBoard(self, clock):
-        logging.debug("GetDotBoard")
+        #logging.debug("GetDotBoard")
         if exists("lost_message.png", 0.001): 
             return -1
         dotLoc = []
@@ -239,6 +239,16 @@ class Friday3Algo(SimpleAlgo):
 
 class Thursday4Algo(SimpleAlgo):
 
+    def _check_hp_zero(self, clock):
+        wait(5)
+        drag(clock.getCenter().offset(348,124))
+
+        if exists(Pattern("zero_hp.png").similar(0.80), 5):
+            dropAt(clock.getCenter().offset(348,124))
+            return 1
+        dropAt(clock.getCenter().offset(348,124))
+        return 0
+        
     def Play(self, num, clock):
         if num == 0:
             if not self.PlayDots("g", 2):
@@ -249,17 +259,27 @@ class Thursday4Algo(SimpleAlgo):
             if not self.PlayDots("w", 2):
                 return -1
             else:
-                return 1
+                if self._check_hp_zero(clock):
+                    return -1
+                else:
+                    return 1
         if num == 2:
             if not self.PlayDots("w", 2):
                 return -1
             else:
-                return 1
+                if self._check_hp_zero(clock):
+                    return -1
+                else:
+                    return 1
         if num == 3:
-            if not self.PlayDots("g", 1):
+            if not self.PlayDots("w", 2):
                 return -1
-            wait(40)
+            else:
+                if self._check_hp_zero(clock):
+                    return -1
+
+            wait(50)
             click(clock.getCenter().offset(60,480)) #點擊自己的參謀
-            wait(5)
+            wait(10)
             return -1
         return 0

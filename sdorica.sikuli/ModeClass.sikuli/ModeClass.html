@@ -139,12 +139,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     FARM = <span class="dig">0</span>
     AUTO_LV_UP = <span class="dig">1</span>
     MATERIAL = <span class="dig">2</span>
-    AUTO_FARM = <span class="dig">3</span>
+    QUEST = <span class="dig">3</span>
     THURSDAY_4 = <span class="dig">4</span>
     MODE_DICT = {FARM: <span class="str">"Farm"</span>,
                  AUTO_LV_UP: <span class="str">"Auto Lelve Up"</span>,
                  MATERIAL : <span class="str">"Material"</span>,
-                 AUTO_FARM : <span class="str">"Auto Farm"</span>,
+                 QUEST : <span class="str">"Quest"</span>,
                  THURSDAY_4 : <span class="str">"Thursday 4"</span>}
 
     @staticmethod
@@ -155,8 +155,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span> AutoLvUpMode()
         <span class="kw">elif</span> choice == ModeFactory.MATERIAL:
             <span class="kw">return</span> MaterialMode()
-        <span class="kw">elif</span> choice == ModeFactory.AUTO_FARM:
-            <span class="kw">return</span> AutoFarmMode()
+        <span class="kw">elif</span> choice == ModeFactory.QUEST:
+            <span class="kw">return</span> QuestMode()
         <span class="kw">elif</span> choice == ModeFactory.THURSDAY_4:
             <span class="kw">return</span> Thursday4Mode()
         <span class="kw">else</span>:
@@ -341,8 +341,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
         start_time = time()
         <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
-            <span class="kw">if</span> exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>):    <span class="cmt">#如果跳出網路不好的圖示, 點擊OK</span>
-                    <span class="skw">click</span>(<img src="ok_btn_1.png" />)
+            ok_btn = exists(<img src="ok_btn_1.png" />, <span class="dig">0.001</span>)
+            <span class="kw">if</span> ok_btn:    <span class="cmt">#如果跳出網路不好的圖示, 點擊OK</span>
+                    <span class="skw">click</span>(ok_btn)
             <span class="kw">if</span>(start_time - time()  &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
                 <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
 
@@ -358,7 +359,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> InSoulBoard(self, clock):
         region = Region(clock.x+<span class="dig">170</span>, clock.y+<span class="dig">430</span>, <span class="dig">650</span>, <span class="dig">200</span>)
         <span class="kw">if</span> region.exists(Pattern(<img src="soul.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="soul_dead.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>):
-            logging.debug(<span class="str">"InSoulBoard"</span>)
+            <span class="cmt">#logging.debug("InSoulBoard")</span>
             <span class="kw">return</span> True
         <span class="kw">else</span>:
             <span class="kw">return</span> False
@@ -375,6 +376,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo):
             <span class="kw">while</span> <span class="kw">not</span> self.InSoulBoard(clock):
                 self.ActionDuringDrag(clock, dragFrom, dragTo)
+                clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+                <span class="kw">if</span> <span class="kw">not</span> clock:
+                    <span class="kw">break</span>
                 end_time = time()
                 time_taken = end_time - start_time <span class="cmt"># time_taken is in seconds</span>
                 <span class="kw">if</span>(time_taken &gt;= <span class="dig">30</span>): <span class="cmt"># not found</span>
@@ -431,11 +435,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="kw">break</span>
             <span class="kw">if</span> exists(<img src="network_lost.png" />,<span class="dig">0.001</span>):<span class="cmt"># 檢查網路是否不穩</span>
                 <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))       <span class="cmt"># 有網路不穩則點擊後跳出</span>
-                <span class="kw">return</span>
+                i = <span class="dig">60</span>
+                <span class="kw">continue</span>
 
         <span class="kw">if</span> exists(Pattern(<img src="zero_money.png" />).exact(), <span class="dig">2</span>):    <span class="cmt">#沒有庫倫了</span>
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
+            logging.debug(<span class="str">"zero reward"</span>)
         <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
 
     <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
@@ -516,6 +522,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
 
     <span class="kw">def</span> ToNextStage(self):
+        logging.debug(<span class="str">"ToNextStage"</span>)
         <span class="kw">if</span> self.Failed:
             self.TurnCount -= <span class="dig">1</span>
         <span class="kw">if</span> <span class="kw">not</span> self.Reward:
@@ -608,6 +615,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                     <span class="skw">click</span>(material)
                 <span class="kw">else</span>:
                     logging.warning(<span class="str">"Material seems disappear, keep moving..."</span>)
+
+<span class="kw">class</span> QuestMode(BasicMode):
 
 
 <span class="kw">class</span> Thursday4Mode(BasicMode):

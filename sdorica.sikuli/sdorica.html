@@ -80,11 +80,9 @@
 reload(config)
 <span class="kw">import</span> PlayAlgo
 reload(PlayAlgo)
+<span class="kw">from</span> PlayAlgo <span class="kw">import</span> AlgoFactory
 <span class="kw">import</span> ModeClass
 reload(ModeClass)
-<span class="kw">import</span> AutoLvUp
-reload(AutoLvUp)
-
 
 configObj = config.Configuration()
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)

@@ -67,12 +67,12 @@ class ModeFactory():
     FARM = 0
     AUTO_LV_UP = 1
     MATERIAL = 2
-    AUTO_FARM = 3
+    QUEST = 3
     THURSDAY_4 = 4
     MODE_DICT = {FARM: "Farm",
                  AUTO_LV_UP: "Auto Lelve Up",
                  MATERIAL : "Material",
-                 AUTO_FARM : "Auto Farm",
+                 QUEST : "Quest",
                  THURSDAY_4 : "Thursday 4"}
 
     @staticmethod
@@ -83,8 +83,8 @@ class ModeFactory():
             return AutoLvUpMode()
         elif choice == ModeFactory.MATERIAL:
             return MaterialMode()
-        elif choice == ModeFactory.AUTO_FARM:
-            return AutoFarmMode()
+        elif choice == ModeFactory.QUEST:
+            return QuestMode()
         elif choice == ModeFactory.THURSDAY_4:
             return Thursday4Mode()
         else:
@@ -268,9 +268,10 @@ class BasicMode(object):
         
         #等到看到有時鐘才代表進入關卡
         start_time = time()
-        while not exists(Pattern("clock.png").similar(0.90), 0.001):              
-            if exists("ok_btn_1.png", 0.001):    #如果跳出網路不好的圖示, 點擊OK
-                    click("ok_btn_1.png")
+        while not exists(Pattern("clock.png").similar(0.90), 0.001):       
+            ok_btn = exists("ok_btn_1.png", 0.001)
+            if ok_btn:    #如果跳出網路不好的圖示, 點擊OK
+                    click(ok_btn)
             if(start_time - time()  >= 30): # not found
                 break            #exit while not exists
 
@@ -286,7 +287,7 @@ class BasicMode(object):
     def InSoulBoard(self, clock):
         region = Region(clock.x+170, clock.y+430, 650, 200)
         if region.exists(Pattern("soul.png").similar(0.80),0.001) or region.exists(Pattern("soul_dead.png").similar(0.80),0.001):
-            logging.debug("InSoulBoard")
+            #logging.debug("InSoulBoard")
             return True
         else:
             return False
@@ -303,6 +304,9 @@ class BasicMode(object):
         with MouseDragHandler(dragFrom, dragTo):
             while not self.InSoulBoard(clock):
                 self.ActionDuringDrag(clock, dragFrom, dragTo)
+                clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+                if not clock:
+                    break
                 end_time = time()
                 time_taken = end_time - start_time # time_taken is in seconds
                 if(time_taken >= 30): # not found
@@ -359,11 +363,13 @@ class BasicMode(object):
                 break
             if exists("network_lost.png",0.001):# 檢查網路是否不穩
                 click(Pattern("network_lost.png").targetOffset(0,140))       # 有網路不穩則點擊後跳出
-                return 
+                i = 60
+                continue 
         
         if exists(Pattern("zero_money.png").exact(), 2):    #沒有庫倫了
             self.Reward = False
             self.ZeroRewardCount += 1
+            logging.debug("zero reward")
         click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
 
     def WaitToMenu(self): #等待回到選單
@@ -444,6 +450,7 @@ class FarmMode(ChallengeMode):
                 dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 440))
 
     def ToNextStage(self):
+        logging.debug("ToNextStage")
         if self.Failed:
             self.TurnCount -= 1
         if not self.Reward:
@@ -537,6 +544,8 @@ class MaterialMode(BasicMode):
                 else:
                     logging.warning("Material seems disappear, keep moving...")
 
+class QuestMode(BasicMode):
+    
 
 class Thursday4Mode(BasicMode):
 
