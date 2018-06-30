@@ -141,6 +141,10 @@ class BasicMode(object):
             self.ToNextStage()
             if self.Quit:
                 break
+            reward_btn = exists("ok_btn_reward.png", 0.001)
+            if reward_btn:
+                click(reward_btn)
+                wait(1)
 
     def WaitForDesignatedTime(self):
         logging.debug("Enter WaitForDesignatedTime")
@@ -164,19 +168,24 @@ class BasicMode(object):
         app = exists("sdorica.png", 1)
         if app:
             click(app)
-            wait(20)
+            wait(1)
         else:
             logging.debug("Cannot find Sdorica app")
             return
-        app_title = exists("app_title.png", 1)
+        app_title = exists("app_title.png", 30)
         if app_title:
             click(app_title)
-            wait(20)
+            wait(1)
         else:
             logging.debug("Cannot find Sdorica title")
             return
+
+        reward_btn = exists("ok_btn_reward.png", 30)
+        if reward_btn:
+            click(reward_btn)
+            wait(1)
             
-        ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 1)
+        ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 10)
         if ad_cancel:
             click(ad_cancel)
             wait(1)
@@ -297,7 +306,7 @@ class BasicMode(object):
             region = Region(clock.x-70, clock.y+270, 170, 130)  # 判斷角色icon
             if region.exists(Pattern("white_icon.png").similar(0.95),0.001) or region.exists(Pattern("black_icon.png").similar(0.95),0.001) or region.exists(Pattern("gold_icon.png").similar(0.95),0.001):
                 return True
-            logging.debug("no soul board")
+            #logging.debug("no soul board")
             return False
 
     def DragForward(self, clock):

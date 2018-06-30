@@ -213,6 +213,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.ToNextStage()
             <span class="kw">if</span> self.Quit:
                 <span class="kw">break</span>
+            reward_btn = exists(<img src="ok_btn_reward.png" />, <span class="dig">0.001</span>)
+            <span class="kw">if</span> reward_btn:
+                <span class="skw">click</span>(reward_btn)
+                <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> WaitForDesignatedTime(self):
         logging.debug(<span class="str">"Enter WaitForDesignatedTime"</span>)
@@ -236,19 +240,24 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
         <span class="kw">if</span> app:
             <span class="skw">click</span>(app)
-            <span class="skw">wait</span>(<span class="dig">20</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">else</span>:
             logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
             <span class="kw">return</span>
-        app_title = exists(<img src="app_title.png" />, <span class="dig">1</span>)
+        app_title = exists(<img src="app_title.png" />, <span class="dig">30</span>)
         <span class="kw">if</span> app_title:
             <span class="skw">click</span>(app_title)
-            <span class="skw">wait</span>(<span class="dig">20</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">else</span>:
             logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
             <span class="kw">return</span>
 
-        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>)
+        reward_btn = exists(<img src="ok_btn_reward.png" />, <span class="dig">30</span>)
+        <span class="kw">if</span> reward_btn:
+            <span class="skw">click</span>(reward_btn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+
+        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">10</span>)
         <span class="kw">if</span> ad_cancel:
             <span class="skw">click</span>(ad_cancel)
             <span class="skw">wait</span>(<span class="dig">1</span>)
@@ -369,7 +378,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             region = Region(clock.x-<span class="dig">70</span>, clock.y+<span class="dig">270</span>, <span class="dig">170</span>, <span class="dig">130</span>)  <span class="cmt"># 判斷角色icon</span>
             <span class="kw">if</span> region.exists(Pattern(<img src="white_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="black_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>) <span class="kw">or</span> region.exists(Pattern(<img src="gold_icon.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
                 <span class="kw">return</span> True
-            logging.debug(<span class="str">"no soul board"</span>)
+            <span class="cmt">#logging.debug("no soul board")</span>
             <span class="kw">return</span> False
 
     <span class="kw">def</span> DragForward(self, clock):
