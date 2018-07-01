@@ -51,6 +51,23 @@ class PlayAlgo(object):
     def SetBoard(self, dotLoc, dotColor):
         self.dotLoc = dotLoc
         self.dotColor = dotColor
+
+    def _check_around(self, robot, x, y):
+        color = "?"
+        x -= 24 #從最外圍開始
+        y -= 24
+        for i in range(2):
+            x += 12 * i
+            y += 12 * i
+            for j in range(3):
+                for k in range(3):
+                    if j == 1 and k == 1: # 正中心點已經被檢驗過
+                        continue
+                    c = robot.getPixelColor(x + j*(24-12*i), y + k*(24-12*i)) # get the color object
+                    color = self._check_color(c)   
+                    if color <> "?":
+                        break
+        return color
         
     def GetDotBoard(self, clock):
         #logging.debug("GetDotBoard")
@@ -58,8 +75,8 @@ class PlayAlgo(object):
             return -1
         dotLoc = []
         dotColor = []
-        dotLoc.append(self.clock.getCenter().offset(221,477))
-        stepX = 95
+        dotLoc.append(self.clock.getCenter().offset(221,475))
+        stepX = 96
         stepY = 97
         for i in range(1, 7):
             dotLoc.append(Location(dotLoc[i-1].x+stepX, dotLoc[i-1].y))
@@ -67,24 +84,26 @@ class PlayAlgo(object):
             dotLoc.append( Location(dotLoc[i].x, dotLoc[i].y+stepY))
         
         r = Robot()
+        question_mark_count = 0
+        temp = 0
         for i in range(0, 14):
             c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) # get the color object
-            for j in range(1,4):
-                color = self.CheckColor(c)                     # 檢查該點的顏色
-                if color <> "?":
-                    break
-                c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y-j*3) # 換位置再找一次
+            color = self._check_color(c)                     # 檢查該點的顏色
             if color == "?":
-                hover(dotLoc[i])
-                return 0
+                color = self._check_around(r, dotLoc[i].x, dotLoc[i].y)
+            if color == "?":
+                temp = i
+                question_mark_count += 1
+                if question_mark_count > 3:    #魂盤有太多沒辨識出來, 則跳過這次魂盤
+                    return 0
 
             dotColor.append(color)
             #crgb = ( c.getRed(), c.getGreen(), c.getBlue() ) # decode to RGB values
             #print dotColor[i]
-        self.SetBoard(dotLoc, dotColor)
+        self.SetBoard(dotLoc, dotColor)        
         return 1
 
-    def CheckColor(self, c):
+    def _check_color(self, c):
         if c.getRed() < 150 and c.getGreen() < 150 and c.getBlue() > 200:
             return "b"
         elif c.getRed() > 200 and c.getGreen() > 200 and c.getBlue() < 150:

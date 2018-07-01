@@ -124,14 +124,31 @@
         self.dotLoc = dotLoc
         self.dotColor = dotColor
 
+    <span class="kw">def</span> _check_around(self, robot, x, y):
+        color = <span class="str">"?"</span>
+        x -= <span class="dig">24</span> <span class="cmt">#從最外圍開始</span>
+        y -= <span class="dig">24</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
+            x += <span class="dig">12</span> * i
+            y += <span class="dig">12</span> * i
+            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">3</span>):
+                <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">3</span>):
+                    <span class="kw">if</span> j == <span class="dig">1</span> <span class="kw">and</span> k == <span class="dig">1</span>: <span class="cmt"># 正中心點已經被檢驗過</span>
+                        <span class="kw">continue</span>
+                    c = robot.getPixelColor(x + j*(<span class="dig">24</span>-<span class="dig">12</span>*i), y + k*(<span class="dig">24</span>-<span class="dig">12</span>*i)) <span class="cmt"># get the color object</span>
+                    color = self._check_color(c)
+                    <span class="kw">if</span> color &lt;&gt; <span class="str">"?"</span>:
+                        <span class="kw">break</span>
+        <span class="kw">return</span> color
+
     <span class="kw">def</span> GetDotBoard(self, clock):
         <span class="cmt">#logging.debug("GetDotBoard")</span>
         <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
             <span class="kw">return</span> -<span class="dig">1</span>
         dotLoc = []
         dotColor = []
-        dotLoc.append(self.clock.getCenter().offset(<span class="dig">221</span>,<span class="dig">477</span>))
-        stepX = <span class="dig">95</span>
+        dotLoc.append(self.clock.getCenter().offset(<span class="dig">221</span>,<span class="dig">475</span>))
+        stepX = <span class="dig">96</span>
         stepY = <span class="dig">97</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1</span>, <span class="dig">7</span>):
             dotLoc.append(Location(dotLoc[i-<span class="dig">1</span>].x+stepX, dotLoc[i-<span class="dig">1</span>].y))
@@ -139,16 +156,18 @@
             dotLoc.append( Location(dotLoc[i].x, dotLoc[i].y+stepY))
 
         r = Robot()
+        question_mark_count = <span class="dig">0</span>
+        temp = <span class="dig">0</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">14</span>):
             c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) <span class="cmt"># get the color object</span>
-            <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">1</span>,<span class="dig">4</span>):
-                color = self.CheckColor(c)                     <span class="cmt"># 檢查該點的顏色</span>
-                <span class="kw">if</span> color &lt;&gt; <span class="str">"?"</span>:
-                    <span class="kw">break</span>
-                c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y-j*<span class="dig">3</span>) <span class="cmt"># 換位置再找一次</span>
+            color = self._check_color(c)                     <span class="cmt"># 檢查該點的顏色</span>
             <span class="kw">if</span> color == <span class="str">"?"</span>:
-                hover(dotLoc[i])
-                <span class="kw">return</span> <span class="dig">0</span>
+                color = self._check_around(r, dotLoc[i].x, dotLoc[i].y)
+            <span class="kw">if</span> color == <span class="str">"?"</span>:
+                temp = i
+                question_mark_count += <span class="dig">1</span>
+                <span class="kw">if</span> question_mark_count &gt; <span class="dig">3</span>:    <span class="cmt">#魂盤有太多沒辨識出來, 則跳過這次魂盤</span>
+                    <span class="kw">return</span> <span class="dig">0</span>
 
             dotColor.append(color)
             <span class="cmt">#crgb = ( c.getRed(), c.getGreen(), c.getBlue() ) # decode to RGB values</span>
@@ -156,7 +175,7 @@
         self.SetBoard(dotLoc, dotColor)
         <span class="kw">return</span> <span class="dig">1</span>
 
-    <span class="kw">def</span> CheckColor(self, c):
+    <span class="kw">def</span> _check_color(self, c):
         <span class="kw">if</span> c.getRed() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getGreen() &lt; <span class="dig">150</span> <span class="kw">and</span> c.getBlue() &gt; <span class="dig">200</span>:
             <span class="kw">return</span> <span class="str">"b"</span>
         <span class="kw">elif</span> c.getRed() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getGreen() &gt; <span class="dig">200</span> <span class="kw">and</span> c.getBlue() &lt; <span class="dig">150</span>:
