@@ -157,14 +157,12 @@
 
         r = Robot()
         question_mark_count = <span class="dig">0</span>
-        temp = <span class="dig">0</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">14</span>):
             c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) <span class="cmt"># get the color object</span>
             color = self._check_color(c)                     <span class="cmt"># 檢查該點的顏色</span>
             <span class="kw">if</span> color == <span class="str">"?"</span>:
                 color = self._check_around(r, dotLoc[i].x, dotLoc[i].y)
             <span class="kw">if</span> color == <span class="str">"?"</span>:
-                temp = i
                 question_mark_count += <span class="dig">1</span>
                 <span class="kw">if</span> question_mark_count &gt; <span class="dig">3</span>:    <span class="cmt">#魂盤有太多沒辨識出來, 則跳過這次魂盤</span>
                     <span class="kw">return</span> <span class="dig">0</span>

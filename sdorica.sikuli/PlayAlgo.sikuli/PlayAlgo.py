@@ -85,14 +85,12 @@ class PlayAlgo(object):
         
         r = Robot()
         question_mark_count = 0
-        temp = 0
         for i in range(0, 14):
             c = r.getPixelColor(dotLoc[i].x, dotLoc[i].y) # get the color object
             color = self._check_color(c)                     # 檢查該點的顏色
             if color == "?":
                 color = self._check_around(r, dotLoc[i].x, dotLoc[i].y)
             if color == "?":
-                temp = i
                 question_mark_count += 1
                 if question_mark_count > 3:    #魂盤有太多沒辨識出來, 則跳過這次魂盤
                     return 0

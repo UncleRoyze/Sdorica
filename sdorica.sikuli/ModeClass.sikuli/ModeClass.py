@@ -141,9 +141,10 @@ class BasicMode(object):
             self.ToNextStage()
             if self.Quit:
                 break
-            reward_btn = exists("ok_btn_reward.png", 0.001)
-            if reward_btn:
-                click(reward_btn)
+            ok_btn = exists(Pattern("ok_btn_reward.png").similar(0.85), 0.001)
+            if ok_btn:
+                click(ok_btn)
+                logging.debug("click ok button")
                 wait(1)
 
     def WaitForDesignatedTime(self):
@@ -162,7 +163,7 @@ class BasicMode(object):
             timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, 0)) - datetime.datetime.today()
         print "timedelta 2 %s" % timedelta
         print "The script is gonna excute in %d seconds." % timedelta.seconds
-        wait(timedelta.seconds)
+        wait(timedelta.seconds + 300)
 
     def EnterSdorica(self):
         app = exists("sdorica.png", 1)
@@ -180,12 +181,21 @@ class BasicMode(object):
             logging.debug("Cannot find Sdorica title")
             return
 
-        reward_btn = exists("ok_btn_reward.png", 30)
+        reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 60)
         if reward_btn:
-            click(reward_btn)
             wait(1)
+            click(reward_btn)
+        else:
+            logging.debug("Cannot find yesterday reward button")
+        
+        reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 30)
+        if reward_btn:
+            wait(1)
+            click(reward_btn)
+        else:
+            logging.debug("Cannot find last week reward button")
             
-        ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 10)
+        ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 30)
         if ad_cancel:
             click(ad_cancel)
             wait(1)
@@ -461,6 +471,10 @@ class ChallengeMode(BasicMode):
 
 class FarmMode(ChallengeMode):
 
+    def SelectFighter(self):
+        if exists(Pattern("team_2.png").similar(0.90), 1):
+            click(Pattern("team_2.png").similar(0.90))
+            
     def ChangeStage(self, i):
         if i % 10 == 0 and i != 0:
             logging.debug("ChangeStage")

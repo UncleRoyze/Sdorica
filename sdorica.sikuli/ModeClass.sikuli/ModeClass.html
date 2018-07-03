@@ -213,9 +213,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.ToNextStage()
             <span class="kw">if</span> self.Quit:
                 <span class="kw">break</span>
-            reward_btn = exists(<img src="ok_btn_reward.png" />, <span class="dig">0.001</span>)
-            <span class="kw">if</span> reward_btn:
-                <span class="skw">click</span>(reward_btn)
+            ok_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.85</span>), <span class="dig">0.001</span>)
+            <span class="kw">if</span> ok_btn:
+                <span class="skw">click</span>(ok_btn)
+                logging.debug(<span class="str">"click ok button"</span>)
                 <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> WaitForDesignatedTime(self):
@@ -234,7 +235,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, <span class="dig">0</span>)) - datetime.datetime.today()
         <span class="kw">print</span> <span class="str">"timedelta 2 %s"</span> % timedelta
         <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
-        <span class="skw">wait</span>(timedelta.seconds)
+        <span class="skw">wait</span>(timedelta.seconds + <span class="dig">300</span>)
 
     <span class="kw">def</span> EnterSdorica(self):
         app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
@@ -252,12 +253,21 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
             <span class="kw">return</span>
 
-        reward_btn = exists(<img src="ok_btn_reward.png" />, <span class="dig">30</span>)
+        reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">60</span>)
         <span class="kw">if</span> reward_btn:
-            <span class="skw">click</span>(reward_btn)
             <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(reward_btn)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find yesterday reward button"</span>)
 
-        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">10</span>)
+        reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
+        <span class="kw">if</span> reward_btn:
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(reward_btn)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find last week reward button"</span>)
+
+        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
         <span class="kw">if</span> ad_cancel:
             <span class="skw">click</span>(ad_cancel)
             <span class="skw">wait</span>(<span class="dig">1</span>)
@@ -532,6 +542,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
 <span class="kw">class</span> FarmMode(ChallengeMode):
+
+    <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> exists(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+            <span class="skw">click</span>(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>))
 
     <span class="kw">def</span> ChangeStage(self, i):
         <span class="kw">if</span> i % <span class="dig">10</span> == <span class="dig">0</span> <span class="kw">and</span> i != <span class="dig">0</span>:
