@@ -262,7 +262,7 @@ class BasicMode(object):
                             selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
                             break
                         else:
-                            reg = Region(matchCenter.x - 65, matchCenter.y + 20, 140, 200)
+                            reg = Region(matchCenter.x - 65, matchCenter.y - 30, 140, 260)
                             if reg.exists("using.png"):
                                 # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
                                 continue
@@ -272,7 +272,7 @@ class BasicMode(object):
             click(selectCenter)
             return trueFriendFound
             
-        friendSlot = exists("SelectFriend.png", 0.001)
+        friendSlot = exists(Pattern("SelectFriend.png").similar(0.90), 0.001)
         if not friendSlot:
             return
         click(friendSlot)

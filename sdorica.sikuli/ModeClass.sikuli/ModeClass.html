@@ -334,7 +334,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                             selectCenter = matchCenter  <span class="cmt"># 沒找到朋友的參謀，選其他好用的</span>
                             <span class="kw">break</span>
                         <span class="kw">else</span>:
-                            reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y + <span class="dig">20</span>, <span class="dig">140</span>, <span class="dig">200</span>)
+                            reg = Region(matchCenter.x - <span class="dig">65</span>, matchCenter.y - <span class="dig">30</span>, <span class="dig">140</span>, <span class="dig">260</span>)
                             <span class="kw">if</span> reg.exists(<img src="using.png" />):
                                 <span class="cmt"># 好友的參謀跟自己隊伍的角色相同，只好不選他了 </span>
                                 <span class="kw">continue</span>
@@ -344,7 +344,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(selectCenter)
             <span class="kw">return</span> trueFriendFound
 
-        friendSlot = exists(<img src="SelectFriend.png" />, <span class="dig">0.001</span>)
+        friendSlot = exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> friendSlot:
             <span class="kw">return</span>
         <span class="skw">click</span>(friendSlot)
