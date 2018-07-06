@@ -197,8 +197,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> Run(self):
         self.InputSetting()
-        self.WaitForDesignatedTime()
-        self.EnterSdorica()
         self.SelectStage()
         <span class="kw">for</span> self.TurnCount <span class="kw">in</span> range(configObj.getTurns()):
             logging.info(<span class="str">"Turn: %d"</span>, self.TurnCount)
@@ -218,61 +216,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="skw">click</span>(ok_btn)
                 logging.debug(<span class="str">"click ok button"</span>)
                 <span class="skw">wait</span>(<span class="dig">1</span>)
-
-    <span class="kw">def</span> WaitForDesignatedTime(self):
-        logging.debug(<span class="str">"Enter WaitForDesignatedTime"</span>)
-        designated_hour = configObj.getDesignatedHour()
-        <span class="kw">print</span> <span class="str">"designated hour is %d"</span> % designated_hour
-        <span class="kw">if</span> designated_hour &lt; <span class="dig">0</span>:
-            logging.debug(<span class="str">"Run the script right away!"</span>)
-            <span class="kw">return</span>  <span class="cmt"># run the script right away</span>
-
-        designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, <span class="dig">0</span>))
-        timedelta = designated_time - datetime.datetime.today()
-        <span class="kw">print</span> <span class="str">"timedelta 1 %s"</span> % timedelta
-        <span class="kw">if</span> timedelta.days &lt; <span class="dig">0</span>:
-            tomorrow = datetime.date.today() + datetime.timedelta(days=<span class="dig">1</span>)
-            timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, <span class="dig">0</span>)) - datetime.datetime.today()
-        <span class="kw">print</span> <span class="str">"timedelta 2 %s"</span> % timedelta
-        <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
-        <span class="skw">wait</span>(timedelta.seconds + <span class="dig">300</span>)
-
-    <span class="kw">def</span> EnterSdorica(self):
-        app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
-        <span class="kw">if</span> app:
-            <span class="skw">click</span>(app)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">else</span>:
-            logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
-            <span class="kw">return</span>
-        app_title = exists(<img src="app_title.png" />, <span class="dig">30</span>)
-        <span class="kw">if</span> app_title:
-            <span class="skw">click</span>(app_title)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">else</span>:
-            logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
-            <span class="kw">return</span>
-
-        reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">60</span>)
-        <span class="kw">if</span> reward_btn:
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="skw">click</span>(reward_btn)
-        <span class="kw">else</span>:
-            logging.debug(<span class="str">"Cannot find yesterday reward button"</span>)
-
-        reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
-        <span class="kw">if</span> reward_btn:
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="skw">click</span>(reward_btn)
-        <span class="kw">else</span>:
-            logging.debug(<span class="str">"Cannot find last week reward button"</span>)
-
-        ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
-        <span class="kw">if</span> ad_cancel:
-            <span class="skw">click</span>(ad_cancel)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">else</span>:
-            logging.debug(<span class="str">"Cannot find advertisement cancel button"</span>)
 
     <span class="cmt"># 是否在關卡選單內        </span>
     <span class="kw">def</span> IsInStage(self):
@@ -471,7 +414,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
             logging.debug(<span class="str">"zero reward"</span>)
-        <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">26</span>,<span class="dig">0</span>))
+        <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">32</span>,<span class="dig">0</span>))
 
     <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
         logging.debug(<span class="str">"WaitToMenu"</span>)
@@ -651,17 +594,162 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">class</span> QuestMode(BasicMode):
 
-    <span class="kw">def</span> _click_quest(self):
+    quest_done = False
+    event_count = <span class="dig">0</span>
+    <span class="kw">def</span> _click_quest_menu(self):
         <span class="kw">if</span> exists(<img src="quest_btn.png" />,<span class="dig">0.001</span>):
             <span class="skw">click</span>(<img src="quest_btn.png" />)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find quest button"</span>)
+
+    <span class="kw">def</span> _click_quest_guild(self):
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild.png" />).similar(<span class="dig">0.90</span>),<span class="dig">5</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find quest guild button"</span>)
+
+    <span class="kw">def</span> _leave_quest_page(self):
+        <span class="kw">if</span> exists(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+
+    <span class="kw">def</span> _donate(self, money, blue):
+        <span class="kw">if</span> <span class="kw">not</span> money <span class="kw">and</span> <span class="kw">not</span> blue:
+            self._leave_quest_page()
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        self._leave_quest_page()
+        <span class="kw">if</span> exists(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        donate_btn = exists(Pattern(<img src="donate_btn.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> <span class="kw">not</span> donate_btn:
+            <span class="kw">return</span>
+        <span class="kw">if</span> money:
+            <span class="skw">click</span>(donate_btn.getCenter().offset(<span class="dig">0</span>,-<span class="dig">30</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">120</span>):
+                <span class="skw">click</span>(Pattern(<img src="donate_plus_btn-1.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">if</span> blue:
+            <span class="skw">click</span>(donate_btn.getCenter().offset(<span class="dig">0</span>,<span class="dig">30</span>))
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">10</span>):
+                <span class="skw">click</span>(Pattern(<img src="donate_plus_btn.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="kw">if</span> exists(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>)) <span class="cmt"># back to main menu</span>
+
+    <span class="kw">def</span> _gulid_donate(self):
+        logging.debug(<span class="str">"_gulid_donate"</span>)
+        self._click_quest_menu()
+        self._click_quest_guild()
+        money = False
+        blue = False
+        <span class="kw">if</span> exists(Pattern(<img src="quest_donate_money.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
+            money = True
+        <span class="kw">if</span> exists(Pattern(<img src="quest_donate_blue.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
+            blue = True
+        self._donate(money,blue)
+
+    <span class="kw">def</span> _drag_quest_menu(self):
+        quest_menu_title = exists(Pattern(<img src="quest_menu_title.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> <span class="kw">not</span> quest_menu_title:
+            <span class="kw">return</span>
+        <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">215</span>))
+
+
+    <span class="kw">def</span> _select_quest(self):
+        self._click_quest_menu()
+        self._drag_quest_menu()
+        <span class="kw">if</span> exists(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>))
+            self.Algo = AlgoFactory.JIN2_ALGO
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_treasure.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">50</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_treasure.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">50</span>,<span class="dig">0</span>))
+            self.Algo = AlgoFactory.JIN2_ALGO
+            <span class="kw">return</span>
+        self._click_quest_guild()
+        self._drag_quest_menu()
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
+        self.quest_done = True <span class="cmt">#解完任務了</span>
+        self._leave_quest_page()
+        self._to_event_stage()
+
+    <span class="kw">def</span> _back_to_main_menu(self):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">10</span>):
+            <span class="kw">if</span> exists(Pattern(<img src="news.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
+                <span class="kw">return</span>
+            <span class="kw">if</span> exists(<img src="back_button.png" />, <span class="dig">0.001</span>):
+                <span class="skw">click</span>(<img src="back_button.png" />)
 
     <span class="kw">def</span> SelectStage(self):
-        _click_quest()
+        self._back_to_main_menu()
+        self._gulid_donate()
+        self._select_quest()
         <span class="kw">return</span>
 
+    <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
+            <span class="kw">return</span>
+        <span class="kw">if</span> self.Algo == AlgoFactory.JIN2_ALGO:
+            <span class="kw">if</span> exists(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+                <span class="skw">click</span>(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>))
+        <span class="kw">elif</span> self.Algo == AlgoFactory.NOLVA_ALGO:
+            <span class="kw">if</span> exists(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+                <span class="skw">click</span>(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>))
+
+    <span class="kw">def</span> _to_event_stage(self):
+        self.Algo = AlgoFactory.JIN2_ALGO
+        self.event_count += <span class="dig">1</span>
+        event_menu_btn = exists(Pattern(<img src="event_menu_page.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> event_menu_btn:
+            <span class="skw">click</span>(event_menu_btn)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        event_menu_btn_selected = exists(Pattern(<img src="event_menu_btn_selected.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> event_menu_btn_selected:
+            <span class="skw">click</span>(event_menu_btn_selected)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+        event_title = exists(Pattern(<img src="event_title.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>)
+        <span class="kw">if</span> event_title:
+            <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="limit_event.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
+                <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+                <span class="skw">dragDrop</span>(event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">2</span>
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
+                <span class="skw">dragDrop</span>(event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
     <span class="kw">def</span> ToNextStage(self):
-        _click_quest()
-        <span class="kw">return</span>
+        self._back_to_main_menu()
+        <span class="kw">if</span> <span class="kw">not</span> self.quest_done:
+            self._select_quest()
+        <span class="kw">elif</span> self.event_count &lt; <span class="dig">2</span>:
+            self._to_event_stage()
+        <span class="kw">else</span>:
+            self.Quit = True
 
 <span class="kw">class</span> Thursday4Mode(BasicMode):
 
@@ -679,13 +767,27 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
             <span class="kw">return</span>
         bar = DragCharacterBar()
-        <span class="skw">click</span>(Pattern(<img src="gotofight.png" />).targetOffset(-<span class="dig">934</span>,-<span class="dig">72</span>))
+        start =  exists(<img src="gotofight.png" />, <span class="dig">30</span>)
+        <span class="kw">if</span> <span class="kw">not</span> start:
+            exit
+        <span class="kw">if</span> exists(Pattern(<img src="lv60.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#有紀錄的隊伍了</span>
+            <span class="kw">return</span>
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(Pattern(<img src="Lisa_name.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">734</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(Pattern(<img src="Ned_name.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(Pattern(<img src="skin_arrow.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">526</span>,-<span class="dig">80</span>))
         bar.ToRight()
-        <span class="kw">if</span> exists(<img src="lisa.png" />,<span class="dig">0.001</span>):
-            <span class="skw">click</span>(<img src="lisa.png" />)
-        <span class="kw">else</span>:
-            self.Quit = True
-        <span class="kw">return</span>
+        <span class="skw">click</span>(Pattern(<img src="jahan_name.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">344</span>,-<span class="dig">60</span>))
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
+            <span class="kw">if</span> exists(Pattern(<img src="WestOmore_name.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="WestOmore_name.png" />).similar(<span class="dig">0.90</span>))
+                <span class="kw">break</span>
+            bar.ToRight()
+        <span class="skw">click</span>(Pattern(<img src="WestOmore_name.png" />).similar(<span class="dig">0.90</span>))
+
 
     <span class="kw">def</span> SelectBrainman(self):
         <span class="kw">return</span>
@@ -718,22 +820,35 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         start =  exists(<img src="gotofight.png" />, <span class="dig">30</span>)
         <span class="kw">if</span> <span class="kw">not</span> start:
             exit
-        <span class="kw">if</span> exists(Pattern(<img src="jahan_a.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#有紀錄的隊伍了</span>
+        <span class="kw">if</span> exists(Pattern(<img src="lv60.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#有紀錄的隊伍了</span>
             <span class="kw">return</span>
-        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
-        <span class="skw">click</span>(<img src="cosp.png" />)
+
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">734</span>,-<span class="dig">80</span>))
-        <span class="skw">click</span>(<img src="cat.png" />)
+        <span class="skw">click</span>(Pattern(<img src="Nolva_name.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(Pattern(<img src="skin_arrow.png" />).similar(<span class="dig">0.85</span>))
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">526</span>,-<span class="dig">80</span>))
-        <span class="skw">click</span>(<img src="crocodile.png" />)
+        bar.ToRight()
+        <span class="skw">click</span>(Pattern(<img src="Delan_name.png" />).similar(<span class="dig">0.85</span>))
+        <span class="skw">click</span>(Pattern(<img src="skin_arrow.png" />).similar(<span class="dig">0.85</span>))
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(Pattern(<img src="WestOmore_name.png" />).similar(<span class="dig">0.90</span>))
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">344</span>,-<span class="dig">60</span>))
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
-            <span class="kw">if</span> exists(<img src="jahan.png" />,<span class="dig">0.001</span>):
-                <span class="skw">click</span>(<img src="jahan.png" />)
+            <span class="kw">if</span> exists(Pattern(<img src="jahan_name.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="jahan_name.png" />).similar(<span class="dig">0.90</span>))
                 <span class="kw">break</span>
             bar.ToRight()
 
     <span class="kw">def</span> SelectBrainman(self):
+        <span class="kw">return</span>
+
+    <span class="kw">def</span> LeavePlay(self):
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        <span class="kw">if</span> clock:
+            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
         <span class="kw">return</span>
 </pre>
 </body>

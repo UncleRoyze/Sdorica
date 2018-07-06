@@ -126,12 +126,75 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="cmt">#write ini</span>
     configObj.writeConfig()
 
+<span class="kw">def</span> WaitForDesignatedTime():
+    logging.debug(<span class="str">"Enter WaitForDesignatedTime"</span>)
+    designated_hour = configObj.getDesignatedHour()
+    <span class="kw">print</span> <span class="str">"designated hour is %d"</span> % designated_hour
+    <span class="kw">if</span> designated_hour &lt; <span class="dig">0</span>:
+        logging.debug(<span class="str">"Run the script right away!"</span>)
+        <span class="kw">return</span>  <span class="cmt"># run the script right away</span>
+
+    designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, <span class="dig">0</span>))
+    timedelta = designated_time - datetime.datetime.today()
+    <span class="kw">print</span> <span class="str">"timedelta 1 %s"</span> % timedelta
+    <span class="kw">if</span> timedelta.days &lt; <span class="dig">0</span>:
+        tomorrow = datetime.date.today() + datetime.timedelta(days=<span class="dig">1</span>)
+        timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, <span class="dig">0</span>)) - datetime.datetime.today()
+    <span class="kw">print</span> <span class="str">"timedelta 2 %s"</span> % timedelta
+    <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
+    <span class="skw">wait</span>(timedelta.seconds + <span class="dig">300</span>)
+
+<span class="kw">def</span> EnterSdorica():
+    app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
+    <span class="kw">if</span> app:
+        <span class="skw">click</span>(app)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="kw">else</span>:
+        logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
+        <span class="kw">return</span>
+    app_title = exists(<img src="app_title.png" />, <span class="dig">30</span>)
+    <span class="kw">if</span> app_title:
+        <span class="skw">click</span>(app_title)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="kw">else</span>:
+        logging.debug(<span class="str">"Cannot find Sdorica title"</span>)
+        <span class="kw">return</span>
+
+    reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">60</span>)
+    <span class="kw">if</span> reward_btn:
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="skw">click</span>(reward_btn)
+    <span class="kw">else</span>:
+        logging.debug(<span class="str">"Cannot find yesterday reward button"</span>)
+
+    reward_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
+    <span class="kw">if</span> reward_btn:
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        <span class="skw">click</span>(reward_btn)
+    <span class="kw">else</span>:
+        logging.debug(<span class="str">"Cannot find last week reward button"</span>)
+
+    ad_cancel = exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">30</span>)
+    <span class="kw">if</span> ad_cancel:
+        <span class="skw">click</span>(ad_cancel)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="kw">else</span>:
+        logging.debug(<span class="str">"Cannot find advertisement cancel button"</span>)
+
 
 <span class="kw">def</span> main():
     StartAsking()
-    playMode = ModeFactory.GenMode(configObj.getPlayMode())
+    WaitForDesignatedTime()
+    EnterSdorica()
     start_time = time()
-    playMode.Run()
+    <span class="kw">if</span> configObj.getPlayMode() == ModeFactory.FARM:
+        playMode = ModeFactory.GenMode(ModeFactory.FARM)
+        playMode.Run()
+        playMode = ModeFactory.GenMode(ModeFactory.QUEST)
+        playMode.Run()
+    <span class="kw">else</span>:
+        playMode = ModeFactory.GenMode(configObj.getPlayMode())
+        playMode.Run()
     time_taken = time() - start_time  <span class="cmt"># time_taken is in seconds</span>
     <span class="skw">popup</span>(<span class="str">"Duration: %d min."</span> % (time_taken / <span class="dig">60</span>))
 

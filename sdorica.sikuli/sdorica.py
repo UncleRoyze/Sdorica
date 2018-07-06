@@ -54,12 +54,75 @@ def StartAsking():
     #write ini
     configObj.writeConfig()
 
+def WaitForDesignatedTime():
+    logging.debug("Enter WaitForDesignatedTime")
+    designated_hour = configObj.getDesignatedHour()
+    print "designated hour is %d" % designated_hour
+    if designated_hour < 0:
+        logging.debug("Run the script right away!")
+        return  # run the script right away
+
+    designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, 0))
+    timedelta = designated_time - datetime.datetime.today()
+    print "timedelta 1 %s" % timedelta
+    if timedelta.days < 0:
+        tomorrow = datetime.date.today() + datetime.timedelta(days=1)
+        timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, 0)) - datetime.datetime.today()
+    print "timedelta 2 %s" % timedelta
+    print "The script is gonna excute in %d seconds." % timedelta.seconds
+    wait(timedelta.seconds + 300)
+
+def EnterSdorica():
+    app = exists("sdorica.png", 1)
+    if app:
+        click(app)
+        wait(1)
+    else:
+        logging.debug("Cannot find Sdorica app")
+        return
+    app_title = exists("app_title.png", 30)
+    if app_title:
+        click(app_title)
+        wait(1)
+    else:
+        logging.debug("Cannot find Sdorica title")
+        return
+
+    reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 60)
+    if reward_btn:
+        wait(1)
+        click(reward_btn)
+    else:
+        logging.debug("Cannot find yesterday reward button")
+    
+    reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 30)
+    if reward_btn:
+        wait(1)
+        click(reward_btn)
+    else:
+        logging.debug("Cannot find last week reward button")
+        
+    ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 30)
+    if ad_cancel:
+        click(ad_cancel)
+        wait(1)
+    else:
+        logging.debug("Cannot find advertisement cancel button")
+
 
 def main():
     StartAsking()
-    playMode = ModeFactory.GenMode(configObj.getPlayMode())
+    WaitForDesignatedTime()
+    EnterSdorica()
     start_time = time()
-    playMode.Run()
+    if configObj.getPlayMode() == ModeFactory.FARM:
+        playMode = ModeFactory.GenMode(ModeFactory.FARM)
+        playMode.Run()
+        playMode = ModeFactory.GenMode(ModeFactory.QUEST)
+        playMode.Run()
+    else:
+        playMode = ModeFactory.GenMode(configObj.getPlayMode())
+        playMode.Run()
     time_taken = time() - start_time  # time_taken is in seconds
     popup("Duration: %d min." % (time_taken / 60))
         

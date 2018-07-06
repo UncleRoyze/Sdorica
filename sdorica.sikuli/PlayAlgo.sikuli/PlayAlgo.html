@@ -77,11 +77,17 @@
     SIMPLE_ALGO = <span class="dig">0</span>
     NOLVA_ALGO = <span class="dig">1</span>
     JIN2_ALGO = <span class="dig">2</span>
-    FRIDAY3_ALGO = <span class="dig">3</span>
-    THURSDAY4_ALGO = <span class="dig">4</span>
+    NO1_ALGO = <span class="dig">3</span>
+    NO2_ALGO = <span class="dig">4</span>
+    NO4_ALGO = <span class="dig">5</span>
+    FRIDAY3_ALGO = <span class="dig">6</span>
+    THURSDAY4_ALGO = <span class="dig">7</span>
     ALGO_DICT = {SIMPLE_ALGO: <span class="str">"Simple"</span>,
                  NOLVA_ALGO: <span class="str">"Nolva"</span>,
                  JIN2_ALGO : <span class="str">"Jin2"</span>,
+                 NO1_ALGO: <span class="str">"No 1"</span>,
+                 NO2_ALGO: <span class="str">"No 2"</span>,
+                 NO4_ALGO : <span class="str">"No 4"</span>,
                  FRIDAY3_ALGO : <span class="str">"Friday 3"</span>,
                  THURSDAY4_ALGO: <span class="str">"Thrsday 4"</span>}
 
@@ -93,6 +99,12 @@
             <span class="kw">return</span> NolvaAlgo(clock)
         <span class="kw">elif</span> choice == AlgoFactory.JIN2_ALGO:
             <span class="kw">return</span> Jin2Algo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.NO1_ALGO:
+            <span class="kw">return</span> No1Algo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.NO2_ALGO:
+            <span class="kw">return</span> No2Algo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.NO4_ALGO:
+            <span class="kw">return</span> No4Algo(clock)
         <span class="kw">elif</span> choice == AlgoFactory.FRIDAY3_ALGO:
             <span class="kw">return</span> Friday3Algo(clock)
         <span class="kw">elif</span> choice == AlgoFactory.THURSDAY4_ALGO:
@@ -126,16 +138,14 @@
 
     <span class="kw">def</span> _check_around(self, robot, x, y):
         color = <span class="str">"?"</span>
-        x -= <span class="dig">24</span> <span class="cmt">#從最外圍開始</span>
-        y -= <span class="dig">24</span>
+        x -= <span class="dig">16</span> <span class="cmt">#從最外圍開始</span>
+        y -= <span class="dig">16</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
-            x += <span class="dig">12</span> * i
-            y += <span class="dig">12</span> * i
+            x += <span class="dig">8</span> * i
+            y += <span class="dig">8</span> * i
             <span class="kw">for</span> j <span class="kw">in</span> range(<span class="dig">3</span>):
                 <span class="kw">for</span> k <span class="kw">in</span> range(<span class="dig">3</span>):
-                    <span class="kw">if</span> j == <span class="dig">1</span> <span class="kw">and</span> k == <span class="dig">1</span>: <span class="cmt"># 正中心點已經被檢驗過</span>
-                        <span class="kw">continue</span>
-                    c = robot.getPixelColor(x + j*(<span class="dig">24</span>-<span class="dig">12</span>*i), y + k*(<span class="dig">24</span>-<span class="dig">12</span>*i)) <span class="cmt"># get the color object</span>
+                    c = robot.getPixelColor(x + j*(<span class="dig">16</span>-<span class="dig">8</span>*i), y + k*(<span class="dig">16</span>-<span class="dig">8</span>*i)) <span class="cmt"># get the color object</span>
                     color = self._check_color(c)
                     <span class="kw">if</span> color &lt;&gt; <span class="str">"?"</span>:
                         <span class="kw">break</span>
@@ -354,6 +364,33 @@
                     <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">0</span>
 
+<span class="kw">class</span> No1Algo(SimpleAlgo):
+
+    <span class="kw">def</span> Play(self, num, clock):
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">class</span> No2Algo(SimpleAlgo):
+
+    <span class="kw">def</span> Play(self, num, clock):
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">class</span> No4Algo(SimpleAlgo):
+
+    <span class="kw">def</span> Play(self, num, clock):
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">1</span>, <span class="dig">2</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
 <span class="kw">class</span> Friday3Algo(SimpleAlgo):
 
     <span class="kw">def</span> __init__(self, clock):
@@ -362,38 +399,27 @@
 
     <span class="kw">def</span> Play(self, num, clock):
 
-        <span class="cmt">#開場4白或2白</span>
+        <span class="cmt">#開場1白</span>
         <span class="kw">if</span> num == <span class="dig">0</span>:
-            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">4</span>):
+            <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">196</span>,<span class="dig">232</span>))
+            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
                 <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
-                <span class="kw">return</span> <span class="dig">1</span>
-        <span class="cmt">#如果沒有用過4黑則用4黑</span>
-        <span class="kw">if</span> <span class="kw">not</span> self.is_4_b:
-            <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
-                self.is_4_b = True
-                <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">else</span>:
-                <span class="kw">if</span> self.Make_4x_by_z(<span class="str">"b"</span>, <span class="str">"g"</span>): <span class="cmt"># 如果沒有4黑, 試著下回合作出4黑</span>
-                    <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> (num % <span class="dig">3</span>) == <span class="dig">0</span> <span class="kw">and</span> num &lt;&gt; <span class="dig">0</span>:
+        <span class="kw">if</span> num == <span class="dig">1</span>:
             <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
                 <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">4</span>):
-            <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">1</span>):
-            <span class="kw">return</span> <span class="dig">1</span>
-
-        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"g"</span>, <span class="str">"b"</span>, <span class="str">"w"</span>):
-                <span class="kw">if</span> self.PlayDots(color, number):
-                    <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">return</span> <span class="dig">0</span>
+        <span class="kw">if</span> num == <span class="dig">2</span>:
+            <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">2</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">4</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+            <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>):
+                <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> -<span class="dig">1</span>
 
 <span class="kw">class</span> Thursday4Algo(SimpleAlgo):
 
     <span class="kw">def</span> _check_hp_zero(self, clock):
-        <span class="skw">wait</span>(<span class="dig">5</span>)
+        <span class="skw">wait</span>(<span class="dig">3</span>)
         drag(clock.getCenter().offset(<span class="dig">348</span>,<span class="dig">124</span>))
 
         <span class="kw">if</span> exists(Pattern(<img src="zero_hp.png" />).similar(<span class="dig">0.80</span>), <span class="dig">5</span>):
@@ -408,7 +434,9 @@
                 <span class="kw">return</span> -<span class="dig">1</span>
             <span class="kw">else</span>:
                 <span class="kw">return</span> <span class="dig">1</span>
+
         <span class="kw">if</span> num == <span class="dig">1</span>:
+            <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">60</span>,<span class="dig">480</span>)) <span class="cmt">#點擊自己的參謀</span>
             <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
                 <span class="kw">return</span> -<span class="dig">1</span>
             <span class="kw">else</span>:
@@ -424,17 +452,15 @@
                     <span class="kw">return</span> -<span class="dig">1</span>
                 <span class="kw">else</span>:
                     <span class="kw">return</span> <span class="dig">1</span>
+
         <span class="kw">if</span> num == <span class="dig">3</span>:
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
+            <span class="kw">if</span> <span class="kw">not</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">1</span>):
                 <span class="kw">return</span> -<span class="dig">1</span>
             <span class="kw">else</span>:
                 <span class="kw">if</span> self._check_hp_zero(clock):
                     <span class="kw">return</span> -<span class="dig">1</span>
-
-            <span class="skw">wait</span>(<span class="dig">50</span>)
-            <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">60</span>,<span class="dig">480</span>)) <span class="cmt">#點擊自己的參謀</span>
-            <span class="skw">wait</span>(<span class="dig">10</span>)
-            <span class="kw">return</span> -<span class="dig">1</span>
+                <span class="skw">wait</span>(<span class="dig">50</span>)
+                exit
         <span class="kw">return</span> <span class="dig">0</span>
 </pre>
 </body>

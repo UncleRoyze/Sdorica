@@ -125,8 +125,6 @@ class BasicMode(object):
         
     def Run(self):
         self.InputSetting()
-        self.WaitForDesignatedTime()
-        self.EnterSdorica()
         self.SelectStage()
         for self.TurnCount in range(configObj.getTurns()):  
             logging.info("Turn: %d", self.TurnCount)
@@ -146,61 +144,6 @@ class BasicMode(object):
                 click(ok_btn)
                 logging.debug("click ok button")
                 wait(1)
-
-    def WaitForDesignatedTime(self):
-        logging.debug("Enter WaitForDesignatedTime")
-        designated_hour = configObj.getDesignatedHour()
-        print "designated hour is %d" % designated_hour
-        if designated_hour < 0:
-            logging.debug("Run the script right away!")
-            return  # run the script right away
-
-        designated_time = datetime.datetime.combine(datetime.date.today(), datetime.time(designated_hour, 0))
-        timedelta = designated_time - datetime.datetime.today()
-        print "timedelta 1 %s" % timedelta
-        if timedelta.days < 0:
-            tomorrow = datetime.date.today() + datetime.timedelta(days=1)
-            timedelta = datetime.datetime.combine(tomorrow, datetime.time(designated_hour, 0)) - datetime.datetime.today()
-        print "timedelta 2 %s" % timedelta
-        print "The script is gonna excute in %d seconds." % timedelta.seconds
-        wait(timedelta.seconds + 300)
-
-    def EnterSdorica(self):
-        app = exists("sdorica.png", 1)
-        if app:
-            click(app)
-            wait(1)
-        else:
-            logging.debug("Cannot find Sdorica app")
-            return
-        app_title = exists("app_title.png", 30)
-        if app_title:
-            click(app_title)
-            wait(1)
-        else:
-            logging.debug("Cannot find Sdorica title")
-            return
-
-        reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 60)
-        if reward_btn:
-            wait(1)
-            click(reward_btn)
-        else:
-            logging.debug("Cannot find yesterday reward button")
-        
-        reward_btn = exists(Pattern("ok_btn_reward.png").similar(0.90), 30)
-        if reward_btn:
-            wait(1)
-            click(reward_btn)
-        else:
-            logging.debug("Cannot find last week reward button")
-            
-        ad_cancel = exists(Pattern("ad_cancel.png").similar(0.90), 30)
-        if ad_cancel:
-            click(ad_cancel)
-            wait(1)
-        else:
-            logging.debug("Cannot find advertisement cancel button")
 
     # 是否在關卡選單內        
     def IsInStage(self):
@@ -399,7 +342,7 @@ class BasicMode(object):
             self.Reward = False
             self.ZeroRewardCount += 1
             logging.debug("zero reward")
-        click(Pattern("finish_button.png").similar(0.80).targetOffset(26,0))
+        click(Pattern("finish_button.png").similar(0.80).targetOffset(32,0))
 
     def WaitToMenu(self): #等待回到選單
         logging.debug("WaitToMenu")
@@ -579,17 +522,162 @@ class MaterialMode(BasicMode):
 
 class QuestMode(BasicMode):
 
-    def _click_quest(self):
+    quest_done = False
+    event_count = 0
+    def _click_quest_menu(self):
         if exists("quest_btn.png",0.001):
             click("quest_btn.png")
+            wait(1)
+        else:
+            logging.debug("Cannot find quest button")
+
+    def _click_quest_guild(self):
+        if exists(Pattern("quest_guild.png").similar(0.90),5):
+            click(Pattern("quest_guild.png").similar(0.90))
+            wait(1)
+        else:
+            logging.debug("Cannot find quest guild button")
+
+    def _leave_quest_page(self):
+        if exists(Pattern("quest_leave_btn.png").similar(0.90), 0.001):
+            click(Pattern("quest_leave_btn.png").similar(0.90))
+            wait(1)
             
+    def _donate(self, money, blue):
+        if not money and not blue:
+            self._leave_quest_page()
+            return 
+        if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
+            click(Pattern("guild_page_btn.png").similar(0.90))
+            wait(1)
+        self._leave_quest_page()
+        if exists(Pattern("guild_prestige.png").similar(0.90), 0.001):
+            click(Pattern("guild_prestige.png").similar(0.90))
+            wait(1)
+        donate_btn = exists(Pattern("donate_btn.png").similar(0.80), 0.001)
+        if not donate_btn:
+            return
+        if money:
+            click(donate_btn.getCenter().offset(0,-30))
+            wait(1)
+            for i in range(120):
+                click(Pattern("donate_plus_btn-1.png").similar(0.90))
+            click(Pattern("donate_ok_btn.png").similar(0.85), 1)
+            wait(1)
+            click(Pattern("donate_ok_btn.png").similar(0.85), 1)
+            wait(1)
+        if blue:
+            click(donate_btn.getCenter().offset(0,30))
+            for i in range(10):
+                click(Pattern("donate_plus_btn.png").similar(0.90))
+            click(Pattern("donate_ok_btn.png").similar(0.85), 1)
+            wait(1)
+            click(Pattern("donate_ok_btn.png").similar(0.85), 1)
+            wait(1)
+        if exists(Pattern("journey_btn.png").similar(0.90), 0.001):
+            click(Pattern("journey_btn.png").similar(0.90)) # back to main menu
+            
+    def _gulid_donate(self):
+        logging.debug("_gulid_donate")
+        self._click_quest_menu()
+        self._click_quest_guild()
+        money = False
+        blue = False
+        if exists(Pattern("quest_donate_money.png").similar(0.95), 0.001):
+            money = True
+        if exists(Pattern("quest_donate_blue.png").similar(0.95), 0.001):
+            blue = True
+        self._donate(money,blue)
+
+    def _drag_quest_menu(self):
+        quest_menu_title = exists(Pattern("quest_menu_title.png").similar(0.90), 0.001)
+        if not quest_menu_title:
+            return
+        dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 215))
+        
+        
+    def _select_quest(self):
+        self._click_quest_menu()
+        self._drag_quest_menu()
+        if exists(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0),0.001):
+            click(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0))
+            self.Algo = AlgoFactory.JIN2_ALGO
+            return
+        if exists(Pattern("quest_treasure.png").similar(0.95).targetOffset(50,0),0.001):
+            click(Pattern("quest_treasure.png").similar(0.95).targetOffset(50,0))
+            self.Algo = AlgoFactory.JIN2_ALGO
+            return
+        self._click_quest_guild()
+        self._drag_quest_menu()
+        if exists(Pattern("quest_guild_lv4.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv4.png").similar(0.95))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            return
+        if exists(Pattern("quest_guild_lv3.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3.png").similar(0.95))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            return
+        self.quest_done = True #解完任務了
+        self._leave_quest_page()
+        self._to_event_stage()
+
+    def _back_to_main_menu(self):
+        for i in range(10):
+            if exists(Pattern("news.png").similar(0.80), 0.001):
+                return
+            if exists("back_button.png", 0.001):
+                click("back_button.png")
+                
     def SelectStage(self):
-        _click_quest()
+        self._back_to_main_menu()
+        self._gulid_donate()
+        self._select_quest()
         return
 
+    def SelectFighter(self):
+        if not self.IsInStage():
+            return
+        if self.Algo == AlgoFactory.JIN2_ALGO:
+            if exists(Pattern("team_2.png").similar(0.90), 1):
+                click(Pattern("team_2.png").similar(0.90))
+        elif self.Algo == AlgoFactory.NOLVA_ALGO:
+            if exists(Pattern("team3.png").similar(0.90), 1):
+                click(Pattern("team3.png").similar(0.90))
+
+    def _to_event_stage(self):
+        self.Algo = AlgoFactory.JIN2_ALGO
+        self.event_count += 1
+        event_menu_btn = exists(Pattern("event_menu_page.png").similar(0.80), 0.001)
+        if event_menu_btn:
+            click(event_menu_btn)
+            wait(1)
+        event_menu_btn_selected = exists(Pattern("event_menu_btn_selected.png").similar(0.80), 0.001)
+        if event_menu_btn_selected:
+            click(event_menu_btn_selected)
+            wait(1)
+        event_title = exists(Pattern("event_title.png").similar(0.80), 1)
+        if event_title:
+            while not exists(Pattern("limit_event.png").similar(0.80), 0.001):
+                click(Pattern("next_arrow.png").similar(0.85))
+                wait(1)
+            for i in range(2):
+                Settings.MoveMouseDelay = 0.1
+                Settings.DelayBeforeDrop = 0   # back to top
+                dragDrop(event_title.getCenter().offset(0, 240), event_title.getCenter().offset(0, 640))
+            wait(1)
+            Settings.MoveMouseDelay = 0.1
+            Settings.DelayBeforeDrop = 2
+            for i in range(2):
+                dragDrop(event_title.getCenter().offset(0, 440), event_title.getCenter().offset(0, 240))
+                
     def ToNextStage(self):
-        _click_quest()
-        return
+        self._back_to_main_menu()
+        if not self.quest_done:
+            self._select_quest()
+        elif self.event_count < 2:
+            self._to_event_stage()
+        else:
+            self.Quit = True
 
 class Thursday4Mode(BasicMode):
 
@@ -607,13 +695,27 @@ class Thursday4Mode(BasicMode):
         if not self.IsInStage():
             return
         bar = DragCharacterBar()
-        click(Pattern("gotofight.png").targetOffset(-934,-72))
+        start =  exists("gotofight.png", 30)
+        if not start:
+            exit
+        if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
+            return
+        click(start.getCenter().offset(-936,-80))
+        click(Pattern("Lisa_name.png").similar(0.90))
+        click(start.getCenter().offset(-734,-80))
+        click(Pattern("Ned_name.png").similar(0.90))
+        click(Pattern("skin_arrow.png").similar(0.90))
+        click(start.getCenter().offset(-526,-80))
         bar.ToRight()
-        if exists("lisa.png",0.001):
-            click("lisa.png")
-        else:
-            self.Quit = True
-        return
+        click(Pattern("jahan_name.png").similar(0.90))
+        click(start.getCenter().offset(-344,-60))
+        for i in range(5):
+            if exists(Pattern("WestOmore_name.png").similar(0.90),0.001):
+                click(Pattern("WestOmore_name.png").similar(0.90))
+                break
+            bar.ToRight()
+        click(Pattern("WestOmore_name.png").similar(0.90))
+        
 
     def SelectBrainman(self):
         return
@@ -646,21 +748,34 @@ class Friday3Mode(BasicMode):
         start =  exists("gotofight.png", 30)
         if not start:
             exit
-        if exists(Pattern("jahan_a.png").similar(0.80),0.001): #有紀錄的隊伍了
+        if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
             return
-        click(start.getCenter().offset(-936,-80))
-        click("cosp.png")
+       
         click(start.getCenter().offset(-734,-80))
-        click("cat.png")
+        click(Pattern("Nolva_name.png").similar(0.90))
+        click(Pattern("skin_arrow.png").similar(0.85))
         click(start.getCenter().offset(-526,-80))
-        click("crocodile.png")
+        bar.ToRight()
+        click(Pattern("Delan_name.png").similar(0.85))
+        click(Pattern("skin_arrow.png").similar(0.85))
+        click(start.getCenter().offset(-936,-80))
+        click(Pattern("WestOmore_name.png").similar(0.90))
         click(start.getCenter().offset(-344,-60))
         for i in range(5):
-            if exists("jahan.png",0.001):
-                click("jahan.png")
+            if exists(Pattern("jahan_name.png").similar(0.90),0.001):
+                click(Pattern("jahan_name.png").similar(0.90))
                 break
             bar.ToRight()
 
     def SelectBrainman(self):
+        return
+
+    def LeavePlay(self):
+        wait(1)
+        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        if clock:
+            click(clock.getCenter().offset(-78,0))
+            wait(1)
+            click("ok_btn_quit.png")
         return
     
