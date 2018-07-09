@@ -124,7 +124,7 @@ class BasicMode(object):
         self.Reward = True
         
     def Run(self):
-        self.InputSetting()
+        #self.InputSetting()
         self.SelectStage()
         for self.TurnCount in range(configObj.getTurns()):  
             logging.info("Turn: %d", self.TurnCount)
@@ -342,12 +342,13 @@ class BasicMode(object):
             self.Reward = False
             self.ZeroRewardCount += 1
             logging.debug("zero reward")
+            wait(1)
         click(Pattern("finish_button.png").similar(0.80).targetOffset(32,0))
 
     def WaitToMenu(self): #等待回到選單
         logging.debug("WaitToMenu")
         start = "gotofight.png" 
-        if exists(start, 30):
+        if exists(start, 20):
             wait(3)
 
     def ToNextStage(self):
@@ -547,10 +548,13 @@ class QuestMode(BasicMode):
         if not money and not blue:
             self._leave_quest_page()
             return 
+        self._leave_quest_page()
         if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_page_btn.png").similar(0.90))
             wait(1)
-        self._leave_quest_page()
+        if exists(Pattern("quest_leave_btn.png").similar(0.90), 0.001):
+            click(Pattern("quest_leave_btn.png").similar(0.90))
+            wait(1)
         if exists(Pattern("guild_prestige.png").similar(0.90), 0.001):
             click(Pattern("guild_prestige.png").similar(0.90))
             wait(1)
@@ -585,6 +589,8 @@ class QuestMode(BasicMode):
         blue = False
         if exists(Pattern("quest_donate_money.png").similar(0.95), 0.001):
             money = True
+        else:
+            logging.debug("Did not found donate money")
         if exists(Pattern("quest_donate_blue.png").similar(0.95), 0.001):
             blue = True
         self._donate(money,blue)
@@ -597,6 +603,7 @@ class QuestMode(BasicMode):
         
         
     def _select_quest(self):
+        logging.debug("_select_quest")
         self._click_quest_menu()
         self._drag_quest_menu()
         if exists(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0),0.001):
@@ -622,13 +629,17 @@ class QuestMode(BasicMode):
         self._to_event_stage()
 
     def _back_to_main_menu(self):
+        logging.debug("_back_to_main_menu")
         for i in range(10):
             if exists(Pattern("news.png").similar(0.80), 0.001):
+                wait(1)
                 return
             if exists("back_button.png", 0.001):
                 click("back_button.png")
+                wait(1)
                 
     def SelectStage(self):
+        logging.debug("SelectStage")
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
@@ -660,6 +671,8 @@ class QuestMode(BasicMode):
             while not exists(Pattern("limit_event.png").similar(0.80), 0.001):
                 click(Pattern("next_arrow.png").similar(0.85))
                 wait(1)
+            if exists(Pattern("left_zero.png").similar(0.90)):
+                return
             for i in range(2):
                 Settings.MoveMouseDelay = 0.1
                 Settings.DelayBeforeDrop = 0   # back to top

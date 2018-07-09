@@ -196,7 +196,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self.Reward = True
 
     <span class="kw">def</span> Run(self):
-        self.InputSetting()
+        <span class="cmt">#self.InputSetting()</span>
         self.SelectStage()
         <span class="kw">for</span> self.TurnCount <span class="kw">in</span> range(configObj.getTurns()):
             logging.info(<span class="str">"Turn: %d"</span>, self.TurnCount)
@@ -414,12 +414,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
             logging.debug(<span class="str">"zero reward"</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">32</span>,<span class="dig">0</span>))
 
     <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
         logging.debug(<span class="str">"WaitToMenu"</span>)
         start = <img src="gotofight.png" />
-        <span class="kw">if</span> exists(start, <span class="dig">30</span>):
+        <span class="kw">if</span> exists(start, <span class="dig">20</span>):
             <span class="skw">wait</span>(<span class="dig">3</span>)
 
     <span class="kw">def</span> ToNextStage(self):
@@ -619,10 +620,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> money <span class="kw">and</span> <span class="kw">not</span> blue:
             self._leave_quest_page()
             <span class="kw">return</span>
+        self._leave_quest_page()
         <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
-        self._leave_quest_page()
+        <span class="kw">if</span> exists(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
@@ -657,6 +661,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         blue = False
         <span class="kw">if</span> exists(Pattern(<img src="quest_donate_money.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
             money = True
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Did not found donate money"</span>)
         <span class="kw">if</span> exists(Pattern(<img src="quest_donate_blue.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
             blue = True
         self._donate(money,blue)
@@ -669,6 +675,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 
     <span class="kw">def</span> _select_quest(self):
+        logging.debug(<span class="str">"_select_quest"</span>)
         self._click_quest_menu()
         self._drag_quest_menu()
         <span class="kw">if</span> exists(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):
@@ -694,13 +701,17 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self._to_event_stage()
 
     <span class="kw">def</span> _back_to_main_menu(self):
+        logging.debug(<span class="str">"_back_to_main_menu"</span>)
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">10</span>):
             <span class="kw">if</span> exists(Pattern(<img src="news.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
+                <span class="skw">wait</span>(<span class="dig">1</span>)
                 <span class="kw">return</span>
             <span class="kw">if</span> exists(<img src="back_button.png" />, <span class="dig">0.001</span>):
                 <span class="skw">click</span>(<img src="back_button.png" />)
+                <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> SelectStage(self):
+        logging.debug(<span class="str">"SelectStage"</span>)
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
@@ -732,6 +743,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="limit_event.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
                 <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
                 <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">if</span> exists(Pattern(<img src="left_zero.png" />).similar(<span class="dig">0.90</span>)):
+                <span class="kw">return</span>
             <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
                 Settings.MoveMouseDelay = <span class="dig">0.1</span>
                 Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>

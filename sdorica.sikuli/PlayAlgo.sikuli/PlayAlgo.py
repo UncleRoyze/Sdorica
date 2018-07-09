@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 from java.awt import Robot
+from sikuli import *
 class AlgoFactory():
 
     SIMPLE_ALGO = 0
