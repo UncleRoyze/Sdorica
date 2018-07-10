@@ -624,8 +624,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
-        <span class="kw">if</span> exists(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>))
+        <span class="kw">if</span> exists(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>))
@@ -688,12 +688,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         self._click_quest_guild()
         self._drag_quest_menu()
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4.png" />).similar(<span class="dig">0.95</span>))
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>))
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
         self.quest_done = True <span class="cmt">#解完任務了</span>

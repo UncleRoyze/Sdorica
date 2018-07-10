@@ -552,8 +552,8 @@ class QuestMode(BasicMode):
         if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_page_btn.png").similar(0.90))
             wait(1)
-        if exists(Pattern("quest_leave_btn.png").similar(0.90), 0.001):
-            click(Pattern("quest_leave_btn.png").similar(0.90))
+        if exists(Pattern("guild_quit_btn.png").similar(0.90), 0.001):
+            click(Pattern("guild_quit_btn.png").similar(0.90))
             wait(1)
         if exists(Pattern("guild_prestige.png").similar(0.90), 0.001):
             click(Pattern("guild_prestige.png").similar(0.90))
@@ -616,12 +616,12 @@ class QuestMode(BasicMode):
             return
         self._click_quest_guild()
         self._drag_quest_menu()
-        if exists(Pattern("quest_guild_lv4.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv4.png").similar(0.95))
+        if exists(Pattern("quest_guild_lv4-0.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv4-0.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
-        if exists(Pattern("quest_guild_lv3.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3.png").similar(0.95))
+        if exists(Pattern("quest_guild_lv3-0.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3-0.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
         self.quest_done = True #解完任務了
