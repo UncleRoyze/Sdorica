@@ -342,7 +342,7 @@ class BasicMode(object):
             self.Reward = False
             self.ZeroRewardCount += 1
             logging.debug("zero reward")
-            wait(1)
+            wait(2)
         click(Pattern("finish_button.png").similar(0.80).targetOffset(32,0))
 
     def WaitToMenu(self): #等待回到選單

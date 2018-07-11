@@ -414,7 +414,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
             logging.debug(<span class="str">"zero reward"</span>)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">2</span>)
         <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">32</span>,<span class="dig">0</span>))
 
     <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
