@@ -623,13 +623,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self._leave_quest_page()
         <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">2</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">2</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">2</span>)
         donate_btn = exists(Pattern(<img src="donate_btn.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> donate_btn:
             <span class="kw">return</span>
@@ -673,6 +673,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">215</span>))
 
+    <span class="kw">def</span> _get_quest_reward(self):
+        <span class="kw">if</span> exists(<img src="get_reward_btn.png" />, <span class="dig">1</span>):
+            <span class="skw">click</span>(<img src="get_reward_btn.png" />)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> _select_quest(self):
         logging.debug(<span class="str">"_select_quest"</span>)
@@ -692,8 +696,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>))
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
         self.quest_done = True <span class="cmt">#解完任務了</span>

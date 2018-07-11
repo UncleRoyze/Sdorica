@@ -551,13 +551,13 @@ class QuestMode(BasicMode):
         self._leave_quest_page()
         if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_page_btn.png").similar(0.90))
-            wait(1)
+            wait(2)
         if exists(Pattern("guild_quit_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_quit_btn.png").similar(0.90))
-            wait(1)
+            wait(2)
         if exists(Pattern("guild_prestige.png").similar(0.90), 0.001):
             click(Pattern("guild_prestige.png").similar(0.90))
-            wait(1)
+            wait(2)
         donate_btn = exists(Pattern("donate_btn.png").similar(0.80), 0.001)
         if not donate_btn:
             return
@@ -601,7 +601,11 @@ class QuestMode(BasicMode):
             return
         dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 215))
         
-        
+    def _get_quest_reward(self):
+        if exists("get_reward_btn.png", 1):
+            click("get_reward_btn.png")
+            wait(1)
+            
     def _select_quest(self):
         logging.debug("_select_quest")
         self._click_quest_menu()
@@ -620,8 +624,8 @@ class QuestMode(BasicMode):
             click(Pattern("quest_guild_lv4-0.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
-        if exists(Pattern("quest_guild_lv3-0.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3-0.png").similar(0.95))
+        if exists(Pattern("quest_guild_lv3.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
         self.quest_done = True #解完任務了
