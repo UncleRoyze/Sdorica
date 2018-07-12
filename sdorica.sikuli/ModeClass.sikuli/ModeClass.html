@@ -414,8 +414,15 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
             logging.debug(<span class="str">"zero reward"</span>)
-            <span class="skw">wait</span>(<span class="dig">2</span>)
-        <span class="skw">click</span>(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>).targetOffset(<span class="dig">32</span>,<span class="dig">0</span>))
+
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1000</span>):    <span class="cmt"># 檢查按了按鈕之後有沒有真的結束</span>
+            finish_btn = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+            <span class="kw">if</span> finish_btn:
+                <span class="skw">click</span>(finish_btn)
+                <span class="skw">wait</span>(<span class="dig">0.01</span>)
+            <span class="kw">else</span>:
+                <span class="kw">break</span>
+
 
     <span class="kw">def</span> WaitToMenu(self): <span class="cmt">#等待回到選單</span>
         logging.debug(<span class="str">"WaitToMenu"</span>)
@@ -671,7 +678,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         quest_menu_title = exists(Pattern(<img src="quest_menu_title.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> quest_menu_title:
             <span class="kw">return</span>
-        <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">215</span>))
+        <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> _get_quest_reward(self):
         <span class="kw">if</span> exists(<img src="get_reward_btn.png" />, <span class="dig">1</span>):
@@ -696,8 +704,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3.png" />).similar(<span class="dig">0.95</span>))
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
         self.quest_done = True <span class="cmt">#解完任務了</span>
@@ -747,7 +759,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">while</span> <span class="kw">not</span> exists(Pattern(<img src="limit_event.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
                 <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
                 <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="kw">if</span> exists(Pattern(<img src="left_zero.png" />).similar(<span class="dig">0.90</span>)):
+            <span class="kw">if</span> exists(Pattern(<img src="left_zero.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+                self.Quit = True
                 <span class="kw">return</span>
             <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
                 Settings.MoveMouseDelay = <span class="dig">0.1</span>

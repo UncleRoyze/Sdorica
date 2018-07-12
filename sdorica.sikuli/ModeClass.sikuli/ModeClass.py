@@ -342,8 +342,15 @@ class BasicMode(object):
             self.Reward = False
             self.ZeroRewardCount += 1
             logging.debug("zero reward")
-            wait(2)
-        click(Pattern("finish_button.png").similar(0.80).targetOffset(32,0))
+  
+        for i in range(1000):    # 檢查按了按鈕之後有沒有真的結束
+            finish_btn = exists(Pattern("finish_button.png").similar(0.80), 0.001) 
+            if finish_btn:
+                click(finish_btn)
+                wait(0.01)
+            else:
+                break
+        
 
     def WaitToMenu(self): #等待回到選單
         logging.debug("WaitToMenu")
@@ -599,7 +606,8 @@ class QuestMode(BasicMode):
         quest_menu_title = exists(Pattern("quest_menu_title.png").similar(0.90), 0.001)
         if not quest_menu_title:
             return
-        dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 215))
+        dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 100))
+        wait(1)
         
     def _get_quest_reward(self):
         if exists("get_reward_btn.png", 1):
@@ -624,8 +632,12 @@ class QuestMode(BasicMode):
             click(Pattern("quest_guild_lv4-0.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
-        if exists(Pattern("quest_guild_lv3.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3.png").similar(0.95))
+        if exists(Pattern("quest_guild_lv3-0.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3-0.png").similar(0.95))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            return
+        if exists(Pattern("quest_guild_lv3-1.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3-1.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
         self.quest_done = True #解完任務了
@@ -675,7 +687,8 @@ class QuestMode(BasicMode):
             while not exists(Pattern("limit_event.png").similar(0.80), 0.001):
                 click(Pattern("next_arrow.png").similar(0.85))
                 wait(1)
-            if exists(Pattern("left_zero.png").similar(0.90)):
+            if exists(Pattern("left_zero.png").similar(0.90), 1):
+                self.Quit = True
                 return
             for i in range(2):
                 Settings.MoveMouseDelay = 0.1
