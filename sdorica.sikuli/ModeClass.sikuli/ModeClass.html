@@ -704,12 +704,24 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
         <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
         <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            <span class="kw">return</span>
+        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>))
             self.Algo = AlgoFactory.NOLVA_ALGO
             <span class="kw">return</span>
         self.quest_done = True <span class="cmt">#解完任務了</span>
