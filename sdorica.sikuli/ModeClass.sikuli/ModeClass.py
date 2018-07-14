@@ -648,9 +648,17 @@ class QuestMode(BasicMode):
             click(Pattern("quest_guild_lv3-1.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
             return
+        if exists(Pattern("quest_guild_lv3-2.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv3-2.png").similar(0.95))
+            self.Algo = AlgoFactory.NOLVA_ALGO
+            return
         if exists(Pattern("quest_guild_lv6-0.png").similar(0.95),0.001):
             click(Pattern("quest_guild_lv6-0.png").similar(0.95))
             self.Algo = AlgoFactory.NOLVA_ALGO
+            return
+        if exists(Pattern("quest_guild_lv6-1.png").similar(0.95),0.001):
+            click(Pattern("quest_guild_lv6-1.png").similar(0.95))
+            self.Algo = AlgoFactory.JIN2_ALGO
             return
         self.quest_done = True #解完任務了
         self._leave_quest_page()
