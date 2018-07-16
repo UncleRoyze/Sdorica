@@ -605,8 +605,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     quest_done = False
     event_count = <span class="dig">0</span>
     <span class="kw">def</span> _click_quest_menu(self):
-        <span class="kw">if</span> exists(<img src="quest_btn.png" />,<span class="dig">0.001</span>):
-            <span class="skw">click</span>(<img src="quest_btn.png" />)
+        <span class="kw">if</span> exists(Pattern(<img src="quest_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
+            <span class="skw">click</span>(Pattern(<img src="quest_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">else</span>:
             logging.debug(<span class="str">"Cannot find quest button"</span>)
@@ -657,8 +657,17 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
             <span class="skw">wait</span>(<span class="dig">1</span>)
+        self._buy_guild_market_free_item()
         <span class="kw">if</span> exists(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>)) <span class="cmt"># back to main menu</span>
+    <span class="kw">def</span> _buy_guild_market_free_item(self):
+        market = exists(Pattern(<img src="guild_market.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
+        <span class="kw">if</span> market:
+            <span class="skw">click</span>(market)
+            <span class="skw">click</span>(market.getCenter().offset(<span class="dig">190</span>,-<span class="dig">240</span>))
+            <span class="skw">click</span>(Pattern(<img src="max_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">1</span>)
+            <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> _gulid_donate(self):
         logging.debug(<span class="str">"_gulid_donate"</span>)
@@ -700,38 +709,20 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         self._click_quest_guild()
         self._drag_quest_menu()
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv3-2.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv3-2.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_guild_lv6-1.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_guild_lv6-1.png" />).similar(<span class="dig">0.95</span>))
-            self.Algo = AlgoFactory.JIN2_ALGO
-            <span class="kw">return</span>
+        matches = findAnyList(configObj.quest_nolva)
+        <span class="kw">if</span> matches:
+            <span class="kw">for</span> match <span class="kw">in</span> matches:
+                <span class="skw">click</span>(match)
+                self.Algo = AlgoFactory.NOLVA_ALGO
+                <span class="kw">return</span>
+
+        matches = findAnyList(configObj.quest_jin2)
+        <span class="kw">if</span> matches:
+            <span class="kw">for</span> match <span class="kw">in</span> matches:
+                <span class="skw">click</span>(match)
+                self.Algo = AlgoFactory.JIN2_ALGO
+                <span class="kw">return</span>
+
         self.quest_done = True <span class="cmt">#解完任務了</span>
         self._leave_quest_page()
         self._to_event_stage()

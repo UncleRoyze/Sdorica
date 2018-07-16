@@ -533,8 +533,8 @@ class QuestMode(BasicMode):
     quest_done = False
     event_count = 0
     def _click_quest_menu(self):
-        if exists("quest_btn.png",0.001):
-            click("quest_btn.png")
+        if exists(Pattern("quest_btn.png").similar(0.90),0.001):
+            click(Pattern("quest_btn.png").similar(0.90))
             wait(1)
         else:
             logging.debug("Cannot find quest button")
@@ -585,9 +585,18 @@ class QuestMode(BasicMode):
             wait(1)
             click(Pattern("donate_ok_btn.png").similar(0.85), 1)
             wait(1)
+        self._buy_guild_market_free_item()
         if exists(Pattern("journey_btn.png").similar(0.90), 0.001):
             click(Pattern("journey_btn.png").similar(0.90)) # back to main menu
-            
+    def _buy_guild_market_free_item(self):
+        market = exists(Pattern("guild_market.png").similar(0.90), 0.001)
+        if market:
+            click(market)
+            click(market.getCenter().offset(190,-240))
+            click(Pattern("max_btn.png").similar(0.90),1)
+            click(Pattern("donate_ok_btn.png").similar(0.85), 1) 
+            wait(1)
+    
     def _gulid_donate(self):
         logging.debug("_gulid_donate")
         self._click_quest_menu()
@@ -628,38 +637,20 @@ class QuestMode(BasicMode):
             return
         self._click_quest_guild()
         self._drag_quest_menu()
-        if exists(Pattern("quest_guild_lv4-0.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv4-0.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv4-1.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv4-1.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv3-0.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3-0.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv3-1.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3-1.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv3-1.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3-1.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv3-2.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv3-2.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv6-0.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv6-0.png").similar(0.95))
-            self.Algo = AlgoFactory.NOLVA_ALGO
-            return
-        if exists(Pattern("quest_guild_lv6-1.png").similar(0.95),0.001):
-            click(Pattern("quest_guild_lv6-1.png").similar(0.95))
-            self.Algo = AlgoFactory.JIN2_ALGO
-            return
+        matches = findAnyList(configObj.quest_nolva)
+        if matches:
+            for match in matches:
+                click(match)
+                self.Algo = AlgoFactory.NOLVA_ALGO
+                return
+            
+        matches = findAnyList(configObj.quest_jin2)
+        if matches:
+            for match in matches:
+                click(match)
+                self.Algo = AlgoFactory.JIN2_ALGO
+                return
+
         self.quest_done = True #解完任務了
         self._leave_quest_page()
         self._to_event_stage()
