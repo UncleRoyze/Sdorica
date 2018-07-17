@@ -208,7 +208,7 @@
             <span class="kw">return</span> False
 
     <span class="kw">def</span> PlayOneDot(self, color):
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>):
             <span class="kw">if</span> self.dotColor[i] == color:
                 <span class="skw">click</span>(self.dotLoc[i])
@@ -219,7 +219,7 @@
         <span class="kw">return</span> <span class="dig">0</span>
 
     <span class="kw">def</span> PlayTwoDot(self, color):
-        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+        Settings.MoveMouseDelay = <span class="dig">0.01</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">7</span>): <span class="cmt">#verical</span>
             <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span> self.dotColor[i + <span class="dig">7</span>] == color :
                 <span class="skw">dragDrop</span>(self.dotLoc[i], self.dotLoc[i + <span class="dig">7</span>])
@@ -237,7 +237,7 @@
         <span class="kw">return</span> <span class="dig">0</span>
 
     <span class="kw">def</span> PlayFourDot(self, color):
-        Settings.MoveMouseDelay = <span class="dig">0.5</span>
+        Settings.MoveMouseDelay = <span class="dig">0.01</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">6</span>): <span class="cmt">#verical</span>
             <span class="kw">if</span> self.dotColor[i] == color <span class="kw">and</span>\
                self.dotColor[i + <span class="dig">1</span>] == color <span class="kw">and</span>\

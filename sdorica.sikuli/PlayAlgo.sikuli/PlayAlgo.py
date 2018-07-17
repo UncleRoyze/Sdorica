@@ -136,7 +136,7 @@ class PlayAlgo(object):
             return False
     
     def PlayOneDot(self, color):
-        Settings.MoveMouseDelay = 0.1
+        Settings.MoveMouseDelay = 0.001
         for i in range(0, 7):
             if self.dotColor[i] == color:
                 click(self.dotLoc[i])
@@ -147,7 +147,7 @@ class PlayAlgo(object):
         return 0
     
     def PlayTwoDot(self, color):
-        Settings.MoveMouseDelay = 0.5
+        Settings.MoveMouseDelay = 0.01
         for i in range(0, 7): #verical
             if self.dotColor[i] == color and self.dotColor[i + 7] == color :
                 dragDrop(self.dotLoc[i], self.dotLoc[i + 7])
@@ -165,7 +165,7 @@ class PlayAlgo(object):
         return 0
     
     def PlayFourDot(self, color):
-        Settings.MoveMouseDelay = 0.5
+        Settings.MoveMouseDelay = 0.01
         for i in range(0, 6): #verical
             if self.dotColor[i] == color and\
                self.dotColor[i + 1] == color and\

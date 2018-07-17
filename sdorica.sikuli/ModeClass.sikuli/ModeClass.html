@@ -221,6 +221,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.ToNextStage()
             <span class="kw">if</span> self.Quit:
                 <span class="kw">break</span>
+            <span class="kw">if</span> <span class="kw">not</span> exists(Pattern(<img src="nightgod_icon.png" />).exact(), <span class="dig">0.001</span>):
+                logging.info(<span class="str">"Did not found NightGod"</span>)
+                <span class="kw">break</span>
             ok_btn = exists(Pattern(<img src="ok_btn_reward.png" />).similar(<span class="dig">0.85</span>), <span class="dig">0.001</span>)
             <span class="kw">if</span> ok_btn:
                 <span class="skw">click</span>(ok_btn)
@@ -257,9 +260,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
         start = <img src="gotofight.png" />
-        <span class="kw">if</span> exists(start, <span class="dig">0.001</span>):
-            <span class="skw">click</span>(start)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+        start_exists = exists(start, <span class="dig">0.001</span>)
+        <span class="kw">if</span> start_exists:
+            <span class="skw">click</span>(start_exists)
 
     <span class="kw">def</span> SelectFighter(self):
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
@@ -312,8 +315,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
             <span class="kw">return</span>
         start = <img src="gotofight.png" />
-        <span class="skw">wait</span>(start)
-        <span class="skw">click</span>(start)
+        <span class="kw">if</span> exists(start,<span class="dig">10</span>):
+            <span class="skw">click</span>(start)
 
         <span class="cmt">#等到看到有時鐘才代表進入關卡</span>
         start_time = time()
@@ -369,6 +372,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> PlayDrag(self, clock, sub_stage):
         logging.debug(<span class="str">"PlayDrag"</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         <span class="kw">if</span> <span class="kw">not</span> clock:
             <span class="kw">return</span> <span class="dig">0</span>
         turn = <span class="dig">0</span>
@@ -394,7 +398,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
-        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">1</span>)
         sub_stage = <span class="dig">0</span>
         <span class="kw">while</span> clock:
             sub_stage += <span class="dig">1</span>
@@ -410,8 +414,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         logging.debug(<span class="str">"LeavePlay"</span>)
         <span class="kw">if</span> self.Failed:
             <span class="kw">return</span>
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">30</span>):
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">20</span>):
 
             <span class="kw">if</span> exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
                 <span class="kw">break</span>
@@ -440,7 +444,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         logging.debug(<span class="str">"WaitToMenu"</span>)
         start = <img src="gotofight.png" />
         <span class="kw">if</span> exists(start, <span class="dig">20</span>):
-            <span class="skw">wait</span>(<span class="dig">3</span>)
+            <span class="kw">return</span>
 
     <span class="kw">def</span> ToNextStage(self):
          <span class="kw">return</span> <span class="dig">0</span>
@@ -502,6 +506,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.DelayBeforeDrop = <span class="dig">2</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
             <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        Settings.DelayBeforeDrop = <span class="dig">0</span>
 
 
 <span class="kw">class</span> FarmMode(ChallengeMode):
@@ -566,6 +572,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             Settings.DelayBeforeDrop = <span class="dig">2</span>
             <span class="kw">for</span> i <span class="kw">in</span> range(configObj.getMaterialSubStage() - <span class="dig">1</span>):
                 <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+            Settings.MoveMouseDelay = <span class="dig">0.001</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
 
     <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
         self.CollectMaterials(clock, dragFrom, dragTo)
@@ -704,7 +712,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         quest_menu_title = exists(Pattern(<img src="quest_menu_title.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> quest_menu_title:
             <span class="kw">return</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> _get_quest_reward(self):
@@ -756,6 +766,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> SelectStage(self):
         logging.debug(<span class="str">"SelectStage"</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
@@ -799,6 +810,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             Settings.DelayBeforeDrop = <span class="dig">2</span>
             <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
                 <span class="skw">dragDrop</span>(event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+            Settings.MoveMouseDelay = <span class="dig">0.001</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
 
     <span class="kw">def</span> ToNextStage(self):
         self._back_to_main_menu()

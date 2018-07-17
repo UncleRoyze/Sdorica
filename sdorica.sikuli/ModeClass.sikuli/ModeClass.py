@@ -149,6 +149,9 @@ class BasicMode(object):
             self.ToNextStage()
             if self.Quit:
                 break
+            if not exists(Pattern("nightgod_icon.png").exact(), 0.001):
+                logging.info("Did not found NightGod")
+                break
             ok_btn = exists(Pattern("ok_btn_reward.png").similar(0.85), 0.001)
             if ok_btn:
                 click(ok_btn)
@@ -185,9 +188,9 @@ class BasicMode(object):
             return
         Settings.MoveMouseDelay = 0.1
         start = "gotofight.png" 
-        if exists(start, 0.001):
-            click(start)
-            wait(1)
+        start_exists = exists(start, 0.001)
+        if start_exists:
+            click(start_exists)
 
     def SelectFighter(self):
         if not self.IsInStage():
@@ -239,10 +242,10 @@ class BasicMode(object):
         logging.debug("IntoPlay")
         if not self.IsInStage():
             return
-        start = "gotofight.png" 
-        wait(start)
-        click(start)
-        
+        start = "gotofight.png"
+        if exists(start,10):
+            click(start)
+
         #等到看到有時鐘才代表進入關卡
         start_time = time()
         while not exists(Pattern("clock.png").similar(0.90), 0.001):       
@@ -297,6 +300,7 @@ class BasicMode(object):
         
     def PlayDrag(self, clock, sub_stage):
         logging.debug("PlayDrag")
+        Settings.MoveMouseDelay = 0.1
         if not clock:
             return 0
         turn = 0    
@@ -322,7 +326,7 @@ class BasicMode(object):
     
     def Playing(self):
         logging.debug("Playing")
-        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        clock = exists(Pattern("clock.png").similar(0.90) , 1)
         sub_stage = 0
         while clock:
             sub_stage += 1
@@ -338,8 +342,8 @@ class BasicMode(object):
         logging.debug("LeavePlay")
         if self.Failed:
             return
-        Settings.MoveMouseDelay = 0.1
-        for i in range(30):
+        Settings.MoveMouseDelay = 0.001
+        for i in range(20):
             
             if exists(Pattern("finish_button.png").similar(0.80), 1):
                 break
@@ -368,7 +372,7 @@ class BasicMode(object):
         logging.debug("WaitToMenu")
         start = "gotofight.png" 
         if exists(start, 20):
-            wait(3)
+            return
 
     def ToNextStage(self):
          return 0
@@ -430,6 +434,8 @@ class ChallengeMode(BasicMode):
         Settings.DelayBeforeDrop = 2
         for i in range(challenge_count):
             dragDrop(challenge_title.getCenter().offset(0, 440), challenge_title.getCenter().offset(0, 240))
+        Settings.MoveMouseDelay = 0.001 
+        Settings.DelayBeforeDrop = 0
 
 
 class FarmMode(ChallengeMode):
@@ -494,6 +500,8 @@ class MaterialMode(BasicMode):
             Settings.DelayBeforeDrop = 2
             for i in range(configObj.getMaterialSubStage() - 1):
                 dragDrop(region_title.getCenter().offset(0, 440), region_title.getCenter().offset(0, 240))
+            Settings.MoveMouseDelay = 0.001  
+            Settings.DelayBeforeDrop = 0
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         self.CollectMaterials(clock, dragFrom, dragTo)
@@ -632,7 +640,9 @@ class QuestMode(BasicMode):
         quest_menu_title = exists(Pattern("quest_menu_title.png").similar(0.90), 0.001)
         if not quest_menu_title:
             return
+        Settings.MoveMouseDelay = 0.1 
         dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 100))
+        Settings.MoveMouseDelay = 0.001 
         wait(1)
         
     def _get_quest_reward(self):
@@ -684,6 +694,7 @@ class QuestMode(BasicMode):
                 
     def SelectStage(self):
         logging.debug("SelectStage")
+        Settings.MoveMouseDelay = 0.001
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
@@ -727,6 +738,8 @@ class QuestMode(BasicMode):
             Settings.DelayBeforeDrop = 2
             for i in range(2):
                 dragDrop(event_title.getCenter().offset(0, 440), event_title.getCenter().offset(0, 240))
+            Settings.MoveMouseDelay = 0.001 
+            Settings.DelayBeforeDrop = 0
                 
     def ToNextStage(self):
         self._back_to_main_menu()
