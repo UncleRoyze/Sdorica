@@ -11,6 +11,7 @@ class AlgoFactory():
     NO4_ALGO = 5
     FRIDAY3_ALGO = 6
     THURSDAY4_ALGO = 7
+    JIN2NAYA_ALGO = 8
     ALGO_DICT = {SIMPLE_ALGO: "Simple",
                  NOLVA_ALGO: "Nolva",
                  JIN2_ALGO : "Jin2",
@@ -18,7 +19,8 @@ class AlgoFactory():
                  NO2_ALGO: "No 2",
                  NO4_ALGO : "No 4",
                  FRIDAY3_ALGO : "Friday 3",
-                 THURSDAY4_ALGO: "Thrsday 4"}
+                 THURSDAY4_ALGO: "Thrsday 4",
+                 JIN2NAYA_ALGO: "Jin2Naya" }
 
     @staticmethod
     def GenAlgo(choice, clock):
@@ -38,6 +40,8 @@ class AlgoFactory():
             return Friday3Algo(clock)
         elif choice == AlgoFactory.THURSDAY4_ALGO:
             return Thursday4Algo(clock)
+        elif choice == AlgoFactory.JIN2NAYA_ALGO:
+            return Jin2NayaAlgo(clock)
         else:
             return SimpleAlgo(clock)
 
@@ -236,7 +240,7 @@ class PlayAlgo(object):
 
 class SimpleAlgo(PlayAlgo):
     
-    def Play(self, num, clock):  
+    def Play(self, clock, sub_stage, turn):  
         for number in (4, 2, 1):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
@@ -247,9 +251,9 @@ class Jin2Algo(PlayAlgo):
     
     strengthen_count = 0
     
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
  
-        if num == 0:
+        if turn == 0:
             self.strengthen_count = 0 
 
         if self.strengthen_count < 2: 
@@ -283,7 +287,7 @@ class Jin2Algo(PlayAlgo):
 
 class NolvaAlgo(SimpleAlgo):
 
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
         if self.PlayDots("b", 1):
             return 1
         # super(SimpleAlgo, self).Play()
@@ -295,7 +299,7 @@ class NolvaAlgo(SimpleAlgo):
 
 class No1Algo(SimpleAlgo):
 
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
         for number in (4, 2):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
@@ -304,7 +308,7 @@ class No1Algo(SimpleAlgo):
 
 class No2Algo(SimpleAlgo):
 
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
         for number in (4, 1):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
@@ -313,7 +317,7 @@ class No2Algo(SimpleAlgo):
     
 class No4Algo(SimpleAlgo):
 
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
         for number in (1, 2):   
             for color in ("b", "w", "g"):
                 if self.PlayDots(color, number):
@@ -326,17 +330,17 @@ class Friday3Algo(SimpleAlgo):
         self.clock = clock
         self.is_4_b = False
               
-    def Play(self, num, clock):
+    def Play(self, clock, sub_stage, turn):
         
         #開場1白
-        if num == 0:
+        if turn == 0:
             click(clock.getCenter().offset(196,232))
             if self.PlayDots("w", 1):
                 return 1
-        if num == 1:
+        if turn == 1:
             if self.PlayDots("g", 2):
                 return 1
-        if num == 2:
+        if turn == 2:
             if self.PlayDots("b", 2):
                 return 1
             if self.PlayDots("b", 4):
@@ -357,14 +361,14 @@ class Thursday4Algo(SimpleAlgo):
         dropAt(clock.getCenter().offset(348,124))
         return 0
         
-    def Play(self, num, clock):
-        if num == 0:
+    def Play(self, clock, sub_stage, turn):
+        if turn == 0:
             if not self.PlayDots("g", 2):
                 return -1
             else:
                 return 1
             
-        if num == 1:
+        if turn == 1:
             click(clock.getCenter().offset(60,480)) #點擊自己的參謀
             if not self.PlayDots("w", 2):
                 return -1
@@ -373,7 +377,7 @@ class Thursday4Algo(SimpleAlgo):
                     return -1
                 else:
                     return 1
-        if num == 2:
+        if turn == 2:
             if not self.PlayDots("w", 2):
                 return -1
             else:
@@ -382,7 +386,7 @@ class Thursday4Algo(SimpleAlgo):
                 else:
                     return 1
        
-        if num == 3:
+        if turn == 3:
             if not self.PlayDots("g", 1):
                 return -1
             else:
@@ -391,3 +395,46 @@ class Thursday4Algo(SimpleAlgo):
                 wait(50)
                 exit
         return 0
+
+class Jin2NayaAlgo(SimpleAlgo):
+
+    def __init__(self, clock):
+        self.clock = clock
+        self.is_4_b = False
+        self.b1_count = 0
+              
+    def Play(self, clock, sub_stage, turn):
+        if sub_stage < 3:
+            if turn > 4:
+                return -1
+            
+        # 紀錄易傷
+        if self.b1_count:
+            self.b1_count -= 1
+        #開場2白
+        if turn == 0:
+            if self.PlayDots("w", 4):
+                return 1
+            if self.PlayDots("w", 2):
+                return 1
+        if turn == 1:
+            if self.PlayDots("g", 2):
+                return 1
+        if turn > 1:
+            if self.b1_count == 0:
+                if self.PlayDots("b", 1):
+                    self.b1_count = 3
+                    return 1
+            for number in (4, 2):   
+                for color in ("b"):
+                    if self.PlayDots(color, number):
+                        return 1
+            if not exists("dead_crocodile.png",0.001):
+                for number in (4, 2, 1):
+                    if self.PlayDots("g", number):
+                        return 1
+            for number in (4, 2):   
+                for color in ("w"):
+                    if self.PlayDots(color, number):
+                        return 1
+        return -1

@@ -142,12 +142,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     QUEST = <span class="dig">3</span>
     THURSDAY_4 = <span class="dig">4</span>
     FRIDAY_3 = <span class="dig">5</span>
+    JIN2NAYA = <span class="dig">6</span>
     MODE_DICT = {FARM: <span class="str">"Farm"</span>,
                  AUTO_LV_UP: <span class="str">"Auto Lelve Up"</span>,
                  MATERIAL : <span class="str">"Material"</span>,
                  QUEST : <span class="str">"Quest"</span>,
                  THURSDAY_4 : <span class="str">"Thursday 4"</span>,
-                 FRIDAY_3 : <span class="str">"Friday 3"</span>}
+                 FRIDAY_3 : <span class="str">"Friday 3"</span>,
+                 JIN2NAYA : <span class="str">"Jin2Naya"</span> }
 
     @staticmethod
     <span class="kw">def</span> GenMode(choice):
@@ -163,6 +165,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span> Thursday4Mode()
         <span class="kw">elif</span> choice == ModeFactory.FRIDAY_3:
             <span class="kw">return</span> Friday3Mode()
+        <span class="kw">elif</span> choice == ModeFactory.JIN2NAYA:
+            <span class="kw">return</span> Jin2NayaMode()
         <span class="kw">else</span>:
             <span class="kw">return</span> BasicMode()
 
@@ -357,7 +361,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
         <span class="kw">return</span>
 
-    <span class="kw">def</span> PlayDrag(self, clock):
+    <span class="kw">def</span> PlayDrag(self, clock, sub_stage):
         logging.debug(<span class="str">"PlayDrag"</span>)
         <span class="kw">if</span> <span class="kw">not</span> clock:
             <span class="kw">return</span> <span class="dig">0</span>
@@ -373,7 +377,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="kw">continue</span>
             <span class="cmt">#click(clock.getCenter().offset(60,480)) #點擊自己的參謀</span>
             <span class="cmt">#click(clock.getCenter().offset(970,480)) #點擊公會的參謀</span>
-            status = playAlgo.Play(turn, clock)
+            status = playAlgo.Play(clock, sub_stage, turn)
             <span class="kw">if</span> status == -<span class="dig">1</span>: <span class="cmt">#跑結束</span>
                 <span class="kw">return</span> <span class="dig">0</span>
             <span class="kw">elif</span> status == <span class="dig">0</span>: <span class="cmt">#沒有點擊</span>
@@ -385,9 +389,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        sub_stage = <span class="dig">0</span>
         <span class="kw">while</span> clock:
+            sub_stage += <span class="dig">1</span>
             self.DragForward(clock)
-            <span class="kw">if</span> <span class="kw">not</span> self.PlayDrag(clock):  <span class="cmt">#跑結束</span>
+            <span class="kw">if</span> <span class="kw">not</span> self.PlayDrag(clock, sub_stage):  <span class="cmt">#跑結束</span>
                 <span class="kw">break</span>
             self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
             <span class="kw">if</span> self.Failed:
@@ -562,10 +568,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
         clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        sub_stage = <span class="dig">0</span>
         <span class="kw">while</span> clock:
+            sub_stage += <span class="dig">1</span>
             self.CollectMaterials(clock, None, None)  <span class="cmt"># 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次</span>
             self.DragForward(clock)
-            self.PlayDrag(clock)
+            self.PlayDrag(clock, sub_stage)
             self.CheckFailed()            <span class="cmt">#檢查有無輸</span>
             <span class="kw">if</span> self.Failed:
                 <span class="kw">break</span>
@@ -664,8 +672,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         market = exists(Pattern(<img src="guild_market.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> market:
             <span class="skw">click</span>(market)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(market.getCenter().offset(<span class="dig">190</span>,-<span class="dig">240</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(Pattern(<img src="max_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
             <span class="skw">wait</span>(<span class="dig">1</span>)
 
@@ -891,6 +902,28 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
         <span class="kw">return</span>
+
+<span class="kw">class</span> Jin2NayaMode(BasicMode):
+
+    <span class="kw">def</span> SelectBrainman(self):
+        <span class="kw">return</span>
+
+    <span class="kw">def</span> LeavePlay(self):
+        logging.debug(<span class="str">"LeavePlay"</span>)
+        <span class="skw">wait</span>(<span class="dig">1</span>)
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
+        <span class="kw">if</span> clock:
+            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
+        finish_btn = exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">10</span>)
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1000</span>):    <span class="cmt"># 檢查按了按鈕之後有沒有真的結束</span>
+            finish_btn = exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
+            <span class="kw">if</span> finish_btn:
+                <span class="skw">click</span>(finish_btn)
+                <span class="skw">wait</span>(<span class="dig">0.01</span>)
+            <span class="kw">else</span>:
+                <span class="kw">break</span>
 </pre>
 </body>
 </html>

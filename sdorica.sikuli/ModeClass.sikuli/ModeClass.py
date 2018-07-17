@@ -70,12 +70,14 @@ class ModeFactory():
     QUEST = 3
     THURSDAY_4 = 4
     FRIDAY_3 = 5
+    JIN2NAYA = 6
     MODE_DICT = {FARM: "Farm",
                  AUTO_LV_UP: "Auto Lelve Up",
                  MATERIAL : "Material",
                  QUEST : "Quest",
                  THURSDAY_4 : "Thursday 4",
-                 FRIDAY_3 : "Friday 3"}
+                 FRIDAY_3 : "Friday 3",
+                 JIN2NAYA : "Jin2Naya" }
 
     @staticmethod
     def GenMode(choice):
@@ -91,6 +93,8 @@ class ModeFactory():
             return Thursday4Mode()
         elif choice == ModeFactory.FRIDAY_3:
             return Friday3Mode()
+        elif choice == ModeFactory.JIN2NAYA:
+            return Jin2NayaMode()
         else:
             return BasicMode()
 
@@ -285,7 +289,7 @@ class BasicMode(object):
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         return
         
-    def PlayDrag(self, clock):
+    def PlayDrag(self, clock, sub_stage):
         logging.debug("PlayDrag")
         if not clock:
             return 0
@@ -301,7 +305,7 @@ class BasicMode(object):
                 continue
             #click(clock.getCenter().offset(60,480)) #點擊自己的參謀
             #click(clock.getCenter().offset(970,480)) #點擊公會的參謀
-            status = playAlgo.Play(turn, clock)
+            status = playAlgo.Play(clock, sub_stage, turn)
             if status == -1: #跑結束
                 return 0
             elif status == 0: #沒有點擊
@@ -313,9 +317,11 @@ class BasicMode(object):
     def Playing(self):
         logging.debug("Playing")
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        sub_stage = 0
         while clock:
+            sub_stage += 1
             self.DragForward(clock) 
-            if not self.PlayDrag(clock):  #跑結束
+            if not self.PlayDrag(clock, sub_stage):  #跑結束
                 break
             self.CheckFailed()            #檢查有無輸
             if self.Failed:
@@ -490,15 +496,17 @@ class MaterialMode(BasicMode):
     def Playing(self):
         logging.debug("Playing")
         clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        sub_stage = 0
         while clock:
+            sub_stage += 1
             self.CollectMaterials(clock, None, None)  # 距離起點很近的素材在移動後會來不及找到，所以在移動前先找一次
             self.DragForward(clock) 
-            self.PlayDrag(clock)
+            self.PlayDrag(clock, sub_stage)
             self.CheckFailed()            #檢查有無輸
             if self.Failed:
                 break
             clock = exists(Pattern("clock.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
-            
+
     def CollectMaterials(self, clock, dragFrom, dragTo):
         logging.debug("CollectMaterials")
     
@@ -592,8 +600,11 @@ class QuestMode(BasicMode):
         market = exists(Pattern("guild_market.png").similar(0.90), 0.001)
         if market:
             click(market)
+            wait(1)
             click(market.getCenter().offset(190,-240))
+            wait(1)
             click(Pattern("max_btn.png").similar(0.90),1)
+            wait(1)
             click(Pattern("donate_ok_btn.png").similar(0.85), 1) 
             wait(1)
     
@@ -819,4 +830,25 @@ class Friday3Mode(BasicMode):
             wait(1)
             click("ok_btn_quit.png")
         return
+
+class Jin2NayaMode(BasicMode):
     
+    def SelectBrainman(self):
+        return
+
+    def LeavePlay(self):
+        logging.debug("LeavePlay")
+        wait(1)
+        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
+        if clock:
+            click(clock.getCenter().offset(-78,0))
+            wait(1)
+            click("ok_btn_quit.png")
+        finish_btn = exists(Pattern("finish_btn.png").similar(0.90), 10) 
+        for i in range(1000):    # 檢查按了按鈕之後有沒有真的結束
+            finish_btn = exists(Pattern("finish_btn.png").similar(0.90), 0.001) 
+            if finish_btn:
+                click(finish_btn)
+                wait(0.01)
+            else:
+                break
