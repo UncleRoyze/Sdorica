@@ -108,7 +108,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> __init__(self):
         topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
         self.dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+        self.dragLeftMore = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
         self.dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
+        self.dragRightMore = topLeft.offset(<span class="dig">1027</span>, <span class="dig">450</span>)
 
     <span class="cmt">#角色選單拉到最右邊</span>
     <span class="kw">def</span> ToRightEnd(self, dragTimes):
@@ -116,13 +118,17 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
             Settings.DelayBeforeDrop = <span class="dig">0</span>
             <span class="skw">dragDrop</span>(self.dragRight, self.dragLeft)
+            <span class="cmt">#稍微拉左點</span>
+            Settings.DelayBeforeDrop = <span class="dig">0.1</span>
+            <span class="skw">dragDrop</span>(self.dragLeft, Location(self.dragLeft.x+<span class="dig">15</span>,self.dragLeft.y))
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
             <span class="skw">wait</span>(<span class="dig">1</span>)
     <span class="cmt">#角色選單拉往左, 一次拉一整排五位位置都正好換掉</span>
     <span class="kw">def</span> ToLeft(self):
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         drag(self.dragLeft)
         Settings.MoveMouseDelay = <span class="dig">1.5</span>
-        dropAt(self.dragRight)
+        dropAt(self.dragRightMore)
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         hover(self.dragLeft)
 
@@ -131,7 +137,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         drag(self.dragRight)
         Settings.MoveMouseDelay = <span class="dig">1.5</span>
-        dropAt(self.dragLeft)
+        dropAt(self.dragLeftMore)
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         hover(self.dragRight)
 
@@ -200,7 +206,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self.Reward = True
 
     <span class="kw">def</span> Run(self):
-        <span class="cmt">#self.InputSetting()</span>
+        self.InputSetting()
         self.SelectStage()
         <span class="kw">for</span> self.TurnCount <span class="kw">in</span> range(configObj.getTurns()):
             logging.info(<span class="str">"Turn: %d"</span>, self.TurnCount)
@@ -291,7 +297,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(selectCenter)
             <span class="kw">return</span> trueFriendFound
 
-        friendSlot = exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
+        friendSlot = exists(Pattern(<img src="SelectFriend.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> friendSlot:
             <span class="kw">return</span>
         <span class="skw">click</span>(friendSlot)
@@ -441,7 +447,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">class</span> ChallengeMode(BasicMode):
 
-    <span class="kw">def</span> InputSetting(self):
+    <span class="kw">def</span> InputSetting_bakup(self):
         ini_challenge_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>)
         ini_challenge_sub_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>)
         challenge_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge stage: (1~13)"</span>, ini_challenge_stage))
@@ -527,7 +533,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">class</span> MaterialMode(BasicMode):
 
     <span class="kw">def</span> InputSetting(self):
-        self.MoveSpeed = <span class="dig">35</span>
         ini_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
         ini_sub_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
         material_stage = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
@@ -538,6 +543,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         configObj.writeConfig()
 
     <span class="kw">def</span> SelectStage(self):
+        self.MoveSpeed = <span class="dig">35</span>
         region_menu_btn = exists(Pattern(<img src="menubtn_region.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> region_menu_btn:
             <span class="skw">click</span>(region_menu_btn)

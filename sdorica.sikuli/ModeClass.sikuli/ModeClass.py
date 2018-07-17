@@ -36,7 +36,9 @@ class DragCharacterBar:
     def __init__(self):       
         topLeft = exists(Pattern("back_button.png").targetOffset(460,0),0.001).getCenter()
         self.dragLeft = topLeft.offset(208, 450)
+        self.dragLeftMore = topLeft.offset(208, 450)
         self.dragRight = topLeft.offset(877, 450)
+        self.dragRightMore = topLeft.offset(1027, 450)
          
     #角色選單拉到最右邊
     def ToRightEnd(self, dragTimes):       
@@ -44,13 +46,17 @@ class DragCharacterBar:
             Settings.MoveMouseDelay = 0.1
             Settings.DelayBeforeDrop = 0
             dragDrop(self.dragRight, self.dragLeft)
+            #稍微拉左點
+            Settings.DelayBeforeDrop = 0.1
+            dragDrop(self.dragLeft, Location(self.dragLeft.x+15,self.dragLeft.y))
+            Settings.DelayBeforeDrop = 0
             wait(1)
     #角色選單拉往左, 一次拉一整排五位位置都正好換掉
     def ToLeft(self):
         Settings.MoveMouseDelay = 0.001
         drag(self.dragLeft)
         Settings.MoveMouseDelay = 1.5
-        dropAt(self.dragRight)
+        dropAt(self.dragRightMore)
         Settings.MoveMouseDelay = 0.001
         hover(self.dragLeft)
         
@@ -59,7 +65,7 @@ class DragCharacterBar:
         Settings.MoveMouseDelay = 0.001
         drag(self.dragRight)
         Settings.MoveMouseDelay = 1.5
-        dropAt(self.dragLeft)
+        dropAt(self.dragLeftMore)
         Settings.MoveMouseDelay = 0.001
         hover(self.dragRight)
         
@@ -128,7 +134,7 @@ class BasicMode(object):
         self.Reward = True
         
     def Run(self):
-        #self.InputSetting()
+        self.InputSetting()
         self.SelectStage()
         for self.TurnCount in range(configObj.getTurns()):  
             logging.info("Turn: %d", self.TurnCount)
@@ -219,7 +225,7 @@ class BasicMode(object):
             click(selectCenter)
             return trueFriendFound
             
-        friendSlot = exists(Pattern("SelectFriend.png").similar(0.90), 0.001)
+        friendSlot = exists(Pattern("SelectFriend.png").similar(0.95), 0.001)
         if not friendSlot:
             return
         click(friendSlot)
@@ -369,7 +375,7 @@ class BasicMode(object):
 
 class ChallengeMode(BasicMode):
 
-    def InputSetting(self):
+    def InputSetting_bakup(self):
         ini_challenge_stage = configObj.config.get("challenge", "stage")
         ini_challenge_sub_stage = configObj.config.get("challenge", "sub_stage")
         challenge_stage = int(input("Please enter challenge stage: (1~13)", ini_challenge_stage))
@@ -455,7 +461,6 @@ class FarmMode(ChallengeMode):
 class MaterialMode(BasicMode):
 
     def InputSetting(self):
-        self.MoveSpeed = 35
         ini_stage = configObj.config.get("material", "stage")
         ini_sub_stage = configObj.config.get("material", "sub_stage")
         material_stage = int(input("Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll", ini_stage))
@@ -466,6 +471,7 @@ class MaterialMode(BasicMode):
         configObj.writeConfig()
         
     def SelectStage(self):
+        self.MoveSpeed = 35
         region_menu_btn = exists(Pattern("menubtn_region.png").similar(0.80), 0.001)
         if region_menu_btn:
             click(region_menu_btn)

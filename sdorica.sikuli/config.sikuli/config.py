@@ -31,11 +31,11 @@ class Configuration(Singleton):
     def _initGlobalConfig(self):
         self.target_lv = 59
         self.friends = ["apollo.png", "roy.png", "hcm.png"]
-        self.brainmen = [Pattern("delan_sp.png").similar(0.80), Pattern("Fatima_lv2.png").similar(0.80), Pattern("Sione_sp.png").similar(0.80), Pattern("Shirley_lv3.png").similar(0.80), Pattern("Shirley_lv2.png").similar(0.80), Pattern("YanBo_lv3.png").similar(0.80)]
+        self.brainmen = [Pattern("delan_sp.png").similar(0.80), Pattern("Fatima_lv2.png").similar(0.80), Pattern("Sione_sp.png").similar(0.80), Pattern("Shirley_lv3.png").similar(0.80), Pattern("Shirley_lv2.png").similar(0.80), Pattern("YanBo_lv3.png").similar(0.80),Pattern("li_lv3.png").similar(0.80),Pattern("darkmoon_sp.png").similar(0.80)]
         self.materials = [[] for _ in range(10)]
         self.materials[1] = [Pattern("stone_1.png").similar(0.80), Pattern("stone_2.png").similar(0.80),Pattern("stone_3.png").similar(0.80)]
         self.materials[2] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80), Pattern("tripod_5.png").similar(0.80)]
-        self.materials[3] = [Pattern("flower01.png").similar(0.80),Pattern("flower02.png").similar(0.80),Pattern("flower03.png").similar(0.80)]
+        self.materials[3] = [Pattern("flower00.png").similar(0.80),Pattern("flower01.png").similar(0.80),Pattern("flower02.png").similar(0.80),Pattern("flower03.png").similar(0.80)]
         self.materials[4] = [Pattern("bottle_0.png").similar(0.80),Pattern("bottle_1.png").similar(0.80)]
         self.materials[5] = [Pattern("fruit_1.png").similar(0.80), Pattern("fruit_2.png").similar(0.80), Pattern("fruit_3.png").similar(0.80), Pattern("fruit_4.png").similar(0.80), Pattern("fruit_5.png").similar(0.80)]
         self.materials[7] = [Pattern("masquerade_mask_1.png").similar(0.80), Pattern("masquerade_mask_2.png").similar(0.80), Pattern("masquerade_mask_3.png").similar(0.80), Pattern("masquerade_mask_4.png").similar(0.80), Pattern("masquerade_mask_5.png").similar(0.80)]
