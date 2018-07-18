@@ -328,7 +328,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="kw">break</span>            <span class="cmt">#exit while not exists</span>
 
     <span class="kw">def</span> CheckFailed(self):
-        logging.debug(<span class="str">"CheckFailed"</span>)
+        <span class="cmt">#logging.debug("CheckFailed")</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
         <span class="kw">if</span> exists(<img src="lost_message.png" />, <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="lost_message.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">130</span>))
@@ -521,7 +521,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             logging.debug(<span class="str">"ChangeStage"</span>)
             region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
             <span class="kw">if</span> region_title:
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">2</span>
                 <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
+                Settings.MoveMouseDelay = <span class="dig">0.001</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>
 
     <span class="kw">def</span> ToNextStage(self):
         logging.debug(<span class="str">"ToNextStage"</span>)
@@ -692,7 +696,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="max_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">1</span>)
             <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">wait</span>(<span class="dig">3</span>)
 
     <span class="kw">def</span> _gulid_donate(self):
         logging.debug(<span class="str">"_gulid_donate"</span>)

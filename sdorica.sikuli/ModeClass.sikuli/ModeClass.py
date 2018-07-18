@@ -256,7 +256,7 @@ class BasicMode(object):
                 break            #exit while not exists
 
     def CheckFailed(self):
-        logging.debug("CheckFailed")
+        #logging.debug("CheckFailed")
         Settings.MoveMouseDelay = 0.1
         if exists("lost_message.png", 0.001):
             click(Pattern("lost_message.png").targetOffset(0,130))
@@ -449,7 +449,11 @@ class FarmMode(ChallengeMode):
             logging.debug("ChangeStage")
             region_title = wait("stage_title_1.png", 10)
             if region_title:
+                Settings.MoveMouseDelay = 0.1
+                Settings.DelayBeforeDrop = 2
                 dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 440))
+                Settings.MoveMouseDelay = 0.001 
+                Settings.DelayBeforeDrop = 0
 
     def ToNextStage(self):
         logging.debug("ToNextStage")
@@ -620,7 +624,7 @@ class QuestMode(BasicMode):
             click(Pattern("max_btn.png").similar(0.90),1)
             wait(1)
             click(Pattern("donate_ok_btn.png").similar(0.85), 1) 
-            wait(1)
+            wait(3)
     
     def _gulid_donate(self):
         logging.debug("_gulid_donate")
