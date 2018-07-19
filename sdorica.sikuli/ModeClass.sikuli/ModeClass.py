@@ -191,6 +191,7 @@ class BasicMode(object):
         start_exists = exists(start, 0.001)
         if start_exists:
             click(start_exists)
+            wait(1)
 
     def SelectFighter(self):
         if not self.IsInStage():
@@ -203,9 +204,9 @@ class BasicMode(object):
             return
         bar = DragCharacterBar()
         def _findBrainman():
+            Settings.MoveMouseDelay = 0.1
             dragFrom = friendSlotCenter.offset(-510, 240)
             dragTo = friendSlotCenter.offset(-510, 100)
-            Settings.MoveMouseDelay = 0.1
             
             selectCenter = None
             trueFriendFound = False
@@ -224,7 +225,7 @@ class BasicMode(object):
                                 continue
                             selectCenter = reg.getCenter()
                             trueFriendFound = True
-                            break
+                            break         
             click(selectCenter)
             return trueFriendFound
             
@@ -441,12 +442,15 @@ class ChallengeMode(BasicMode):
 class FarmMode(ChallengeMode):
 
     def SelectFighter(self):
+        Settings.MoveMouseDelay = 0.1
+        self.one_stage_count = 0
         if exists(Pattern("team_2.png").similar(0.90), 1):
             click(Pattern("team_2.png").similar(0.90))
             
-    def ChangeStage(self, i):
-        if i % 10 == 0 and i != 0:
+    def ChangeStage(self, isChange):
+        if self.one_stage_count > 9 or isChange:
             logging.debug("ChangeStage")
+            self.one_stage_count = 0
             region_title = wait("stage_title_1.png", 10)
             if region_title:
                 Settings.MoveMouseDelay = 0.1
@@ -454,6 +458,8 @@ class FarmMode(ChallengeMode):
                 dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 440))
                 Settings.MoveMouseDelay = 0.001 
                 Settings.DelayBeforeDrop = 0
+        else:
+             self.one_stage_count += 1
 
     def ToNextStage(self):
         logging.debug("ToNextStage")
@@ -463,9 +469,9 @@ class FarmMode(ChallengeMode):
             if self.ZeroRewardCount == 3: #連刷三次沒有獎勵則跳出
                 self.Quit = True
             else:
-                self.ChangeStage(10)   #沒有獎勵則強制換關
+                self.ChangeStage(True)   #沒有獎勵則強制換關
         else:
-            self.ChangeStage(self.TurnCount)      #檢查看是否滿10次需要換關   
+            self.ChangeStage(False)      #檢查看是否滿10次需要換關   
             
 
 class MaterialMode(BasicMode):
@@ -707,6 +713,7 @@ class QuestMode(BasicMode):
     def SelectFighter(self):
         if not self.IsInStage():
             return
+        Settings.MoveMouseDelay = 0.1
         if self.Algo == AlgoFactory.JIN2_ALGO:
             if exists(Pattern("team_2.png").similar(0.90), 1):
                 click(Pattern("team_2.png").similar(0.90))

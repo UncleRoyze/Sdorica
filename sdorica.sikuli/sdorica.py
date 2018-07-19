@@ -80,7 +80,7 @@ def EnterSdorica():
     else:
         logging.debug("Cannot find Sdorica app")
         return
-    app_title = exists("app_title.png", 30)
+    app_title = exists("app_title.png", 60)
     if app_title:
         click(app_title)
         wait(1)
