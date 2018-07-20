@@ -12,6 +12,7 @@ class AlgoFactory():
     FRIDAY3_ALGO = 6
     THURSDAY4_ALGO = 7
     JIN2NAYA_ALGO = 8
+    ONE_TO_TEN_ALGO = 9
     ALGO_DICT = {SIMPLE_ALGO: "Simple",
                  NOLVA_ALGO: "Nolva",
                  JIN2_ALGO : "Jin2",
@@ -20,7 +21,8 @@ class AlgoFactory():
                  NO4_ALGO : "No 4",
                  FRIDAY3_ALGO : "Friday 3",
                  THURSDAY4_ALGO: "Thrsday 4",
-                 JIN2NAYA_ALGO: "Jin2Naya" }
+                 JIN2NAYA_ALGO: "Jin2Naya",
+                 ONE_TO_TEN_ALGO: "OneToTen"}
 
     @staticmethod
     def GenAlgo(choice, clock):
@@ -42,6 +44,8 @@ class AlgoFactory():
             return Thursday4Algo(clock)
         elif choice == AlgoFactory.JIN2NAYA_ALGO:
             return Jin2NayaAlgo(clock)
+        elif choice == AlgoFactory.ONE_TO_TEN_ALGO:
+            return OneToTenAlgo(clock)
         else:
             return SimpleAlgo(clock)
 
@@ -65,6 +69,18 @@ class PlayAlgo(object):
     def __init__(self, clock):
         self.clock = clock
 
+    def ClickGold(self):
+        click(self.clock.getCenter().offset(260,190))
+        
+    def ClickBlack(self):
+        click(self.clock.getCenter().offset(75,250))
+                    
+    def ClickWhite(self):
+        click(self.clock.getCenter().offset(-65,150))
+
+    def ClickAssistant(self):
+        click(self.clock.getCenter().offset(65,500))
+        
     def SetBoard(self, dotLoc, dotColor):
         self.dotLoc = dotLoc
         self.dotColor = dotColor
@@ -310,16 +326,34 @@ class No2Algo(SimpleAlgo):
 
     def Play(self, clock, sub_stage, turn):
         for number in (4, 1):   
-            for color in ("b", "w", "g"):
+            for color in ("g", "w", "b"):
                 if self.PlayDots(color, number):
                     return 1
-        return 0
+        return -1
     
 class No4Algo(SimpleAlgo):
 
     def Play(self, clock, sub_stage, turn):
         for number in (1, 2):   
             for color in ("b", "w", "g"):
+                if self.PlayDots(color, number):
+                    return 1
+        return 0
+
+class OneToTenAlgo(SimpleAlgo):
+    
+    def __init__(self, clock):
+        self.clock = clock
+        self.one_count = 0
+    
+    def Play(self, clock, sub_stage, turn):
+        if self.one_count < 10:
+            for color in ("w", "g", "b"):
+                if self.PlayDots(color, 1):
+                    self.one_count += 1
+                    return 1
+        for number in (4, 2, 1):   
+            for color in ("w", "g", "b"):
                 if self.PlayDots(color, number):
                     return 1
         return 0
@@ -334,7 +368,7 @@ class Friday3Algo(SimpleAlgo):
         
         #開場1白
         if turn == 0:
-            click(clock.getCenter().offset(196,232))
+            self.ClickBlack()
             if self.PlayDots("w", 1):
                 return 1
         if turn == 1:

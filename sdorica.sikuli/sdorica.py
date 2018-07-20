@@ -35,11 +35,11 @@ def StartAsking():
         exit(1)
     configObj.config.set("setting", "mode", str(playmode))
     
-    selected_algo = select("Please select algorithm", options = algos, default = algos[ini_algo])
-    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)
-    if algorithm < 0:
-        exit(1)
-    configObj.config.set("setting", "algo", str(algorithm))
+#    selected_algo = select("Please select algorithm", options = algos, default = algos[ini_algo])
+#    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)
+#    if algorithm < 0:
+#        exit(1)
+#    configObj.config.set("setting", "algo", str(algorithm))
 
     turn = int(input("The max turns?", ini_turn))
     if turn < 0:

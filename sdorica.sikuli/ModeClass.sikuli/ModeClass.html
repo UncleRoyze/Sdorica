@@ -199,11 +199,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self.TurnCount = <span class="dig">0</span>
         self.ZeroRewardCount = <span class="dig">0</span>
         self.MoveSpeed = <span class="dig">500</span>
-        self.Algo = configObj.getAlgo()
+        <span class="cmt">#self.Algo = configObj.getAlgo()</span>
+        self.Algo = AlgoFactory.JIN2_ALGO
+        self.one_stage_count = <span class="dig">0</span>
 
     <span class="kw">def</span> InitParameter(self):
         self.Failed = False
         self.Reward = True
+        self.quit_play = False
 
     <span class="kw">def</span> Run(self):
         self.InputSetting()
@@ -263,12 +266,20 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         start_exists = exists(start, <span class="dig">0.001</span>)
         <span class="kw">if</span> start_exists:
             <span class="skw">click</span>(start_exists)
-            <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5000</span>):
+            <span class="kw">if</span> self.IsInStage():
+                <span class="kw">break</span>
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
             <span class="kw">return</span>
-        <span class="kw">return</span> <span class="dig">0</span>
+        Settings.MoveMouseDelay = <span class="dig">0.01</span>
+        <span class="kw">if</span> self.Algo == AlgoFactory.JIN2_ALGO <span class="kw">or</span>  self.Algo == AlgoFactory.NO1_ALGO <span class="kw">or</span> self.Algo == AlgoFactory.ONE_TO_TEN_ALGO:
+            <span class="kw">if</span> exists(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+                <span class="skw">click</span>(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>))
+        <span class="kw">elif</span> self.Algo == AlgoFactory.NOLVA_ALGO:
+            <span class="kw">if</span> exists(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
+                <span class="skw">click</span>(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>))
 
     <span class="kw">def</span> SelectBrainman(self):
         logging.debug(<span class="str">"SelectBrainman"</span>)
@@ -390,12 +401,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="cmt">#click(clock.getCenter().offset(970,480)) #點擊公會的參謀</span>
             status = playAlgo.Play(clock, sub_stage, turn)
             <span class="kw">if</span> status == -<span class="dig">1</span>: <span class="cmt">#跑結束</span>
+                self.quit_play = True
                 <span class="kw">return</span> <span class="dig">0</span>
             <span class="kw">elif</span> status == <span class="dig">0</span>: <span class="cmt">#沒有點擊</span>
                 <span class="kw">continue</span>
             <span class="skw">wait</span>(<span class="dig">1</span>)
             turn += <span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">1</span>
+
 
     <span class="kw">def</span> Playing(self):
         logging.debug(<span class="str">"Playing"</span>)
@@ -411,14 +424,26 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="kw">break</span>
             clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>) <span class="cmt">#檢查現在是不是還在關卡裡</span>
 
+    <span class="kw">def</span> _quit_play(self):
+        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">1</span>)
+        <span class="kw">if</span> clock:
+            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
+        self.quit_play = False
+        <span class="kw">return</span>
+
     <span class="kw">def</span> LeavePlay(self):
         logging.debug(<span class="str">"LeavePlay"</span>)
         <span class="kw">if</span> self.Failed:
             <span class="kw">return</span>
+        <span class="kw">if</span> self.quit_play == True:
+            self._quit_play()
+            <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">20</span>):
 
-            <span class="kw">if</span> exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">1</span>):
+            <span class="kw">if</span> exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
                 <span class="kw">break</span>
             <span class="kw">if</span> exists(<img src="network_lost.png" />,<span class="dig">0.001</span>):<span class="cmt"># 檢查網路是否不穩</span>
                 <span class="skw">click</span>(Pattern(<img src="network_lost.png" />).targetOffset(<span class="dig">0</span>,<span class="dig">140</span>))       <span class="cmt"># 有網路不穩則點擊後跳出</span>
@@ -431,9 +456,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.Reward = False
             self.ZeroRewardCount += <span class="dig">1</span>
             logging.debug(<span class="str">"zero reward"</span>)
+        <span class="kw">else</span>:
+            self.ZeroRewardCount = <span class="dig">0</span>            <span class="cmt">#重新計算</span>
 
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1000</span>):    <span class="cmt"># 檢查按了按鈕之後有沒有真的結束</span>
-            finish_btn = exists(Pattern(<img src="finish_button.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
+            finish_btn = exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
             <span class="kw">if</span> finish_btn:
                 <span class="skw">click</span>(finish_btn)
                 <span class="skw">wait</span>(<span class="dig">0.01</span>)
@@ -513,13 +540,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">class</span> FarmMode(ChallengeMode):
 
-    <span class="kw">def</span> SelectFighter(self):
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        self.one_stage_count = <span class="dig">0</span>
-        <span class="kw">if</span> exists(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
-            <span class="skw">click</span>(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>))
-
     <span class="kw">def</span> ChangeStage(self, isChange):
+        self.one_stage_count += <span class="dig">1</span>
         <span class="kw">if</span> self.one_stage_count &gt; <span class="dig">9</span> <span class="kw">or</span> isChange:
             logging.debug(<span class="str">"ChangeStage"</span>)
             self.one_stage_count = <span class="dig">0</span>
@@ -530,13 +552,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 <span class="skw">dragDrop</span>(region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), region_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
                 Settings.MoveMouseDelay = <span class="dig">0.001</span>
                 Settings.DelayBeforeDrop = <span class="dig">0</span>
-        <span class="kw">else</span>:
-             self.one_stage_count += <span class="dig">1</span>
 
     <span class="kw">def</span> ToNextStage(self):
         logging.debug(<span class="str">"ToNextStage"</span>)
         <span class="kw">if</span> self.Failed:
-            self.TurnCount -= <span class="dig">1</span>
+            <span class="kw">return</span>
         <span class="kw">if</span> <span class="kw">not</span> self.Reward:
             <span class="kw">if</span> self.ZeroRewardCount == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
                 self.Quit = True
@@ -724,8 +744,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
         <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
-        Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="skw">wait</span>(<span class="dig">1</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.001</span>
 
     <span class="kw">def</span> _get_quest_reward(self):
         <span class="kw">if</span> exists(<img src="get_reward_btn.png" />, <span class="dig">1</span>):
@@ -746,23 +766,29 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         self._click_quest_guild()
         self._drag_quest_menu()
-        matches = findAnyList(configObj.quest_nolva)
-        <span class="kw">if</span> matches:
-            <span class="kw">for</span> match <span class="kw">in</span> matches:
-                <span class="skw">click</span>(match)
-                self.Algo = AlgoFactory.NOLVA_ALGO
-                <span class="kw">return</span>
 
-        matches = findAnyList(configObj.quest_jin2)
-        <span class="kw">if</span> matches:
-            <span class="kw">for</span> match <span class="kw">in</span> matches:
-                <span class="skw">click</span>(match)
-                self.Algo = AlgoFactory.JIN2_ALGO
-                <span class="kw">return</span>
+        <span class="kw">if</span> self._match_algo(configObj.quest_1to10, AlgoFactory.ONE_TO_TEN_ALGO):
+            <span class="kw">return</span>
+        <span class="kw">if</span> self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
+            <span class="kw">return</span>
+        <span class="kw">if</span> self._match_algo(configObj.quest_nolva, AlgoFactory.NOLVA_ALGO):
+            <span class="kw">return</span>
+        <span class="kw">if</span> self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
+            <span class="kw">return</span>
+
 
         self.quest_done = True <span class="cmt">#解完任務了</span>
         self._leave_quest_page()
         self._to_event_stage()
+
+    <span class="kw">def</span> _match_algo(self, imgs, algo):
+        matches = findAnyList(imgs)
+        <span class="kw">if</span> matches:
+            <span class="kw">for</span> match <span class="kw">in</span> matches:
+                <span class="skw">click</span>(match)
+                self.Algo = algo
+                <span class="kw">return</span> True
+        <span class="kw">return</span> False
 
     <span class="kw">def</span> _back_to_main_menu(self):
         logging.debug(<span class="str">"_back_to_main_menu"</span>)
@@ -776,22 +802,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> SelectStage(self):
         logging.debug(<span class="str">"SelectStage"</span>)
-        Settings.MoveMouseDelay = <span class="dig">0.001</span>
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
         <span class="kw">return</span>
-
-    <span class="kw">def</span> SelectFighter(self):
-        <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
-            <span class="kw">return</span>
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        <span class="kw">if</span> self.Algo == AlgoFactory.JIN2_ALGO:
-            <span class="kw">if</span> exists(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
-                <span class="skw">click</span>(Pattern(<img src="team_2.png" />).similar(<span class="dig">0.90</span>))
-        <span class="kw">elif</span> self.Algo == AlgoFactory.NOLVA_ALGO:
-            <span class="kw">if</span> exists(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>), <span class="dig">1</span>):
-                <span class="skw">click</span>(Pattern(<img src="team3.png" />).similar(<span class="dig">0.90</span>))
 
     <span class="kw">def</span> _to_event_stage(self):
         self.Algo = AlgoFactory.JIN2_ALGO
@@ -874,14 +889,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> SelectBrainman(self):
         <span class="kw">return</span>
 
-    <span class="kw">def</span> LeavePlay(self):
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-        <span class="kw">if</span> clock:
-            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
-        <span class="kw">return</span>
 
 <span class="kw">class</span> Friday3Mode(BasicMode):
 
@@ -922,15 +929,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             bar.ToRight()
 
     <span class="kw">def</span> SelectBrainman(self):
-        <span class="kw">return</span>
-
-    <span class="kw">def</span> LeavePlay(self):
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-        <span class="kw">if</span> clock:
-            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
         <span class="kw">return</span>
 
 <span class="kw">class</span> Jin2NayaMode(BasicMode):

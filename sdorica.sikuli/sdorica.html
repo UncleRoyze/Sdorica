@@ -107,11 +107,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         exit(<span class="dig">1</span>)
     configObj.config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(playmode))
 
-    selected_algo = select(<span class="str">"Please select algorithm"</span>, options = algos, default = algos[ini_algo])
-    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)
-    <span class="kw">if</span> algorithm &lt; <span class="dig">0</span>:
-        exit(<span class="dig">1</span>)
-    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"algo"</span>, str(algorithm))
+<span class="cmt">#    selected_algo = select("Please select algorithm", options = algos, default = algos[ini_algo])</span>
+<span class="cmt">#    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)</span>
+<span class="cmt">#    if algorithm &lt; 0:</span>
+<span class="cmt">#        exit(1)</span>
+<span class="cmt">#    configObj.config.set("setting", "algo", str(algorithm))</span>
 
     turn = int(<span class="skw">input</span>(<span class="str">"The max turns?"</span>, ini_turn))
     <span class="kw">if</span> turn &lt; <span class="dig">0</span>:

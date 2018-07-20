@@ -127,12 +127,15 @@ class BasicMode(object):
         self.TurnCount = 0
         self.ZeroRewardCount = 0
         self.MoveSpeed = 500
-        self.Algo = configObj.getAlgo()
+        #self.Algo = configObj.getAlgo()
+        self.Algo = AlgoFactory.JIN2_ALGO
+        self.one_stage_count = 0
 
     def InitParameter(self):
         self.Failed = False
         self.Reward = True
-        
+        self.quit_play = False
+
     def Run(self):
         self.InputSetting()
         self.SelectStage()
@@ -191,12 +194,20 @@ class BasicMode(object):
         start_exists = exists(start, 0.001)
         if start_exists:
             click(start_exists)
-            wait(1)
 
     def SelectFighter(self):
+        for i in range(5000):
+            if self.IsInStage():
+                break
         if not self.IsInStage():
             return
-        return 0
+        Settings.MoveMouseDelay = 0.01
+        if self.Algo == AlgoFactory.JIN2_ALGO or  self.Algo == AlgoFactory.NO1_ALGO or self.Algo == AlgoFactory.ONE_TO_TEN_ALGO:
+            if exists(Pattern("team_2.png").similar(0.90), 1):
+                click(Pattern("team_2.png").similar(0.90))
+        elif self.Algo == AlgoFactory.NOLVA_ALGO:
+            if exists(Pattern("team3.png").similar(0.90), 1):
+                click(Pattern("team3.png").similar(0.90))
 
     def SelectBrainman(self):
         logging.debug("SelectBrainman")
@@ -318,13 +329,15 @@ class BasicMode(object):
             #click(clock.getCenter().offset(970,480)) #點擊公會的參謀
             status = playAlgo.Play(clock, sub_stage, turn)
             if status == -1: #跑結束
+                self.quit_play = True
                 return 0
             elif status == 0: #沒有點擊
                 continue
             wait(1)
             turn += 1
         return 1
-    
+
+
     def Playing(self):
         logging.debug("Playing")
         clock = exists(Pattern("clock.png").similar(0.90) , 1)
@@ -338,15 +351,27 @@ class BasicMode(object):
             if self.Failed:
                 break
             clock = exists(Pattern("clock.png").similar(0.90) , 0.001) #檢查現在是不是還在關卡裡
-
+            
+    def _quit_play(self):
+        clock = exists(Pattern("clock.png").similar(0.90) , 1)
+        if clock:
+            click(clock.getCenter().offset(-78,0))
+            wait(1)
+            click("ok_btn_quit.png")
+        self.quit_play = False
+        return
+    
     def LeavePlay(self):
         logging.debug("LeavePlay")
         if self.Failed:
             return
+        if self.quit_play == True:
+            self._quit_play()
+            return
         Settings.MoveMouseDelay = 0.001
         for i in range(20):
             
-            if exists(Pattern("finish_button.png").similar(0.80), 1):
+            if exists(Pattern("finish_btn.png").similar(0.90), 1):
                 break
             if exists("network_lost.png",0.001):# 檢查網路是否不穩
                 click(Pattern("network_lost.png").targetOffset(0,140))       # 有網路不穩則點擊後跳出
@@ -359,9 +384,11 @@ class BasicMode(object):
             self.Reward = False
             self.ZeroRewardCount += 1
             logging.debug("zero reward")
+        else:
+            self.ZeroRewardCount = 0            #重新計算
   
         for i in range(1000):    # 檢查按了按鈕之後有沒有真的結束
-            finish_btn = exists(Pattern("finish_button.png").similar(0.80), 0.001) 
+            finish_btn = exists(Pattern("finish_btn.png").similar(0.90), 0.001) 
             if finish_btn:
                 click(finish_btn)
                 wait(0.01)
@@ -440,14 +467,9 @@ class ChallengeMode(BasicMode):
 
 
 class FarmMode(ChallengeMode):
-
-    def SelectFighter(self):
-        Settings.MoveMouseDelay = 0.1
-        self.one_stage_count = 0
-        if exists(Pattern("team_2.png").similar(0.90), 1):
-            click(Pattern("team_2.png").similar(0.90))
             
     def ChangeStage(self, isChange):
+        self.one_stage_count += 1
         if self.one_stage_count > 9 or isChange:
             logging.debug("ChangeStage")
             self.one_stage_count = 0
@@ -458,13 +480,11 @@ class FarmMode(ChallengeMode):
                 dragDrop(region_title.getCenter().offset(0, 240), region_title.getCenter().offset(0, 440))
                 Settings.MoveMouseDelay = 0.001 
                 Settings.DelayBeforeDrop = 0
-        else:
-             self.one_stage_count += 1
 
     def ToNextStage(self):
         logging.debug("ToNextStage")
         if self.Failed:
-            self.TurnCount -= 1
+            return
         if not self.Reward:
             if self.ZeroRewardCount == 3: #連刷三次沒有獎勵則跳出
                 self.Quit = True
@@ -652,8 +672,8 @@ class QuestMode(BasicMode):
             return
         Settings.MoveMouseDelay = 0.1 
         dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 100))
-        Settings.MoveMouseDelay = 0.001 
         wait(1)
+        Settings.MoveMouseDelay = 0.001 
         
     def _get_quest_reward(self):
         if exists("get_reward_btn.png", 1):
@@ -674,24 +694,30 @@ class QuestMode(BasicMode):
             return
         self._click_quest_guild()
         self._drag_quest_menu()
-        matches = findAnyList(configObj.quest_nolva)
-        if matches:
-            for match in matches:
-                click(match)
-                self.Algo = AlgoFactory.NOLVA_ALGO
-                return
-            
-        matches = findAnyList(configObj.quest_jin2)
-        if matches:
-            for match in matches:
-                click(match)
-                self.Algo = AlgoFactory.JIN2_ALGO
-                return
+
+        if self._match_algo(configObj.quest_1to10, AlgoFactory.ONE_TO_TEN_ALGO):
+            return
+        if self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
+            return
+        if self._match_algo(configObj.quest_nolva, AlgoFactory.NOLVA_ALGO):
+            return
+        if self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
+            return
+        
 
         self.quest_done = True #解完任務了
         self._leave_quest_page()
         self._to_event_stage()
 
+    def _match_algo(self, imgs, algo):
+        matches = findAnyList(imgs)
+        if matches:
+            for match in matches:
+                click(match)
+                self.Algo = algo
+                return True
+        return False
+    
     def _back_to_main_menu(self):
         logging.debug("_back_to_main_menu")
         for i in range(10):
@@ -704,22 +730,11 @@ class QuestMode(BasicMode):
                 
     def SelectStage(self):
         logging.debug("SelectStage")
-        Settings.MoveMouseDelay = 0.001
+        Settings.MoveMouseDelay = 0.1
         self._back_to_main_menu()
         self._gulid_donate()
         self._select_quest()
         return
-
-    def SelectFighter(self):
-        if not self.IsInStage():
-            return
-        Settings.MoveMouseDelay = 0.1
-        if self.Algo == AlgoFactory.JIN2_ALGO:
-            if exists(Pattern("team_2.png").similar(0.90), 1):
-                click(Pattern("team_2.png").similar(0.90))
-        elif self.Algo == AlgoFactory.NOLVA_ALGO:
-            if exists(Pattern("team3.png").similar(0.90), 1):
-                click(Pattern("team3.png").similar(0.90))
 
     def _to_event_stage(self):
         self.Algo = AlgoFactory.JIN2_ALGO
@@ -802,14 +817,6 @@ class Thursday4Mode(BasicMode):
     def SelectBrainman(self):
         return
     
-    def LeavePlay(self):
-        wait(1)
-        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
-        if clock:
-            click(clock.getCenter().offset(-78,0))
-            wait(1)
-            click("ok_btn_quit.png")
-        return
 
 class Friday3Mode(BasicMode):
 
@@ -850,15 +857,6 @@ class Friday3Mode(BasicMode):
             bar.ToRight()
 
     def SelectBrainman(self):
-        return
-
-    def LeavePlay(self):
-        wait(1)
-        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
-        if clock:
-            click(clock.getCenter().offset(-78,0))
-            wait(1)
-            click("ok_btn_quit.png")
         return
 
 class Jin2NayaMode(BasicMode):

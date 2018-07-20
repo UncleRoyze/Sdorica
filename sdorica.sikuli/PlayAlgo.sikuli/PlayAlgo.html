@@ -84,6 +84,7 @@
     FRIDAY3_ALGO = <span class="dig">6</span>
     THURSDAY4_ALGO = <span class="dig">7</span>
     JIN2NAYA_ALGO = <span class="dig">8</span>
+    ONE_TO_TEN_ALGO = <span class="dig">9</span>
     ALGO_DICT = {SIMPLE_ALGO: <span class="str">"Simple"</span>,
                  NOLVA_ALGO: <span class="str">"Nolva"</span>,
                  JIN2_ALGO : <span class="str">"Jin2"</span>,
@@ -92,7 +93,8 @@
                  NO4_ALGO : <span class="str">"No 4"</span>,
                  FRIDAY3_ALGO : <span class="str">"Friday 3"</span>,
                  THURSDAY4_ALGO: <span class="str">"Thrsday 4"</span>,
-                 JIN2NAYA_ALGO: <span class="str">"Jin2Naya"</span> }
+                 JIN2NAYA_ALGO: <span class="str">"Jin2Naya"</span>,
+                 ONE_TO_TEN_ALGO: <span class="str">"OneToTen"</span>}
 
     @staticmethod
     <span class="kw">def</span> GenAlgo(choice, clock):
@@ -114,6 +116,8 @@
             <span class="kw">return</span> Thursday4Algo(clock)
         <span class="kw">elif</span> choice == AlgoFactory.JIN2NAYA_ALGO:
             <span class="kw">return</span> Jin2NayaAlgo(clock)
+        <span class="kw">elif</span> choice == AlgoFactory.ONE_TO_TEN_ALGO:
+            <span class="kw">return</span> OneToTenAlgo(clock)
         <span class="kw">else</span>:
             <span class="kw">return</span> SimpleAlgo(clock)
 
@@ -136,6 +140,18 @@
 
     <span class="kw">def</span> __init__(self, clock):
         self.clock = clock
+
+    <span class="kw">def</span> ClickGold(self):
+        <span class="skw">click</span>(self.clock.getCenter().offset(<span class="dig">260</span>,<span class="dig">190</span>))
+
+    <span class="kw">def</span> ClickBlack(self):
+        <span class="skw">click</span>(self.clock.getCenter().offset(<span class="dig">75</span>,<span class="dig">250</span>))
+
+    <span class="kw">def</span> ClickWhite(self):
+        <span class="skw">click</span>(self.clock.getCenter().offset(-<span class="dig">65</span>,<span class="dig">150</span>))
+
+    <span class="kw">def</span> ClickAssistant(self):
+        <span class="skw">click</span>(self.clock.getCenter().offset(<span class="dig">65</span>,<span class="dig">500</span>))
 
     <span class="kw">def</span> SetBoard(self, dotLoc, dotColor):
         self.dotLoc = dotLoc
@@ -382,16 +398,34 @@
 
     <span class="kw">def</span> Play(self, clock, sub_stage, turn):
         <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">1</span>):
-            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"g"</span>, <span class="str">"w"</span>, <span class="str">"b"</span>):
                 <span class="kw">if</span> self.PlayDots(color, number):
                     <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">return</span> <span class="dig">0</span>
+        <span class="kw">return</span> -<span class="dig">1</span>
 
 <span class="kw">class</span> No4Algo(SimpleAlgo):
 
     <span class="kw">def</span> Play(self, clock, sub_stage, turn):
         <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">1</span>, <span class="dig">2</span>):
             <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>, <span class="str">"w"</span>, <span class="str">"g"</span>):
+                <span class="kw">if</span> self.PlayDots(color, number):
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
+
+<span class="kw">class</span> OneToTenAlgo(SimpleAlgo):
+
+    <span class="kw">def</span> __init__(self, clock):
+        self.clock = clock
+        self.one_count = <span class="dig">0</span>
+
+    <span class="kw">def</span> Play(self, clock, sub_stage, turn):
+        <span class="kw">if</span> self.one_count &lt; <span class="dig">10</span>:
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"w"</span>, <span class="str">"g"</span>, <span class="str">"b"</span>):
+                <span class="kw">if</span> self.PlayDots(color, <span class="dig">1</span>):
+                    self.one_count += <span class="dig">1</span>
+                    <span class="kw">return</span> <span class="dig">1</span>
+        <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
+            <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"w"</span>, <span class="str">"g"</span>, <span class="str">"b"</span>):
                 <span class="kw">if</span> self.PlayDots(color, number):
                     <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">return</span> <span class="dig">0</span>
@@ -406,7 +440,7 @@
 
         <span class="cmt">#開場1白</span>
         <span class="kw">if</span> turn == <span class="dig">0</span>:
-            <span class="skw">click</span>(clock.getCenter().offset(<span class="dig">196</span>,<span class="dig">232</span>))
+            self.ClickBlack()
             <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">1</span>):
                 <span class="kw">return</span> <span class="dig">1</span>
         <span class="kw">if</span> turn == <span class="dig">1</span>:
