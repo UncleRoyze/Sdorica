@@ -712,6 +712,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self._buy_guild_market_free_item()
         <span class="kw">if</span> exists(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="journey_btn.png" />).similar(<span class="dig">0.90</span>)) <span class="cmt"># back to main menu</span>
+            <span class="skw">wait</span>(<span class="dig">1</span>)
     <span class="kw">def</span> _buy_guild_market_free_item(self):
         market = exists(Pattern(<img src="guild_market.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> market:
@@ -722,7 +723,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="max_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">1</span>)
             <span class="skw">wait</span>(<span class="dig">1</span>)
             <span class="skw">click</span>(Pattern(<img src="donate_ok_btn.png" />).similar(<span class="dig">0.85</span>), <span class="dig">1</span>)
-            <span class="skw">wait</span>(<span class="dig">3</span>)
+            <span class="skw">wait</span>(<span class="dig">5</span>)
 
     <span class="kw">def</span> _gulid_donate(self):
         logging.debug(<span class="str">"_gulid_donate"</span>)
@@ -754,6 +755,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> _select_quest(self):
         logging.debug(<span class="str">"_select_quest"</span>)
+        Settings.MoveMouseDelay = <span class="dig">0.1</span>
         self._click_quest_menu()
         self._drag_quest_menu()
         <span class="kw">if</span> exists(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):

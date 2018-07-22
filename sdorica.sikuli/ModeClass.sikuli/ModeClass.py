@@ -640,6 +640,7 @@ class QuestMode(BasicMode):
         self._buy_guild_market_free_item()
         if exists(Pattern("journey_btn.png").similar(0.90), 0.001):
             click(Pattern("journey_btn.png").similar(0.90)) # back to main menu
+            wait(1)
     def _buy_guild_market_free_item(self):
         market = exists(Pattern("guild_market.png").similar(0.90), 0.001)
         if market:
@@ -650,7 +651,7 @@ class QuestMode(BasicMode):
             click(Pattern("max_btn.png").similar(0.90),1)
             wait(1)
             click(Pattern("donate_ok_btn.png").similar(0.85), 1) 
-            wait(3)
+            wait(5)
     
     def _gulid_donate(self):
         logging.debug("_gulid_donate")
@@ -682,6 +683,7 @@ class QuestMode(BasicMode):
             
     def _select_quest(self):
         logging.debug("_select_quest")
+        Settings.MoveMouseDelay = 0.1
         self._click_quest_menu()
         self._drag_quest_menu()
         if exists(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0),0.001):

@@ -13,6 +13,7 @@ import ModeClass
 reload(ModeClass)
 
 configObj = config.Configuration()
+
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 def StartAsking():
