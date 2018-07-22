@@ -11,14 +11,13 @@ class AutoLvUpMode(ChallengeMode):
 
     def InputSetting():
         super(self.__class__, self).InputSetting()
-        ini_target_lv = configObj.config.get("setting", "target_lv")
-        target_lv = int(input("Please enter your targeted level:", ini_target_lv))
-        configObj.config.set("setting", "target_lv", str(target_lv))
+        target_lv = input("Please enter your targeted level:", str(configObj.getTargetLV()))
+        configObj.setTargetLV(target_lv)
         #write ini
         configObj.writeConfig()
         
     def SelectFighter(self):
-        SelectLowLevelCharacter(configObj.target_lv)
+        SelectLowLevelCharacter(configObj.getTargetLV())
         
 def SelectLowLevelCharacter(target_lv):
     logging.debug("SelectLowLevelCharacter")

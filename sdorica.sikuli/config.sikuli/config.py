@@ -29,7 +29,6 @@ class Configuration(Singleton):
         self.config.read(self.ini_path)
 
     def _initGlobalConfig(self):
-        self.target_lv = 59
         self.friends = ["apollo.png", "roy.png", "hcm.png"]
         self.brainmen = [Pattern("delan_sp.png").similar(0.80), Pattern("Fatima_lv2.png").similar(0.80), Pattern("Sione_sp.png").similar(0.80), Pattern("Shirley_lv3.png").similar(0.80), Pattern("Shirley_lv2.png").similar(0.80), Pattern("YanBo_lv3.png").similar(0.80),Pattern("li_lv3.png").similar(0.80),Pattern("darkmoon_sp.png").similar(0.80)]
         self.materials = [[] for _ in range(10)]
@@ -52,24 +51,59 @@ class Configuration(Singleton):
     def getTurns(self):
         return int(self.config.get("setting", "turn"))
 
+    def setTurns(self, turn):
+        self.config.set("setting", "turn", str(turn))
+
     def getPlayMode(self):
         return int(self.config.get("setting", "mode"))
+
+    def setPlayMode(self, playmode):
+        self.config.set("setting", "mode", str(playmode))
 
     def getMaterialStage(self):
         return int(self.config.get("material", "stage"))
 
+    def setMaterialStage(self, material_stage):
+        self.config.set("material", "stage", str(material_stage))
+
     def getMaterialSubStage(self):
         return int(self.config.get("material", "sub_stage"))
+
+    def setMaterialSubStage(self, material_sub_stage):
+        self.config.set("material", "sub_stage", str(material_sub_stage))
 
     def getChallengeStage(self):
         return int(self.config.get("challenge", "stage"))
 
+    def setChallengeStage(self, challenge_stage):
+        self.config.set("challenge", "stage", str(challenge_stage))
+
     def getChallengeSubStage(self):
         return int(self.config.get("challenge", "sub_stage"))
+
+    def setChallengeSubStage(self, challenge_sub_stage):
+        self.config.set("challenge", "sub_stage", str(challenge_sub_stage))
+
+    def getChallengePlayedStages(self):
+        return int(self.config.get("challenge", "played_stages"))
+
+    def setChallengePlayedStages(self, played_stages):
+        self.config.set("challenge", "played_stages", str(played_stages))        
 
     def getAlgo(self):
         return int(self.config.get("setting", "algo"))
 
+    def setAlgo(self, algo):
+        self.config.set("setting", "algo", str(algo))
+
     def getDesignatedHour(self):
         return int(self.config.get("setting", "designated_hour"))
     
+    def setDesignatedHour(self, designated_hour):
+        self.config.set("setting", "designated_hour", str(designated_hour))
+
+    def getTargetLV(self):
+        return int(self.config.get("setting", "target_lv"))
+
+    def setTargetLV(self, target_lv):
+        self.config.set("setting", "target_lv", str(target_lv))

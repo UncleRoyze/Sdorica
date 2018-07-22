@@ -407,14 +407,11 @@ class BasicMode(object):
 
 class ChallengeMode(BasicMode):
 
-    def InputSetting_bakup(self):
-        ini_challenge_stage = configObj.config.get("challenge", "stage")
-        ini_challenge_sub_stage = configObj.config.get("challenge", "sub_stage")
-        challenge_stage = int(input("Please enter challenge stage: (1~13)", ini_challenge_stage))
-        challenge_sub_stage = int(input("Please enter challenge sub stage: (1~5)", ini_challenge_sub_stage))
-        configObj.config.set("challenge", "stage", str(challenge_stage))
-        configObj.config.set("challenge", "sub_stage", str(challenge_sub_stage))
-        #write ini
+    def InputSetting_backup(self):
+        challenge_stage = input("Please enter challenge stage: (1~13)", str(configObj.getChallengeStage()))
+        challenge_sub_stage = input("Please enter challenge sub stage: (1~5)", str(configObj.getChallengeSubStage()))
+        configObj.setChallengeStage(challenge_stage)
+        configObj.setChallengeSubStage(challenge_sub_stage)
         configObj.writeConfig()
 
     def SelectStage(self):
@@ -453,17 +450,30 @@ class ChallengeMode(BasicMode):
         while not exists(configObj.challenge_stage_title[challenge_page], 0.001):
             click(Pattern("next_arrow.png").similar(0.85))
             wait(1)
-        for i in range(7):
-            Settings.MoveMouseDelay = 0.1
-            Settings.DelayBeforeDrop = 0   # back to top
-            dragDrop(challenge_title.getCenter().offset(0, 240), challenge_title.getCenter().offset(0, 640))
-        wait(1)
-        Settings.MoveMouseDelay = 0.1
-        Settings.DelayBeforeDrop = 2
-        for i in range(challenge_count):
+        
+        played_stages = configObj.getChallengePlayedStages()
+        scroll_times = challenge_count - played_stages
+        if scroll_times < 0:  # we need to jump to previous page
+            click(Pattern("previous_arrow.png").similar(0.85))
+            for i in range(7):
+                Settings.MoveMouseDelay = 0.1
+                Settings.DelayBeforeDrop = 0   # scroll to bottom
+                dragDrop(challenge_title.getCenter().offset(0, 640), challenge_title.getCenter().offset(0, 240))
+            wait(1)
+            # in case the cursor did not scroll to the bottom
             dragDrop(challenge_title.getCenter().offset(0, 440), challenge_title.getCenter().offset(0, 240))
-        Settings.MoveMouseDelay = 0.001 
-        Settings.DelayBeforeDrop = 0
+            scroll_times = abs(scroll_times) - 1
+            for i in range(scroll_times):
+                dragDrop(challenge_title.getCenter().offset(0, 240), challenge_title.getCenter().offset(0, 440))
+
+        else:  # normal case
+            for i in range(7):
+                Settings.MoveMouseDelay = 0.1
+                Settings.DelayBeforeDrop = 0   # back to top
+                dragDrop(challenge_title.getCenter().offset(0, 240), challenge_title.getCenter().offset(0, 640))
+            wait(1)
+            for i in range(scroll_times):
+                dragDrop(challenge_title.getCenter().offset(0, 440), challenge_title.getCenter().offset(0, 240))
 
 
 class FarmMode(ChallengeMode):
@@ -473,6 +483,12 @@ class FarmMode(ChallengeMode):
         if self.one_stage_count > 9 or isChange:
             logging.debug("ChangeStage")
             self.one_stage_count = 0
+
+            # Update played_stages in config
+            played_stages = configObj.getChallengePlayedStages() + 1
+            configObj.setChallengePlayedStages(played_stages)
+            configObj.writeConfig()
+
             region_title = wait("stage_title_1.png", 10)
             if region_title:
                 Settings.MoveMouseDelay = 0.1
@@ -486,7 +502,10 @@ class FarmMode(ChallengeMode):
         if self.Failed:
             return
         if not self.Reward:
-            if self.ZeroRewardCount == 3: #連刷三次沒有獎勵則跳出
+            if self.ZeroRewardCount == 3:  # 連刷三次沒有獎勵則跳出
+                # Reset played_stages in config
+                configObj.setChallengePlayedStages(0)
+                configObj.writeConfig()
                 self.Quit = True
             else:
                 self.ChangeStage(True)   #沒有獎勵則強制換關
@@ -497,13 +516,10 @@ class FarmMode(ChallengeMode):
 class MaterialMode(BasicMode):
 
     def InputSetting(self):
-        ini_stage = configObj.config.get("material", "stage")
-        ini_sub_stage = configObj.config.get("material", "sub_stage")
-        material_stage = int(input("Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll", ini_stage))
-        material_sub_stage = int(input("Please enter sub stage:", ini_sub_stage))
-        configObj.config.set("material", "stage", str(material_stage))
-        configObj.config.set("material", "sub_stage", str(material_sub_stage))
-        #write ini
+        material_stage = input("Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll", str(configObj.getMaterialStage()))
+        material_sub_stage = input("Please enter sub stage:", str(configObj.getMaterialSubStage()))
+        configObj.setMaterialStage(material_stage)
+        configObj.setMaterialSubStage(material_sub_stage)
         configObj.writeConfig()
         
     def SelectStage(self):

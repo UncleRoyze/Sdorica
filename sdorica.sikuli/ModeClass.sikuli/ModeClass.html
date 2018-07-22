@@ -479,14 +479,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">class</span> ChallengeMode(BasicMode):
 
-    <span class="kw">def</span> InputSetting_bakup(self):
-        ini_challenge_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>)
-        ini_challenge_sub_stage = configObj.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>)
-        challenge_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge stage: (1~13)"</span>, ini_challenge_stage))
-        challenge_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter challenge sub stage: (1~5)"</span>, ini_challenge_sub_stage))
-        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"stage"</span>, str(challenge_stage))
-        configObj.config.set(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>, str(challenge_sub_stage))
-        <span class="cmt">#write ini</span>
+    <span class="kw">def</span> InputSetting_backup(self):
+        challenge_stage = <span class="skw">input</span>(<span class="str">"Please enter challenge stage: (1~13)"</span>, str(configObj.getChallengeStage()))
+        challenge_sub_stage = <span class="skw">input</span>(<span class="str">"Please enter challenge sub stage: (1~5)"</span>, str(configObj.getChallengeSubStage()))
+        configObj.setChallengeStage(challenge_stage)
+        configObj.setChallengeSubStage(challenge_sub_stage)
         configObj.writeConfig()
 
     <span class="kw">def</span> SelectStage(self):
@@ -525,18 +522,35 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">while</span> <span class="kw">not</span> exists(configObj.challenge_stage_title[challenge_page], <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
+
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
             Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
             <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+
         <span class="skw">wait</span>(<span class="dig">1</span>)
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
         Settings.DelayBeforeDrop = <span class="dig">2</span>
-        <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
-            <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
+        played_stages = configObj.getChallengePlayedStages()
+        scroll_times = challenge_count - played_stages
+        <span class="kw">if</span> scroll_times &lt; <span class="dig">0</span>:  <span class="cmt"># we need to jump to previous page</span>
+            <span class="skw">click</span>(Pattern(<img src="previous_arrow.png" />).similar(<span class="dig">0.85</span>))
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># scroll to bottom</span>
+                <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
+            <span class="kw">for</span> i <span class="kw">in</span> range(abs(scroll_times)):
+                <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
+
+        <span class="kw">else</span>:  <span class="cmt"># normal case</span>
+            challenge_count -= configObj.getChallengePlayedStages()  <span class="cmt"># TODO: Targeted stage might be in the previous page while handling the played stages.</span>
+            <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
+                <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         Settings.DelayBeforeDrop = <span class="dig">0</span>
-
 
 <span class="kw">class</span> FarmMode(ChallengeMode):
 
@@ -545,6 +559,12 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> self.one_stage_count &gt; <span class="dig">9</span> <span class="kw">or</span> isChange:
             logging.debug(<span class="str">"ChangeStage"</span>)
             self.one_stage_count = <span class="dig">0</span>
+
+            <span class="cmt"># Update played_stages in config</span>
+            played_stages = configObj.getChallengePlayedStages() + <span class="dig">1</span>
+            configObj.setChallengePlayedStages(played_stages)
+            configObj.writeConfig()
+
             region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
             <span class="kw">if</span> region_title:
                 Settings.MoveMouseDelay = <span class="dig">0.1</span>
@@ -558,7 +578,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> self.Failed:
             <span class="kw">return</span>
         <span class="kw">if</span> <span class="kw">not</span> self.Reward:
-            <span class="kw">if</span> self.ZeroRewardCount == <span class="dig">3</span>: <span class="cmt">#連刷三次沒有獎勵則跳出</span>
+            <span class="kw">if</span> self.ZeroRewardCount == <span class="dig">3</span>:  <span class="cmt"># 連刷三次沒有獎勵則跳出</span>
+                <span class="cmt"># Reset played_stages in config</span>
+                configObj.setChallengePlayedStages(<span class="dig">0</span>)
+                configObj.writeConfig()
                 self.Quit = True
             <span class="kw">else</span>:
                 self.ChangeStage(True)   <span class="cmt">#沒有獎勵則強制換關</span>
@@ -569,13 +592,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 <span class="kw">class</span> MaterialMode(BasicMode):
 
     <span class="kw">def</span> InputSetting(self):
-        ini_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>)
-        ini_sub_stage = configObj.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>)
-        material_stage = int(<span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, ini_stage))
-        material_sub_stage = int(<span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, ini_sub_stage))
-        configObj.config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(material_stage))
-        configObj.config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(material_sub_stage))
-        <span class="cmt">#write ini</span>
+        material_stage = <span class="skw">input</span>(<span class="str">"Please enter stage:\n1.G Stone\n2.B Bear\n3.W Seed\n4.G Candlestick\n5.W Branches\n6.G Snake\n7.B Doll"</span>, str(configObj.getMaterialStage()))
+        material_sub_stage = <span class="skw">input</span>(<span class="str">"Please enter sub stage:"</span>, str(configObj.getMaterialSubStage()))
+        configObj.setMaterialStage(material_stage)
+        configObj.setMaterialSubStage(material_sub_stage)
         configObj.writeConfig()
 
     <span class="kw">def</span> SelectStage(self):
