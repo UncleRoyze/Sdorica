@@ -689,13 +689,14 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> _leave_quest_page(self):
         <span class="kw">if</span> exists(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="quest_leave_btn.png" />).similar(<span class="dig">0.90</span>))
+            logging.debug(<span class="str">"_leave_quest_page"</span>)
             <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> _donate(self, money, blue):
-        <span class="kw">if</span> <span class="kw">not</span> money <span class="kw">and</span> <span class="kw">not</span> blue:
-            self._leave_quest_page()
-            <span class="kw">return</span>
         self._leave_quest_page()
+        <span class="kw">if</span> <span class="kw">not</span> money <span class="kw">and</span> <span class="kw">not</span> blue:
+            <span class="kw">return</span>
+        logging.debug(<span class="str">"_donate"</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">2</span>)
@@ -821,8 +822,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">if</span> exists(Pattern(<img src="news.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>):
                 <span class="skw">wait</span>(<span class="dig">1</span>)
                 <span class="kw">return</span>
-            <span class="kw">if</span> exists(<img src="back_button.png" />, <span class="dig">0.001</span>):
+            <span class="kw">elif</span> exists(<img src="back_button.png" />, <span class="dig">0.001</span>):
                 <span class="skw">click</span>(<img src="back_button.png" />)
+                <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">elif</span> exists(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="ad_cancel.png" />).similar(<span class="dig">0.90</span>))
                 <span class="skw">wait</span>(<span class="dig">1</span>)
 
     <span class="kw">def</span> SelectStage(self):

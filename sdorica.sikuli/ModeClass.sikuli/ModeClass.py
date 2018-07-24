@@ -617,13 +617,14 @@ class QuestMode(BasicMode):
     def _leave_quest_page(self):
         if exists(Pattern("quest_leave_btn.png").similar(0.90), 0.001):
             click(Pattern("quest_leave_btn.png").similar(0.90))
+            logging.debug("_leave_quest_page")
             wait(1)
             
     def _donate(self, money, blue):
-        if not money and not blue:
-            self._leave_quest_page()
-            return 
         self._leave_quest_page()
+        if not money and not blue:
+            return 
+        logging.debug("_donate")
         if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_page_btn.png").similar(0.90))
             wait(2)
@@ -749,8 +750,11 @@ class QuestMode(BasicMode):
             if exists(Pattern("news.png").similar(0.80), 0.001):
                 wait(1)
                 return
-            if exists("back_button.png", 0.001):
+            elif exists("back_button.png", 0.001):
                 click("back_button.png")
+                wait(1)
+            elif exists(Pattern("ad_cancel.png").similar(0.90), 0.001):
+                click(Pattern("ad_cancel.png").similar(0.90))
                 wait(1)
                 
     def SelectStage(self):
