@@ -101,7 +101,6 @@
         self.config.read(self.ini_path)
 
     <span class="kw">def</span> _initGlobalConfig(self):
-        self.target_lv = <span class="dig">59</span>
         self.friends = [<img src="apollo.png" />, <img src="roy.png" />, <img src="hcm.png" />]
         self.brainmen = [Pattern(<img src="delan_sp.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="Fatima_lv2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="Sione_sp.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="Shirley_lv3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="Shirley_lv2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="YanBo_lv3.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="li_lv3.png" />).similar(<span class="dig">0.80</span>),Pattern(<img src="darkmoon_sp.png" />).similar(<span class="dig">0.80</span>)]
         self.materials = [[] <span class="kw">for</span> _ <span class="kw">in</span> range(<span class="dig">10</span>)]
@@ -113,8 +112,8 @@
         self.materials[<span class="dig">7</span>] = [Pattern(<img src="masquerade_mask_1.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_2.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_3.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_4.png" />).similar(<span class="dig">0.80</span>), Pattern(<img src="masquerade_mask_5.png" />).similar(<span class="dig">0.80</span>)]
         self.material_stage_title = [Pattern(<img src="stage_title_r1.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r2.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r3.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r4.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r5.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r6.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="stage_title_r7.png" />).similar(<span class="dig">0.90</span>)]
         self.challenge_stage_title = [Pattern(<img src="challenge_title_t.png" />).similar(<span class="dig">0.90</span>), Pattern(<img src="challenge_title_c1.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_c2.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_c3.png" />).similar(<span class="dig">0.95</span>), Pattern(<img src="challenge_title_hero.png" />).similar(<span class="dig">0.90</span>)]
-        self.quest_nolva = [Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-3.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-4.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv6-2.png" />).similar(<span class="dig">0.95</span>)]
-        self.quest_jin2 = [Pattern(<img src="quest_guild_lv6-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-2.png" />).similar(<span class="dig">0.95</span>)]
+        self.quest_nolva = [Pattern(<img src="quest_guild_lv6-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-3.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-0.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv3-4.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv6-2.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-3.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_lv8-2.png" />).similar(<span class="dig">0.95</span>)]
+        self.quest_jin2 = [Pattern(<img src="quest_guild_lv6-1.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_guild_lv4-2.png" />).similar(<span class="dig">0.95</span>),Pattern(<img src="quest_lv8-1.png" />).similar(<span class="dig">0.95</span>)]
         self.quest_no1 = [Pattern(<img src="quest_lv8-0.png" />).similar(<span class="dig">0.95</span>)]
         self.quest_1to10 = [Pattern(<img src="quest_lv6-2.png" />).similar(<span class="dig">0.95</span>)]
 
@@ -124,26 +123,62 @@
     <span class="kw">def</span> getTurns(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>))
 
+    <span class="kw">def</span> setTurns(self, turn):
+        self.config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(turn))
+
     <span class="kw">def</span> getPlayMode(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>))
+
+    <span class="kw">def</span> setPlayMode(self, playmode):
+        self.config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(playmode))
 
     <span class="kw">def</span> getMaterialStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"stage"</span>))
 
+    <span class="kw">def</span> setMaterialStage(self, material_stage):
+        self.config.set(<span class="str">"material"</span>, <span class="str">"stage"</span>, str(material_stage))
+
     <span class="kw">def</span> getMaterialSubStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>))
+
+    <span class="kw">def</span> setMaterialSubStage(self, material_sub_stage):
+        self.config.set(<span class="str">"material"</span>, <span class="str">"sub_stage"</span>, str(material_sub_stage))
 
     <span class="kw">def</span> getChallengeStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"challenge"</span>, <span class="str">"stage"</span>))
 
+    <span class="kw">def</span> setChallengeStage(self, challenge_stage):
+        self.config.set(<span class="str">"challenge"</span>, <span class="str">"stage"</span>, str(challenge_stage))
+
     <span class="kw">def</span> getChallengeSubStage(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>))
+
+    <span class="kw">def</span> setChallengeSubStage(self, challenge_sub_stage):
+        self.config.set(<span class="str">"challenge"</span>, <span class="str">"sub_stage"</span>, str(challenge_sub_stage))
+
+    <span class="kw">def</span> getChallengePlayedStages(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"challenge"</span>, <span class="str">"played_stages"</span>))
+
+    <span class="kw">def</span> setChallengePlayedStages(self, played_stages):
+        self.config.set(<span class="str">"challenge"</span>, <span class="str">"played_stages"</span>, str(played_stages))
 
     <span class="kw">def</span> getAlgo(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>))
 
+    <span class="kw">def</span> setAlgo(self, algo):
+        self.config.set(<span class="str">"setting"</span>, <span class="str">"algo"</span>, str(algo))
+
     <span class="kw">def</span> getDesignatedHour(self):
         <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>))
+
+    <span class="kw">def</span> setDesignatedHour(self, designated_hour):
+        self.config.set(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>, str(designated_hour))
+
+    <span class="kw">def</span> getTargetLV(self):
+        <span class="kw">return</span> int(self.config.get(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>))
+
+    <span class="kw">def</span> setTargetLV(self, target_lv):
+        self.config.set(<span class="str">"setting"</span>, <span class="str">"target_lv"</span>, str(target_lv))
 </pre>
 </body>
 </html>

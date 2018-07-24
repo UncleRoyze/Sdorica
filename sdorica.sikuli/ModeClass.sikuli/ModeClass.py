@@ -601,7 +601,7 @@ class QuestMode(BasicMode):
     quest_done = False
     event_count = 0
     def _click_quest_menu(self):
-        if exists(Pattern("quest_btn.png").similar(0.90),0.001):
+        if exists(Pattern("quest_btn.png").similar(0.90),1):
             click(Pattern("quest_btn.png").similar(0.90))
             wait(1)
         else:
@@ -627,14 +627,21 @@ class QuestMode(BasicMode):
         if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_page_btn.png").similar(0.90))
             wait(2)
+        else:
+            logging.debug("Cannot find guild button")
         if exists(Pattern("guild_quit_btn.png").similar(0.90), 0.001):
             click(Pattern("guild_quit_btn.png").similar(0.90))
             wait(2)
+        else:
+            logging.debug("Cannot find guild exit button")
         if exists(Pattern("guild_prestige.png").similar(0.90), 0.001):
             click(Pattern("guild_prestige.png").similar(0.90))
             wait(2)
+        else:
+            logging.debug("Cannot find prestige button")
         donate_btn = exists(Pattern("donate_btn.png").similar(0.80), 0.001)
         if not donate_btn:
+            logging.debug("Cannot find donate button")
             return
         if money:
             click(donate_btn.getCenter().offset(0,-30))
@@ -780,8 +787,10 @@ class QuestMode(BasicMode):
             wait(1)
             Settings.MoveMouseDelay = 0.1
             Settings.DelayBeforeDrop = 2
-            for i in range(2):
+            for i in range(6):
                 dragDrop(event_title.getCenter().offset(0, 440), event_title.getCenter().offset(0, 240))
+                if exists(Pattern("money_event.png").similar(0.95),0.001):
+                    break
             Settings.MoveMouseDelay = 0.001 
             Settings.DelayBeforeDrop = 0
                 

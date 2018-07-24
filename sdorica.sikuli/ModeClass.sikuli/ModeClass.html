@@ -523,15 +523,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(Pattern(<img src="next_arrow.png" />).similar(<span class="dig">0.85</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
 
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
-            Settings.MoveMouseDelay = <span class="dig">0.1</span>
-            Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
-            <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
-
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-        Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        Settings.DelayBeforeDrop = <span class="dig">2</span>
-
         played_stages = configObj.getChallengePlayedStages()
         scroll_times = challenge_count - played_stages
         <span class="kw">if</span> scroll_times &lt; <span class="dig">0</span>:  <span class="cmt"># we need to jump to previous page</span>
@@ -540,17 +531,22 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
                 Settings.MoveMouseDelay = <span class="dig">0.1</span>
                 Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># scroll to bottom</span>
                 <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
-
-            <span class="kw">for</span> i <span class="kw">in</span> range(abs(scroll_times)):
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="cmt"># in case the cursor did not scroll to the bottom</span>
+            <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+            scroll_times = abs(scroll_times) - <span class="dig">1</span>
+            <span class="kw">for</span> i <span class="kw">in</span> range(scroll_times):
                 <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>))
 
         <span class="kw">else</span>:  <span class="cmt"># normal case</span>
-            challenge_count -= configObj.getChallengePlayedStages()  <span class="cmt"># TODO: Targeted stage might be in the previous page while handling the played stages.</span>
-            <span class="kw">for</span> i <span class="kw">in</span> range(challenge_count):
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">7</span>):
+                Settings.MoveMouseDelay = <span class="dig">0.1</span>
+                Settings.DelayBeforeDrop = <span class="dig">0</span>   <span class="cmt"># back to top</span>
+                <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">640</span>))
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+            <span class="kw">for</span> i <span class="kw">in</span> range(scroll_times):
                 <span class="skw">dragDrop</span>(challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), challenge_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
 
-        Settings.MoveMouseDelay = <span class="dig">0.001</span>
-        Settings.DelayBeforeDrop = <span class="dig">0</span>
 
 <span class="kw">class</span> FarmMode(ChallengeMode):
 
@@ -677,7 +673,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     quest_done = False
     event_count = <span class="dig">0</span>
     <span class="kw">def</span> _click_quest_menu(self):
-        <span class="kw">if</span> exists(Pattern(<img src="quest_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
+        <span class="kw">if</span> exists(Pattern(<img src="quest_btn.png" />).similar(<span class="dig">0.90</span>),<span class="dig">1</span>):
             <span class="skw">click</span>(Pattern(<img src="quest_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">1</span>)
         <span class="kw">else</span>:
@@ -703,14 +699,21 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">2</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find guild button"</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_quit_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">2</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find guild exit button"</span>)
         <span class="kw">if</span> exists(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_prestige.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">2</span>)
+        <span class="kw">else</span>:
+            logging.debug(<span class="str">"Cannot find prestige button"</span>)
         donate_btn = exists(Pattern(<img src="donate_btn.png" />).similar(<span class="dig">0.80</span>), <span class="dig">0.001</span>)
         <span class="kw">if</span> <span class="kw">not</span> donate_btn:
+            logging.debug(<span class="str">"Cannot find donate button"</span>)
             <span class="kw">return</span>
         <span class="kw">if</span> money:
             <span class="skw">click</span>(donate_btn.getCenter().offset(<span class="dig">0</span>,-<span class="dig">30</span>))
@@ -856,8 +859,10 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">wait</span>(<span class="dig">1</span>)
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
             Settings.DelayBeforeDrop = <span class="dig">2</span>
-            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">2</span>):
+            <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">6</span>):
                 <span class="skw">dragDrop</span>(event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">440</span>), event_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">240</span>))
+                <span class="kw">if</span> exists(Pattern(<img src="money_event.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+                    <span class="kw">break</span>
             Settings.MoveMouseDelay = <span class="dig">0.001</span>
             Settings.DelayBeforeDrop = <span class="dig">0</span>
 
