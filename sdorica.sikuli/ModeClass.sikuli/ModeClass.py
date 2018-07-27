@@ -127,8 +127,8 @@ class BasicMode(object):
         self.TurnCount = 0
         self.ZeroRewardCount = 0
         self.MoveSpeed = 500
-        #self.Algo = configObj.getAlgo()
-        self.Algo = AlgoFactory.JIN2_ALGO
+        self.Algo = configObj.getAlgo()
+        #self.Algo = AlgoFactory.JIN2_ALGO
         self.one_stage_count = 0
 
     def InitParameter(self):
@@ -710,13 +710,9 @@ class QuestMode(BasicMode):
         Settings.MoveMouseDelay = 0.1
         self._click_quest_menu()
         self._drag_quest_menu()
-        if exists(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0),0.001):
-            click(Pattern("quest_20t.png").similar(0.95).targetOffset(30,0))
-            self.Algo = AlgoFactory.JIN2_ALGO
+        if self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
             return
-        if exists(Pattern("quest_treasure.png").similar(0.95).targetOffset(50,0),0.001):
-            click(Pattern("quest_treasure.png").similar(0.95).targetOffset(50,0))
-            self.Algo = AlgoFactory.JIN2_ALGO
+        if self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
             return
         self._click_quest_guild()
         self._drag_quest_menu()
@@ -854,14 +850,15 @@ class Friday3Mode(BasicMode):
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
         region = Region(clock.x-130, clock.y-47, 1280, 720)
-        if not region.exists(Pattern("buff2.png").similar(0.95),0.001):
+        if not region.exists(Pattern("1532668283484.png").similar(0.95),0.001):
             return 
     
         with MouseDragHandler(dragFrom, dragTo, True):
-            click(Pattern("buff2.png").similar(0.95))
+            click(Pattern("1532668283484.png").similar(0.95))
             click("ok_btn_buff.png")
         
     def SelectFighter(self):
+        self.Algo = AlgoFactory.FRIDAY3_ALGO
         if not self.IsInStage():
             return
         bar = DragCharacterBar()

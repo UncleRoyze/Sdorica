@@ -3,6 +3,7 @@ from java.awt import Color
 from java.awt import Robot
 import datetime
 from time import time
+import os
 import logging, sys
 import config
 reload(config)
@@ -73,15 +74,34 @@ def WaitForDesignatedTime():
     print "The script is gonna excute in %d seconds." % timedelta.seconds
     wait(timedelta.seconds + 300)
 
+def LaunchNightGod():
+    wk_dir = getBundlePath()
+    shortcut_path = wk_dir + "\sdorica.lnk"
+    p = subprocess.Popen('start /B ' + shortcut_path + ' /WAIT', shell=True)
+    p.wait()
+
 def EnterSdorica():
-    app = exists("sdorica.png", 1)
+    wait_time = 1
+#    if(configObj.getDesignatedHour() <> -1):
+#        LaunchNightGod()
+#        wait_time = 300
+    app = exists("sdorica.png", wait_time)
     if app:
         click(app)
         wait(1)
     else:
         logging.debug("Cannot find Sdorica app")
         return
-    app_title = exists("app_title.png", 60)
+
+    ok_btn = exists(Pattern("ok_btn_reward-1.png").similar(0.85), 60)
+    if ok_btn:
+        click(ok_btn)
+        logging.debug("Update app")
+        wait_time = 600
+    else:
+        wait_time = 60
+                
+    app_title = exists("app_title.png", wait_time)
     if app_title:
         click(app_title)
         wait(1)

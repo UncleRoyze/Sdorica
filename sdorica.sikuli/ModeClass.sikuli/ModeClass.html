@@ -199,8 +199,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         self.TurnCount = <span class="dig">0</span>
         self.ZeroRewardCount = <span class="dig">0</span>
         self.MoveSpeed = <span class="dig">500</span>
-        <span class="cmt">#self.Algo = configObj.getAlgo()</span>
-        self.Algo = AlgoFactory.JIN2_ALGO
+        self.Algo = configObj.getAlgo()
+        <span class="cmt">#self.Algo = AlgoFactory.JIN2_ALGO</span>
         self.one_stage_count = <span class="dig">0</span>
 
     <span class="kw">def</span> InitParameter(self):
@@ -782,13 +782,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
         self._click_quest_menu()
         self._drag_quest_menu()
-        <span class="kw">if</span> exists(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_20t.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">30</span>,<span class="dig">0</span>))
-            self.Algo = AlgoFactory.JIN2_ALGO
+        <span class="kw">if</span> self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
             <span class="kw">return</span>
-        <span class="kw">if</span> exists(Pattern(<img src="quest_treasure.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">50</span>,<span class="dig">0</span>),<span class="dig">0.001</span>):
-            <span class="skw">click</span>(Pattern(<img src="quest_treasure.png" />).similar(<span class="dig">0.95</span>).targetOffset(<span class="dig">50</span>,<span class="dig">0</span>))
-            self.Algo = AlgoFactory.JIN2_ALGO
+        <span class="kw">if</span> self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
             <span class="kw">return</span>
         self._click_quest_guild()
         self._drag_quest_menu()
@@ -926,14 +922,15 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug(<span class="str">"ActionDuringDrag"</span>)
         region = Region(clock.x-<span class="dig">130</span>, clock.y-<span class="dig">47</span>, <span class="dig">1280</span>, <span class="dig">720</span>)
-        <span class="kw">if</span> <span class="kw">not</span> region.exists(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
+        <span class="kw">if</span> <span class="kw">not</span> region.exists(Pattern(<img src="1532668283484.png" />).similar(<span class="dig">0.95</span>),<span class="dig">0.001</span>):
             <span class="kw">return</span>
 
         <span class="kw">with</span> MouseDragHandler(dragFrom, dragTo, True):
-            <span class="skw">click</span>(Pattern(<img src="buff2.png" />).similar(<span class="dig">0.95</span>))
+            <span class="skw">click</span>(Pattern(<img src="1532668283484.png" />).similar(<span class="dig">0.95</span>))
             <span class="skw">click</span>(<img src="ok_btn_buff.png" />)
 
     <span class="kw">def</span> SelectFighter(self):
+        self.Algo = AlgoFactory.FRIDAY3_ALGO
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
             <span class="kw">return</span>
         bar = DragCharacterBar()

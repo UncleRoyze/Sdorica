@@ -366,22 +366,20 @@ class Friday3Algo(SimpleAlgo):
               
     def Play(self, clock, sub_stage, turn):
         
-        #開場1白
+        #開場4白
         if turn == 0:
-            self.ClickBlack()
-            if self.PlayDots("w", 1):
+            self.ClickAssistant()
+            wait(3)
+            if self.PlayDots("w", 4):
                 return 1
-        if turn == 1:
-            if self.PlayDots("g", 2):
-                return 1
-        if turn == 2:
-            if self.PlayDots("b", 2):
-                return 1
-            if self.PlayDots("b", 4):
-                return 1
-            if self.PlayDots("b", 1):
-                return 1
-        return -1
+            else:
+                click(Pattern("1532668387018.png").exact(),1)
+                wait(3)
+                if self.PlayDots("w", 4):
+                    return 1
+                else:
+                    return -1
+        return 1
 
 class Thursday4Algo(SimpleAlgo):
 

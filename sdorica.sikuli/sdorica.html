@@ -75,6 +75,7 @@
 <span class="kw">from</span> java.awt <span class="kw">import</span> Robot
 <span class="kw">import</span> datetime
 <span class="kw">from</span> time <span class="kw">import</span> time
+<span class="kw">import</span> os
 <span class="kw">import</span> logging, sys
 <span class="kw">import</span> config
 reload(config)
@@ -89,12 +90,12 @@ configObj = config.Configuration()
 logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,stream=sys.stdout, level=logging.DEBUG)
 
 <span class="kw">def</span> StartAsking():
-    ini_mode = int(configObj.config.get(<span class="str">"setting"</span>, <span class="str">"mode"</span>))
+    ini_mode = configObj.getPlayMode()
     modes = ModeFactory.GenModeInfo()
     algos = AlgoFactory.GenAlgoInfo()
-    ini_turn = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"turn"</span>)
-    ini_algo = int(configObj.config.get(<span class="str">"setting"</span>, <span class="str">"algo"</span>))
-    ini_designated_hour = configObj.config.get(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>)
+    ini_turn = configObj.getTurns()
+    ini_algo = configObj.getAlgo()
+    ini_designated_hour = configObj.getDesignatedHour()
 
     msg = <span class="str">"Current setting: \n Mode: %s \n Algo: %s \n Turns: %s \n Designated Time: %s \n\n Use this setting?"</span> \
            % (modes[ini_mode], algos[ini_algo], ini_turn, ini_designated_hour)
@@ -106,23 +107,23 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     playmode = ModeFactory.GetModeIndex(selected_mode)
     <span class="kw">if</span> playmode &lt; <span class="dig">0</span>:
         exit(<span class="dig">1</span>)
-    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"mode"</span>, str(playmode))
+    configObj.setPlayMode(playmode)
 
-<span class="cmt">#    selected_algo = select("Please select algorithm", options = algos, default = algos[ini_algo])</span>
-<span class="cmt">#    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)</span>
-<span class="cmt">#    if algorithm &lt; 0:</span>
-<span class="cmt">#        exit(1)</span>
-<span class="cmt">#    configObj.config.set("setting", "algo", str(algorithm))</span>
+    selected_algo = select(<span class="str">"Please select algorithm"</span>, options = algos, default = algos[ini_algo])
+    algorithm = AlgoFactory.GetAlgoIndex(selected_algo)
+    <span class="kw">if</span> algorithm &lt; <span class="dig">0</span>:
+        exit(<span class="dig">1</span>)
+    configObj.setAlgo(algorithm)
 
-    turn = int(<span class="skw">input</span>(<span class="str">"The max turns?"</span>, ini_turn))
+    turn = int(<span class="skw">input</span>(<span class="str">"The max turns?"</span>, str(ini_turn)))
     <span class="kw">if</span> turn &lt; <span class="dig">0</span>:
         exit
-    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"turn"</span>, str(turn))
+    configObj.setTurns(turn)
 
-    designated_hour = int(<span class="skw">input</span>(<span class="str">"Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)"</span>, ini_designated_hour))
+    designated_hour = int(<span class="skw">input</span>(<span class="str">"Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)"</span>, str(ini_designated_hour)))
     <span class="kw">if</span> designated_hour <span class="kw">not</span> <span class="kw">in</span> range(<span class="dig">0</span>, <span class="dig">24</span>):
         designated_hour = -<span class="dig">1</span>
-    configObj.config.set(<span class="str">"setting"</span>, <span class="str">"designated_hour"</span>, str(designated_hour))
+    configObj.setDesignatedHour(designated_hour)
 
     <span class="cmt">#write ini</span>
     configObj.writeConfig()
@@ -145,15 +146,34 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">print</span> <span class="str">"The script is gonna excute in %d seconds."</span> % timedelta.seconds
     <span class="skw">wait</span>(timedelta.seconds + <span class="dig">300</span>)
 
+<span class="kw">def</span> LaunchNightGod():
+    wk_dir = getBundlePath()
+    shortcut_path = wk_dir + <span class="str">"\sdorica.lnk"</span>
+    p = subprocess.Popen(<span class="str">'start /B '</span> + shortcut_path + <span class="str">' /WAIT'</span>, shell=True)
+    p.<span class="skw">wait</span>()
+
 <span class="kw">def</span> EnterSdorica():
-    app = exists(<img src="sdorica.png" />, <span class="dig">1</span>)
+    wait_time = <span class="dig">1</span>
+<span class="cmt">#    if(configObj.getDesignatedHour() &lt;&gt; -1):</span>
+<span class="cmt">#        LaunchNightGod()</span>
+<span class="cmt">#        wait_time = 300</span>
+    app = exists(<img src="sdorica.png" />, wait_time)
     <span class="kw">if</span> app:
         <span class="skw">click</span>(app)
         <span class="skw">wait</span>(<span class="dig">1</span>)
     <span class="kw">else</span>:
         logging.debug(<span class="str">"Cannot find Sdorica app"</span>)
         <span class="kw">return</span>
-    app_title = exists(<img src="app_title.png" />, <span class="dig">60</span>)
+
+    ok_btn = exists(Pattern(<img src="ok_btn_reward-1.png" />).similar(<span class="dig">0.85</span>), <span class="dig">60</span>)
+    <span class="kw">if</span> ok_btn:
+        <span class="skw">click</span>(ok_btn)
+        logging.debug(<span class="str">"Update app"</span>)
+        wait_time = <span class="dig">600</span>
+    <span class="kw">else</span>:
+        wait_time = <span class="dig">60</span>
+
+    app_title = exists(<img src="app_title.png" />, wait_time)
     <span class="kw">if</span> app_title:
         <span class="skw">click</span>(app_title)
         <span class="skw">wait</span>(<span class="dig">1</span>)
