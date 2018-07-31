@@ -504,44 +504,39 @@
 
     <span class="kw">def</span> __init__(self, clock):
         self.clock = clock
-        self.is_4_b = False
-        self.b1_count = <span class="dig">0</span>
 
     <span class="kw">def</span> Play(self, clock, sub_stage, turn):
-        <span class="kw">if</span> sub_stage &lt; <span class="dig">3</span>:
-            <span class="kw">if</span> turn &gt; <span class="dig">4</span>:
-                <span class="kw">return</span> -<span class="dig">1</span>
-
-        <span class="cmt"># 紀錄易傷</span>
-        <span class="kw">if</span> self.b1_count:
-            self.b1_count -= <span class="dig">1</span>
-        <span class="cmt">#開場2白</span>
-        <span class="kw">if</span> turn == <span class="dig">0</span>:
-            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">4</span>):
-                <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">if</span> self.PlayDots(<span class="str">"w"</span>, <span class="dig">2</span>):
-                <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> turn == <span class="dig">1</span>:
-            <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
-                <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">if</span> turn &gt; <span class="dig">1</span>:
-            <span class="kw">if</span> self.b1_count == <span class="dig">0</span>:
-                <span class="kw">if</span> self.PlayDots(<span class="str">"b"</span>, <span class="dig">1</span>):
-                    self.b1_count = <span class="dig">3</span>
+        <span class="kw">if</span> sub_stage == <span class="dig">1</span>:
+            <span class="kw">if</span> turn == <span class="dig">0</span>:
+                <span class="cmt">#self.ClickAssistant()</span>
+                <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
                     <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>):
-                <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>):
-                    <span class="kw">if</span> self.PlayDots(color, number):
-                        <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">if</span> <span class="kw">not</span> exists(<img src="dead_crocodile.png" />,<span class="dig">0.001</span>):
-                <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>, <span class="dig">1</span>):
-                    <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, number):
-                        <span class="kw">return</span> <span class="dig">1</span>
-            <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>):
-                <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"w"</span>):
-                    <span class="kw">if</span> self.PlayDots(color, number):
-                        <span class="kw">return</span> <span class="dig">1</span>
-        <span class="kw">return</span> -<span class="dig">1</span>
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> -<span class="dig">1</span>
+            <span class="kw">if</span> turn == <span class="dig">1</span>:
+                <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>):
+                    <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>):
+                        <span class="kw">if</span> self.PlayDots(color, number):
+                            <span class="kw">return</span> <span class="dig">1</span>
+                <span class="kw">return</span> -<span class="dig">1</span>
+            <span class="kw">if</span> turn &gt; <span class="dig">1</span>:
+                <span class="kw">return</span> -<span class="dig">1</span>
+        <span class="kw">if</span> sub_stage == <span class="dig">2</span>:
+            <span class="kw">if</span> turn == <span class="dig">0</span>:
+                <span class="cmt">#self.ClickAssistant()</span>
+                <span class="kw">if</span> self.PlayDots(<span class="str">"g"</span>, <span class="dig">2</span>):
+                    <span class="kw">return</span> <span class="dig">1</span>
+                <span class="kw">else</span>:
+                    <span class="kw">return</span> -<span class="dig">1</span>
+            <span class="kw">if</span> turn &lt;= <span class="dig">2</span>:
+                <span class="kw">for</span> number <span class="kw">in</span> (<span class="dig">4</span>, <span class="dig">2</span>):
+                    <span class="kw">for</span> color <span class="kw">in</span> (<span class="str">"b"</span>):
+                        <span class="kw">if</span> self.PlayDots(color, number):
+                            <span class="kw">return</span> <span class="dig">1</span>
+                <span class="kw">return</span> -<span class="dig">1</span>
+            <span class="kw">if</span> turn &gt; <span class="dig">2</span>:
+                <span class="kw">return</span> -<span class="dig">1</span>
+        <span class="kw">return</span> <span class="dig">0</span>
 </pre>
 </body>
 </html>

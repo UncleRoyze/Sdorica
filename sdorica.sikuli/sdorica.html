@@ -205,8 +205,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
 <span class="kw">def</span> main():
     StartAsking()
-    <span class="skw">doubleClick</span>(<span class="str">"__CLICK-TO-CAPTURE__"</span>)
-    ()
+    WaitForDesignatedTime()
     EnterSdorica()
     start_time = time()
     <span class="kw">if</span> configObj.getPlayMode() == ModeFactory.FARM:

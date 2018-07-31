@@ -196,6 +196,8 @@ class BasicMode(object):
             click(start_exists)
 
     def SelectFighter(self):
+        if self.IsInPlaying():
+            return
         for i in range(5000):
             if self.IsInStage():
                 break
@@ -367,7 +369,7 @@ class BasicMode(object):
             return
         if self.quit_play == True:
             self._quit_play()
-            return
+            #return
         Settings.MoveMouseDelay = 0.001
         for i in range(20):
             
@@ -625,7 +627,7 @@ class QuestMode(BasicMode):
         if not money and not blue:
             return 
         logging.debug("_donate")
-        if exists(Pattern("guild_page_btn.png").similar(0.90), 0.001):
+        if exists(Pattern("guild_page_btn.png").similar(0.90), 10):
             click(Pattern("guild_page_btn.png").similar(0.90))
             wait(2)
         else:
@@ -891,20 +893,3 @@ class Jin2NayaMode(BasicMode):
     
     def SelectBrainman(self):
         return
-
-    def LeavePlay(self):
-        logging.debug("LeavePlay")
-        wait(1)
-        clock = exists(Pattern("clock.png").similar(0.90) , 0.001)
-        if clock:
-            click(clock.getCenter().offset(-78,0))
-            wait(1)
-            click("ok_btn_quit.png")
-        finish_btn = exists(Pattern("finish_btn.png").similar(0.90), 10) 
-        for i in range(1000):    # 檢查按了按鈕之後有沒有真的結束
-            finish_btn = exists(Pattern("finish_btn.png").similar(0.90), 0.001) 
-            if finish_btn:
-                click(finish_btn)
-                wait(0.01)
-            else:
-                break

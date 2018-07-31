@@ -268,6 +268,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(start_exists)
 
     <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">if</span> self.IsInPlaying():
+            <span class="kw">return</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5000</span>):
             <span class="kw">if</span> self.IsInStage():
                 <span class="kw">break</span>
@@ -439,7 +441,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         <span class="kw">if</span> self.quit_play == True:
             self._quit_play()
-            <span class="kw">return</span>
+            <span class="cmt">#return</span>
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">20</span>):
 
@@ -697,7 +699,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> money <span class="kw">and</span> <span class="kw">not</span> blue:
             <span class="kw">return</span>
         logging.debug(<span class="str">"_donate"</span>)
-        <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>):
+        <span class="kw">if</span> exists(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">10</span>):
             <span class="skw">click</span>(Pattern(<img src="guild_page_btn.png" />).similar(<span class="dig">0.90</span>))
             <span class="skw">wait</span>(<span class="dig">2</span>)
         <span class="kw">else</span>:
@@ -963,23 +965,6 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
 
     <span class="kw">def</span> SelectBrainman(self):
         <span class="kw">return</span>
-
-    <span class="kw">def</span> LeavePlay(self):
-        logging.debug(<span class="str">"LeavePlay"</span>)
-        <span class="skw">wait</span>(<span class="dig">1</span>)
-        clock = exists(Pattern(<img src="clock.png" />).similar(<span class="dig">0.90</span>) , <span class="dig">0.001</span>)
-        <span class="kw">if</span> clock:
-            <span class="skw">click</span>(clock.getCenter().offset(-<span class="dig">78</span>,<span class="dig">0</span>))
-            <span class="skw">wait</span>(<span class="dig">1</span>)
-            <span class="skw">click</span>(<img src="ok_btn_quit.png" />)
-        finish_btn = exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">10</span>)
-        <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">1000</span>):    <span class="cmt"># 檢查按了按鈕之後有沒有真的結束</span>
-            finish_btn = exists(Pattern(<img src="finish_btn.png" />).similar(<span class="dig">0.90</span>), <span class="dig">0.001</span>)
-            <span class="kw">if</span> finish_btn:
-                <span class="skw">click</span>(finish_btn)
-                <span class="skw">wait</span>(<span class="dig">0.01</span>)
-            <span class="kw">else</span>:
-                <span class="kw">break</span>
 </pre>
 </body>
 </html>

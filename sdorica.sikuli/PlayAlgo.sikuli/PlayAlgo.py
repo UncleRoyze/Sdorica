@@ -432,41 +432,36 @@ class Jin2NayaAlgo(SimpleAlgo):
 
     def __init__(self, clock):
         self.clock = clock
-        self.is_4_b = False
-        self.b1_count = 0
               
     def Play(self, clock, sub_stage, turn):
-        if sub_stage < 3:
-            if turn > 4:
-                return -1
-            
-        # 紀錄易傷
-        if self.b1_count:
-            self.b1_count -= 1
-        #開場2白
-        if turn == 0:
-            if self.PlayDots("w", 4):
-                return 1
-            if self.PlayDots("w", 2):
-                return 1
-        if turn == 1:
-            if self.PlayDots("g", 2):
-                return 1
-        if turn > 1:
-            if self.b1_count == 0:
-                if self.PlayDots("b", 1):
-                    self.b1_count = 3
+        if sub_stage == 1:
+            if turn == 0:
+                #self.ClickAssistant()
+                if self.PlayDots("g", 2):
                     return 1
-            for number in (4, 2):   
-                for color in ("b"):
-                    if self.PlayDots(color, number):
-                        return 1
-            if not exists("dead_crocodile.png",0.001):
-                for number in (4, 2, 1):
-                    if self.PlayDots("g", number):
-                        return 1
-            for number in (4, 2):   
-                for color in ("w"):
-                    if self.PlayDots(color, number):
-                        return 1
-        return -1
+                else:
+                    return -1
+            if turn == 1:
+                for number in (4, 2):   
+                    for color in ("b"):
+                        if self.PlayDots(color, number):
+                            return 1
+                return -1
+            if turn > 1:
+                return -1
+        if sub_stage == 2:
+            if turn == 0:
+                #self.ClickAssistant()
+                if self.PlayDots("g", 2):
+                    return 1
+                else:
+                    return -1
+            if turn <= 2:
+                for number in (4, 2):   
+                    for color in ("b"):
+                        if self.PlayDots(color, number):
+                            return 1
+                return -1
+            if turn > 2:
+                return -1
+        return 0
