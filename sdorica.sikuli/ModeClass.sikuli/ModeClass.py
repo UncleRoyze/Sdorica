@@ -369,7 +369,7 @@ class BasicMode(object):
             return
         if self.quit_play == True:
             self._quit_play()
-            #return
+            return
         Settings.MoveMouseDelay = 0.001
         for i in range(20):
             
@@ -698,7 +698,7 @@ class QuestMode(BasicMode):
         if not quest_menu_title:
             return
         Settings.MoveMouseDelay = 0.1 
-        dragDrop(quest_menu_title.getCenter().offset(0, 430), quest_menu_title.getCenter().offset(0, 100))
+        dragDrop(quest_menu_title.getCenter().offset(0, 500), quest_menu_title.getCenter().offset(0, 100))
         wait(1)
         Settings.MoveMouseDelay = 0.001 
         
@@ -715,6 +715,8 @@ class QuestMode(BasicMode):
         if self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
             return
         if self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
+            return
+        if self._match_algo(configObj.quest_nolva, AlgoFactory.NOLVA_ALGO):
             return
         self._click_quest_guild()
         self._drag_quest_menu()

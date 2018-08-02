@@ -97,7 +97,7 @@ def EnterSdorica():
     if ok_btn:
         click(ok_btn)
         logging.debug("Update app")
-        wait_time = 600
+        wait_time = 1200
     else:
         wait_time = 60
                 

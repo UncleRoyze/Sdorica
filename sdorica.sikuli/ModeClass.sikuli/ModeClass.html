@@ -441,7 +441,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         <span class="kw">if</span> self.quit_play == True:
             self._quit_play()
-            <span class="cmt">#return</span>
+            <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">20</span>):
 
@@ -770,7 +770,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> <span class="kw">not</span> quest_menu_title:
             <span class="kw">return</span>
         Settings.MoveMouseDelay = <span class="dig">0.1</span>
-        <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">430</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
+        <span class="skw">dragDrop</span>(quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">500</span>), quest_menu_title.getCenter().offset(<span class="dig">0</span>, <span class="dig">100</span>))
         <span class="skw">wait</span>(<span class="dig">1</span>)
         Settings.MoveMouseDelay = <span class="dig">0.001</span>
 
@@ -787,6 +787,8 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         <span class="kw">if</span> self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
             <span class="kw">return</span>
         <span class="kw">if</span> self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
+            <span class="kw">return</span>
+        <span class="kw">if</span> self._match_algo(configObj.quest_nolva, AlgoFactory.NOLVA_ALGO):
             <span class="kw">return</span>
         self._click_quest_guild()
         self._drag_quest_menu()
