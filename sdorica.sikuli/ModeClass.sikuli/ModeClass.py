@@ -36,7 +36,7 @@ class DragCharacterBar:
     def __init__(self):       
         topLeft = exists(Pattern("back_button.png").targetOffset(460,0),0.001).getCenter()
         self.dragLeft = topLeft.offset(208, 450)
-        self.dragLeftMore = topLeft.offset(208, 450)
+        self.dragLeftMore = topLeft.offset(49, 450)
         self.dragRight = topLeft.offset(877, 450)
         self.dragRightMore = topLeft.offset(1027, 450)
          
@@ -50,6 +50,13 @@ class DragCharacterBar:
             Settings.DelayBeforeDrop = 0.1
             dragDrop(self.dragLeft, Location(self.dragLeft.x+15,self.dragLeft.y))
             Settings.DelayBeforeDrop = 0
+            wait(1)
+    #角色選單拉到最左邊
+    def ToLeftEnd(self, dragTimes):       
+        for i in range(dragTimes):
+            Settings.MoveMouseDelay = 0.1
+            Settings.DelayBeforeDrop = 0
+            dragDrop(self.dragLeft, self.dragRight)
             wait(1)
     #角色選單拉往左, 一次拉一整排五位位置都正好換掉
     def ToLeft(self):
@@ -247,9 +254,9 @@ class BasicMode(object):
             return
         click(friendSlot)
         friendSlotCenter = friendSlot.getCenter()
-        bar.ToRightEnd(1)
+        bar.ToLeftEnd(1)
         if not _findBrainman():  # drag and drop to second half friends
-            bar.ToLeft()
+            bar.ToRight()
             _findBrainman()
 
     def IntoPlay(self):

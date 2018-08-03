@@ -108,7 +108,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
     <span class="kw">def</span> __init__(self):
         topLeft = exists(Pattern(<img src="back_button.png" />).targetOffset(<span class="dig">460</span>,<span class="dig">0</span>),<span class="dig">0.001</span>).getCenter()
         self.dragLeft = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
-        self.dragLeftMore = topLeft.offset(<span class="dig">208</span>, <span class="dig">450</span>)
+        self.dragLeftMore = topLeft.offset(<span class="dig">49</span>, <span class="dig">450</span>)
         self.dragRight = topLeft.offset(<span class="dig">877</span>, <span class="dig">450</span>)
         self.dragRightMore = topLeft.offset(<span class="dig">1027</span>, <span class="dig">450</span>)
 
@@ -122,6 +122,13 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             Settings.DelayBeforeDrop = <span class="dig">0.1</span>
             <span class="skw">dragDrop</span>(self.dragLeft, Location(self.dragLeft.x+<span class="dig">15</span>,self.dragLeft.y))
             Settings.DelayBeforeDrop = <span class="dig">0</span>
+            <span class="skw">wait</span>(<span class="dig">1</span>)
+    <span class="cmt">#角色選單拉到最左邊</span>
+    <span class="kw">def</span> ToLeftEnd(self, dragTimes):
+        <span class="kw">for</span> i <span class="kw">in</span> range(dragTimes):
+            Settings.MoveMouseDelay = <span class="dig">0.1</span>
+            Settings.DelayBeforeDrop = <span class="dig">0</span>
+            <span class="skw">dragDrop</span>(self.dragLeft, self.dragRight)
             <span class="skw">wait</span>(<span class="dig">1</span>)
     <span class="cmt">#角色選單拉往左, 一次拉一整排五位位置都正好換掉</span>
     <span class="kw">def</span> ToLeft(self):
@@ -319,9 +326,9 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         <span class="skw">click</span>(friendSlot)
         friendSlotCenter = friendSlot.getCenter()
-        bar.ToRightEnd(<span class="dig">1</span>)
+        bar.ToLeftEnd(<span class="dig">1</span>)
         <span class="kw">if</span> <span class="kw">not</span> _findBrainman():  <span class="cmt"># drag and drop to second half friends</span>
-            bar.ToLeft()
+            bar.ToRight()
             _findBrainman()
 
     <span class="kw">def</span> IntoPlay(self):
