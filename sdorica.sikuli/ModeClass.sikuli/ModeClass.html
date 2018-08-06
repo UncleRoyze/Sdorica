@@ -766,10 +766,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         blue = False
         <span class="kw">if</span> exists(Pattern(<img src="quest_donate_money.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
             money = True
+            blue = True
         <span class="kw">else</span>:
             logging.debug(<span class="str">"Did not found donate money"</span>)
-        <span class="kw">if</span> exists(Pattern(<img src="quest_donate_blue.png" />).similar(<span class="dig">0.95</span>), <span class="dig">0.001</span>):
-            blue = True
+<span class="cmt">#        if exists(Pattern("quest_donate_blue.png").similar(0.95), 0.001):</span>
+<span class="cmt">#            blue = True</span>
         self._donate(money,blue)
 
     <span class="kw">def</span> _drag_quest_menu(self):
@@ -950,20 +951,19 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             exit
         <span class="kw">if</span> exists(Pattern(<img src="lv60.png" />).similar(<span class="dig">0.80</span>),<span class="dig">0.001</span>): <span class="cmt">#有紀錄的隊伍了</span>
             <span class="kw">return</span>
-
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">734</span>,-<span class="dig">80</span>))
         <span class="skw">click</span>(Pattern(<img src="Nolva_name.png" />).similar(<span class="dig">0.90</span>))
+        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
+        <span class="skw">click</span>(Pattern(<img src="puji.png" />).similar(<span class="dig">0.90</span>))
         <span class="skw">click</span>(Pattern(<img src="skin_arrow.png" />).similar(<span class="dig">0.85</span>))
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">526</span>,-<span class="dig">80</span>))
         bar.ToRight()
         <span class="skw">click</span>(Pattern(<img src="Delan_name.png" />).similar(<span class="dig">0.85</span>))
         <span class="skw">click</span>(Pattern(<img src="skin_arrow.png" />).similar(<span class="dig">0.85</span>))
-        <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">936</span>,-<span class="dig">80</span>))
-        <span class="skw">click</span>(Pattern(<img src="WestOmore_name.png" />).similar(<span class="dig">0.90</span>))
         <span class="skw">click</span>(start.getCenter().offset(-<span class="dig">344</span>,-<span class="dig">60</span>))
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5</span>):
-            <span class="kw">if</span> exists(Pattern(<img src="jahan_name.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
-                <span class="skw">click</span>(Pattern(<img src="jahan_name.png" />).similar(<span class="dig">0.90</span>))
+            <span class="kw">if</span> exists(Pattern(<img src="lisa.png" />).similar(<span class="dig">0.90</span>),<span class="dig">0.001</span>):
+                <span class="skw">click</span>(Pattern(<img src="lisa.png" />).similar(<span class="dig">0.90</span>))
                 <span class="kw">break</span>
             bar.ToRight()
 

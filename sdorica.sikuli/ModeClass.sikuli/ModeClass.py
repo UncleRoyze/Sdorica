@@ -694,10 +694,11 @@ class QuestMode(BasicMode):
         blue = False
         if exists(Pattern("quest_donate_money.png").similar(0.95), 0.001):
             money = True
+            blue = True
         else:
             logging.debug("Did not found donate money")
-        if exists(Pattern("quest_donate_blue.png").similar(0.95), 0.001):
-            blue = True
+#        if exists(Pattern("quest_donate_blue.png").similar(0.95), 0.001):
+#            blue = True
         self._donate(money,blue)
 
     def _drag_quest_menu(self):
@@ -878,20 +879,19 @@ class Friday3Mode(BasicMode):
             exit
         if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
             return
-       
         click(start.getCenter().offset(-734,-80))
         click(Pattern("Nolva_name.png").similar(0.90))
+        click(start.getCenter().offset(-936,-80))
+        click(Pattern("puji.png").similar(0.90))
         click(Pattern("skin_arrow.png").similar(0.85))
         click(start.getCenter().offset(-526,-80))
         bar.ToRight()
         click(Pattern("Delan_name.png").similar(0.85))
         click(Pattern("skin_arrow.png").similar(0.85))
-        click(start.getCenter().offset(-936,-80))
-        click(Pattern("WestOmore_name.png").similar(0.90))
         click(start.getCenter().offset(-344,-60))
         for i in range(5):
-            if exists(Pattern("jahan_name.png").similar(0.90),0.001):
-                click(Pattern("jahan_name.png").similar(0.90))
+            if exists(Pattern("lisa.png").similar(0.90),0.001):
+                click(Pattern("lisa.png").similar(0.90))
                 break
             bar.ToRight()
 

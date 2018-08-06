@@ -373,12 +373,7 @@ class Friday3Algo(SimpleAlgo):
             if self.PlayDots("w", 4):
                 return 1
             else:
-                click(Pattern("1532668387018.png").exact(),1)
-                wait(3)
-                if self.PlayDots("w", 4):
-                    return 1
-                else:
-                    return -1
+                return -1
         return 1
 
 class Thursday4Algo(SimpleAlgo):
