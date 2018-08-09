@@ -30,7 +30,7 @@ class Configuration(Singleton):
 
     def _initGlobalConfig(self):
         self.friends = ["apollo.png", "roy.png", "hcm.png"]
-        self.brainmen = [Pattern("delan_sp.png").similar(0.80), Pattern("Fatima_lv2.png").similar(0.80), Pattern("Sione_sp.png").similar(0.80), Pattern("Shirley_lv3.png").similar(0.80), Pattern("Shirley_lv2.png").similar(0.80), Pattern("YanBo_lv3.png").similar(0.80),Pattern("li_lv3.png").similar(0.80),Pattern("darkmoon_sp.png").similar(0.80)]
+        self.brainmen = [Pattern("li_lv3.png").similar(0.80)]
         self.materials = [[] for _ in range(10)]
         self.materials[1] = [Pattern("stone_1.png").similar(0.80), Pattern("stone_2.png").similar(0.80),Pattern("stone_3.png").similar(0.80)]
         self.materials[2] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80), Pattern("tripod_5.png").similar(0.80)]

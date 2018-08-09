@@ -151,7 +151,7 @@ class BasicMode(object):
             self.InitParameter()
             self.IntoStage()
             self.SelectFighter()
-            # self.SelectBrainman()
+            self.SelectBrainman()
             self.IntoPlay()
             self.Playing()
             self.LeavePlay()
@@ -231,22 +231,26 @@ class BasicMode(object):
             
             selectCenter = None
             trueFriendFound = False
+            
             with MouseDragHandler(dragFrom, dragTo):
                 matches = findAnyList(configObj.friends + configObj.brainmen)
-                if matches:
-                    for match in matches:
-                        matchCenter = match.getCenter()
-                        if match.getIndex() > len(configObj.friends) - 1:
-                            selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
-                            break
-                        else:
-                            reg = Region(matchCenter.x - 65, matchCenter.y - 30, 140, 260)
-                            if reg.exists("using.png"):
-                                # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
-                                continue
-                            selectCenter = reg.getCenter()
-                            trueFriendFound = True
-                            break         
+
+            if matches:
+                print "matches"
+                for match in matches:
+                    matchCenter = match.getCenter()
+                    if match.getIndex() > len(configObj.friends) - 1:
+                        selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
+                        break
+                    else:
+                        reg = Region(matchCenter.x - 60, matchCenter.y - 10, 120, 160)
+                        if reg.exists("using.png"):
+                            # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
+                            continue
+                        selectCenter = reg.getCenter()
+                        trueFriendFound = True
+                        break
+
             click(selectCenter)
             return trueFriendFound
             
