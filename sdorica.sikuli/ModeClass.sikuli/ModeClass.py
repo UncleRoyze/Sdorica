@@ -151,7 +151,7 @@ class BasicMode(object):
             self.InitParameter()
             self.IntoStage()
             self.SelectFighter()
-            self.SelectBrainman()
+            # self.SelectBrainman()
             self.IntoPlay()
             self.Playing()
             self.LeavePlay()
@@ -170,7 +170,7 @@ class BasicMode(object):
 
     # 是否在關卡選單內        
     def IsInStage(self):
-        if exists(Pattern("Brainman.png").similar(0.90), 0.001):       
+        if exists(Pattern("Brainman.png").similar(0.90), 0.001):
             return True
         else:
             return False
@@ -203,6 +203,7 @@ class BasicMode(object):
             click(start_exists)
 
     def SelectFighter(self):
+        print "SelectFighter"
         if self.IsInPlaying():
             return
         for i in range(5000):
@@ -222,11 +223,11 @@ class BasicMode(object):
         logging.debug("SelectBrainman")
         if not self.IsInStage():
             return
-        bar = DragCharacterBar()
+            
         def _findBrainman():
             Settings.MoveMouseDelay = 0.1
-            dragFrom = friendSlotCenter.offset(-510, 240)
-            dragTo = friendSlotCenter.offset(-510, 100)
+            dragFrom = friendSlotCenter.offset(290, -430)
+            dragTo = friendSlotCenter.offset(190, -430)
             
             selectCenter = None
             trueFriendFound = False
@@ -254,10 +255,7 @@ class BasicMode(object):
             return
         click(friendSlot)
         friendSlotCenter = friendSlot.getCenter()
-        bar.ToLeftEnd(1)
-        if not _findBrainman():  # drag and drop to second half friends
-            bar.ToRight()
-            _findBrainman()
+        _findBrainman()
 
     def IntoPlay(self):
         logging.debug("IntoPlay")
@@ -499,6 +497,7 @@ class FarmMode(ChallengeMode):
             configObj.writeConfig()
 
             region_title = wait("stage_title_1.png", 10)
+            sleep(2)
             if region_title:
                 Settings.MoveMouseDelay = 0.1
                 Settings.DelayBeforeDrop = 2

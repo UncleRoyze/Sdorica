@@ -223,7 +223,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             self.InitParameter()
             self.IntoStage()
             self.SelectFighter()
-            self.SelectBrainman()
+            <span class="cmt"># self.SelectBrainman()</span>
             self.IntoPlay()
             self.Playing()
             self.LeavePlay()
@@ -275,6 +275,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="skw">click</span>(start_exists)
 
     <span class="kw">def</span> SelectFighter(self):
+        <span class="kw">print</span> <span class="str">"SelectFighter"</span>
         <span class="kw">if</span> self.IsInPlaying():
             <span class="kw">return</span>
         <span class="kw">for</span> i <span class="kw">in</span> range(<span class="dig">5000</span>):
@@ -294,11 +295,11 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
         logging.debug(<span class="str">"SelectBrainman"</span>)
         <span class="kw">if</span> <span class="kw">not</span> self.IsInStage():
             <span class="kw">return</span>
-        bar = DragCharacterBar()
+
         <span class="kw">def</span> _findBrainman():
             Settings.MoveMouseDelay = <span class="dig">0.1</span>
-            dragFrom = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">240</span>)
-            dragTo = friendSlotCenter.offset(-<span class="dig">510</span>, <span class="dig">100</span>)
+            dragFrom = friendSlotCenter.offset(<span class="dig">290</span>, -<span class="dig">430</span>)
+            dragTo = friendSlotCenter.offset(<span class="dig">190</span>, -<span class="dig">430</span>)
 
             selectCenter = None
             trueFriendFound = False
@@ -326,10 +327,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             <span class="kw">return</span>
         <span class="skw">click</span>(friendSlot)
         friendSlotCenter = friendSlot.getCenter()
-        bar.ToLeftEnd(<span class="dig">1</span>)
-        <span class="kw">if</span> <span class="kw">not</span> _findBrainman():  <span class="cmt"># drag and drop to second half friends</span>
-            bar.ToRight()
-            _findBrainman()
+        _findBrainman()
 
     <span class="kw">def</span> IntoPlay(self):
         logging.debug(<span class="str">"IntoPlay"</span>)
@@ -571,6 +569,7 @@ logging.basicConfig(format=<span class="str">'%(asctime)s:%(message)s'</span>,st
             configObj.writeConfig()
 
             region_title = <span class="skw">wait</span>(<img src="stage_title_1.png" />, <span class="dig">10</span>)
+            <span class="skw">sleep</span>(<span class="dig">2</span>)
             <span class="kw">if</span> region_title:
                 Settings.MoveMouseDelay = <span class="dig">0.1</span>
                 Settings.DelayBeforeDrop = <span class="dig">2</span>
