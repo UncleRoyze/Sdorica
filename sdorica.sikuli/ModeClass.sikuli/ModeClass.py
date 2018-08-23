@@ -146,7 +146,7 @@ class BasicMode(object):
     def Run(self):
         self.InputSetting()
         self.SelectStage()
-        for self.TurnCount in range(configObj.getTurns()):  
+        for self.TurnCount in range(configObj.getTurns()):
             logging.info("Turn: %d", self.TurnCount)
             self.InitParameter()
             self.IntoStage()
@@ -159,15 +159,14 @@ class BasicMode(object):
             self.ToNextStage()
             if self.Quit:
                 break
-            if not exists(Pattern("nightgod_icon.png").exact(), 0.001):
-                logging.info("Did not found NightGod")
-                break
+            #if not exists(Pattern("nightgod_icon.png").exact(), 0.001):
+            #    logging.info("Did not found NightGod")
+            #    break
             ok_btn = exists(Pattern("ok_btn_reward.png").similar(0.85), 0.001)
             if ok_btn:
                 click(ok_btn)
                 logging.debug("click ok button")
                 wait(1)
-
     # 是否在關卡選單內        
     def IsInStage(self):
         if exists(Pattern("Brainman.png").similar(0.90), 0.001):
@@ -203,7 +202,7 @@ class BasicMode(object):
             click(start_exists)
 
     def SelectFighter(self):
-        print "SelectFighter"
+        logging.debug("SelectFighter")
         if self.IsInPlaying():
             return
         for i in range(5000):
@@ -236,22 +235,25 @@ class BasicMode(object):
                 matches = findAnyList(configObj.friends + configObj.brainmen)
 
             if matches:
-                print "matches"
                 for match in matches:
                     matchCenter = match.getCenter()
                     if match.getIndex() > len(configObj.friends) - 1:
+                        reg = Region(matchCenter.x - 60, matchCenter.y - 80, 120, 30)
+                        if reg.exists("using.png"):
+                            # 好用的參謀跟自己隊伍的角色相同，只好不選他了
+                            continue
                         selectCenter = matchCenter  # 沒找到朋友的參謀，選其他好用的
                         break
                     else:
                         reg = Region(matchCenter.x - 60, matchCenter.y - 10, 120, 160)
                         if reg.exists("using.png"):
-                            # 好友的參謀跟自己隊伍的角色相同，只好不選他了 
+                            # 好友的參謀跟自己隊伍的角色相同，只好不選他了
                             continue
                         selectCenter = reg.getCenter()
                         trueFriendFound = True
                         break
-
-            click(selectCenter)
+            if selectCenter:
+                click(selectCenter)
             return trueFriendFound
             
         friendSlot = exists(Pattern("SelectFriend.png").similar(0.95), 0.001)
@@ -409,7 +411,7 @@ class BasicMode(object):
 
     def WaitToMenu(self): #等待回到選單
         logging.debug("WaitToMenu")
-        start = "gotofight.png" 
+        start = "gotofight.png"
         if exists(start, 20):
             return
 
