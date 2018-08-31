@@ -38,7 +38,8 @@ class DragCharacterBar:
         self.dragLeft = topLeft.offset(208, 450)
         self.dragLeftMore = topLeft.offset(49, 450)
         self.dragRight = topLeft.offset(877, 450)
-        self.dragRightMore = topLeft.offset(1027, 450)
+        self.dragTop = topLeft.offset(900, 20)
+        self.dragBottom = topLeft.offset(900, 590)
          
     #角色選單拉到最右邊
     def ToRightEnd(self, dragTimes):       
@@ -68,6 +69,13 @@ class DragCharacterBar:
         hover(self.dragLeft)
         
     #角色選單拉往右, 一次拉一整排五位位置都正好換掉
+    def ToDown(self):
+        Settings.MoveMouseDelay = 0.001
+        drag(self.dragBottom)
+        Settings.MoveMouseDelay = 1.5
+        dropAt(self.dragTop)
+        Settings.MoveMouseDelay = 0.001
+
     def ToRight(self):
         Settings.MoveMouseDelay = 0.001
         drag(self.dragRight)
@@ -866,16 +874,19 @@ class Friday3Mode(BasicMode):
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
-        region = Region(clock.x-130, clock.y-47, 1280, 720)
-        if not region.exists(Pattern("1532668283484.png").similar(0.95),0.001):
-            return 
+        #region = Region(clock.x-130, clock.y-47, 1280, 720)
+        #if not region.exists(Pattern("1532668283484.png").similar(0.95),0.001):
+        #    return 
     
-        with MouseDragHandler(dragFrom, dragTo, True):
-            click(Pattern("1532668283484.png").similar(0.95))
-            click("ok_btn_buff.png")
+        #with MouseDragHandler(dragFrom, dragTo, True):
+            #click(Pattern("1532668283484.png").similar(0.95))
+            #click("ok_btn_buff.png")
         
     def SelectFighter(self):
         self.Algo = AlgoFactory.FRIDAY3_ALGO
+        for i in range(5000):
+            if self.IsInStage():
+                break
         if not self.IsInStage():
             return
         bar = DragCharacterBar()
@@ -884,21 +895,22 @@ class Friday3Mode(BasicMode):
             exit
         if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
             return
-        click(start.getCenter().offset(-734,-80))
-        click(Pattern("Nolva_name.png").similar(0.90))
-        click(start.getCenter().offset(-936,-80))
-        click(Pattern("puji.png").similar(0.90))
+        click(start.getCenter().offset(-600,-70))
+        click("delan.png")
+        click(Pattern("skin_arrow.png").similar(0.90))
+        click(start.getCenter().offset(-800,-70))
+        click("nolva.png")
+        click(start.getCenter().offset(-1000,-70))
+        click("puji.png")
+
         click(Pattern("skin_arrow.png").similar(0.85))
-        click(start.getCenter().offset(-526,-80))
-        bar.ToRight()
-        click(Pattern("Delan_name.png").similar(0.85))
-        click(Pattern("skin_arrow.png").similar(0.85))
-        click(start.getCenter().offset(-344,-60))
+        click(start.getCenter().offset(-930,180))
+        wait(1)
         for i in range(5):
             if exists(Pattern("lisa.png").similar(0.90),0.001):
                 click(Pattern("lisa.png").similar(0.90))
                 break
-            bar.ToRight()
+            bar.ToDown()
 
     def SelectBrainman(self):
         return
