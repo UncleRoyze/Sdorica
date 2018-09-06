@@ -18,12 +18,19 @@ configObj = config.Configuration()
 logging.basicConfig(format='%(asctime)s:%(message)s',stream=sys.stdout, level=logging.DEBUG)
 
 def StartAsking():
-    ini_mode = configObj.getPlayMode()
     modes = ModeFactory.GenModeInfo()
     algos = AlgoFactory.GenAlgoInfo()
-    ini_turn = configObj.getTurns()
-    ini_algo = configObj.getAlgo()
-    ini_designated_hour = configObj.getDesignatedHour()
+    ini_mode = 0
+    ini_turn = 1000
+    ini_algo = 0
+    ini_designated_hour = -1
+    try:
+        ini_mode = configObj.getPlayMode()
+        ini_turn = configObj.getTurns()
+        ini_algo = configObj.getAlgo()
+        ini_designated_hour = configObj.getDesignatedHour()
+    except:
+        logging.debug("cannot read config file")
 
     msg = "Current setting: \n Mode: %s \n Algo: %s \n Turns: %s \n Designated Time: %s \n\n Use this setting?" \
            % (modes[ini_mode], algos[ini_algo], ini_turn, ini_designated_hour)
@@ -48,7 +55,9 @@ def StartAsking():
         exit
     configObj.setTurns(turn)
 
-    designated_hour = int(input("Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)", str(ini_designated_hour)))
+    #designated_hour = int(input("Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)", str(ini_designated_hour)))
+    start_time = ["-1","5","0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23"]
+    designated_hour = int(select("Please enter your designated time in hour (0~23)\n(-1 mean to run this script right away)", options = start_time, default = str(ini_designated_hour)))
     if designated_hour not in range(0, 24):
         designated_hour = -1
     configObj.setDesignatedHour(designated_hour)
@@ -131,6 +140,20 @@ def EnterSdorica():
         logging.debug("Cannot find advertisement cancel button")
 
 
+def IsNightGodRunning():
+    if programActive('NightGod - Sdorica'):
+        return True
+    else:
+        logging.info("Did not found NightGod")
+        return False
+
+def programActive(vcProgram):
+    searchResult = App.focus(vcProgram)
+    if ("-1:" in str(searchResult)):
+        return False
+    else:
+        return True
+    
 def main():
     StartAsking()
     WaitForDesignatedTime()

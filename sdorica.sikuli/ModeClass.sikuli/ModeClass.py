@@ -152,9 +152,13 @@ class BasicMode(object):
         self.quit_play = False
 
     def Run(self):
+        if not IsNightGodRunning():
+            return
         self.InputSetting()
         self.SelectStage()
         for self.TurnCount in range(configObj.getTurns()):
+            if not IsNightGodRunning():
+                break
             logging.info("Turn: %d", self.TurnCount)
             self.InitParameter()
             self.IntoStage()
@@ -167,9 +171,6 @@ class BasicMode(object):
             self.ToNextStage()
             if self.Quit:
                 break
-            #if not exists(Pattern("nightgod_icon.png").exact(), 0.001):
-            #    logging.info("Did not found NightGod")
-            #    break
             ok_btn = exists(Pattern("ok_btn_reward.png").similar(0.85), 0.001)
             if ok_btn:
                 click(ok_btn)

@@ -16,9 +16,30 @@ class Configuration(Singleton):
     def __init__(self):
         self._readConfig()
         self._initGlobalConfig()
+        self._initValue()
 
+    def _initValue(self):
+        try:
+            self.config.add_section('setting')
+            self.config.set("setting", "mode", "0")
+            self.config.set("setting", "turn", "1000")
+            self.config.set("setting", "target_lv", "60")
+            self.config.set("setting", "algo", "2")
+            self.config.set("setting", "designated_hour", "-1")
+            self.config.add_section('material')
+            self.config.set("material", "stage", "1")
+            self.config.set("material", "sub_stage", "5")
+            self.config.add_section('challenge')    
+            self.config.set("challenge", "stage", "12")
+            self.config.set("challenge", "sub_stage", "5")
+            self.config.set("challenge", "played_stages", "0")
+        except:
+            print "Config file is fine"
+        else:
+            print "Initial config file"
+            
     def _readConfig(self):
-        self.config = ConfigParser.ConfigParser()
+        self.config = ConfigParser.RawConfigParser()
         # get the directory containing your running .sikuli
         self.ini_path = os.path.dirname(getBundlePath())
         #if self.iniPath not in sys.path: 
@@ -33,6 +54,7 @@ class Configuration(Singleton):
         self.brainmen = [Pattern("li_lv3.png").similar(0.80), Pattern("lisa_sp.png").similar(0.80), Pattern("dylan_lv3.png").similar(0.80)]
         self.materials = [[] for _ in range(10)]
         self.materials[1] = [Pattern("stone_1.png").similar(0.80), Pattern("stone_2.png").similar(0.80),Pattern("stone_3.png").similar(0.80)]
+        self.materials[2] = [Pattern("bear1.png").similar(0.80),Pattern("bear2.png").similar(0.80)]
         self.materials[3] = [Pattern("flower00.png").similar(0.80),Pattern("flower01.png").similar(0.80),Pattern("flower02.png").similar(0.80),Pattern("flower03.png").similar(0.80),Pattern("flower04.png").similar(0.80)]
         self.materials[4] = [Pattern("tripod_1.png").similar(0.80), Pattern("tripod_2.png").similar(0.80), Pattern("tripod_3.png").similar(0.80), Pattern("tripod_4.png").similar(0.80), Pattern("tripod_5.png").similar(0.80)]
         #self.materials[4] = [Pattern("bottle_0.png").similar(0.80),Pattern("bottle_1.png").similar(0.80)]
