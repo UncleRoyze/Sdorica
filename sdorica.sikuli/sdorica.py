@@ -160,9 +160,9 @@ def main():
     EnterSdorica()
     start_time = time()
     if configObj.getPlayMode() == ModeFactory.FARM:
-        playMode = ModeFactory.GenMode(ModeFactory.FARM)
-        playMode.Run()
         playMode = ModeFactory.GenMode(ModeFactory.QUEST)
+        playMode.Run()
+        playMode = ModeFactory.GenMode(ModeFactory.FARM)
         playMode.Run()
     else:
         playMode = ModeFactory.GenMode(configObj.getPlayMode())
