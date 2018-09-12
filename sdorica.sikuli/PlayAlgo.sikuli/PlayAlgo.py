@@ -11,7 +11,7 @@ class AlgoFactory():
     NO4_ALGO = 5
     FRIDAY3_ALGO = 6
     THURSDAY4_ALGO = 7
-    JIN2NAYA_ALGO = 8
+    TEMP_ALGO = 8
     ONE_TO_TEN_ALGO = 9
     ALGO_DICT = {SIMPLE_ALGO: "Simple",
                  NOLVA_ALGO: "Nolva",
@@ -21,7 +21,7 @@ class AlgoFactory():
                  NO4_ALGO : "No 4",
                  FRIDAY3_ALGO : "Friday 3",
                  THURSDAY4_ALGO: "Thrsday 4",
-                 JIN2NAYA_ALGO: "Jin2Naya",
+                 TEMP_ALGO: "TEMP",
                  ONE_TO_TEN_ALGO: "OneToTen"}
 
     @staticmethod
@@ -42,8 +42,8 @@ class AlgoFactory():
             return Friday3Algo(clock)
         elif choice == AlgoFactory.THURSDAY4_ALGO:
             return Thursday4Algo(clock)
-        elif choice == AlgoFactory.JIN2NAYA_ALGO:
-            return Jin2NayaAlgo(clock)
+        elif choice == AlgoFactory.TEMP_ALGO:
+            return TempAlgo(clock)
         elif choice == AlgoFactory.ONE_TO_TEN_ALGO:
             return OneToTenAlgo(clock)
         else:
@@ -326,7 +326,7 @@ class No2Algo(SimpleAlgo):
 
     def Play(self, clock, sub_stage, turn):
         for number in (4, 1):   
-            for color in ("g", "w", "b"):
+            for color in ("b", "g", "w"):
                 if self.PlayDots(color, number):
                     return 1
         return -1
@@ -365,12 +365,11 @@ class Friday3Algo(SimpleAlgo):
         self.is_4_b = False
               
     def Play(self, clock, sub_stage, turn):
-        
-        #開場4白
-        if turn == 0:
+
+        if turn == 0 and sub_stage == 1:
             self.ClickAssistant()
             wait(3)
-            if self.PlayDots("w", 4):
+            if self.PlayDots("g", 4):
                 return 1
             else:
                 return -1
@@ -423,40 +422,19 @@ class Thursday4Algo(SimpleAlgo):
                 exit
         return 0
 
-class Jin2NayaAlgo(SimpleAlgo):
+class TempAlgo(SimpleAlgo):
 
     def __init__(self, clock):
         self.clock = clock
+        self.is_4_b = False
               
     def Play(self, clock, sub_stage, turn):
-        if sub_stage == 1:
-            if turn == 0:
-                #self.ClickAssistant()
-                if self.PlayDots("g", 2):
-                    return 1
-                else:
-                    return -1
-            if turn == 1:
-                for number in (4, 2):   
-                    for color in ("b"):
-                        if self.PlayDots(color, number):
-                            return 1
+
+        if turn == 0 and sub_stage == 1:
+            self.ClickAssistant()
+            wait(3)
+            if self.PlayDots("g", 4):
+                return 1
+            else:
                 return -1
-            if turn > 1:
-                return -1
-        if sub_stage == 2:
-            if turn == 0:
-                #self.ClickAssistant()
-                if self.PlayDots("g", 2):
-                    return 1
-                else:
-                    return -1
-            if turn <= 2:
-                for number in (4, 2):   
-                    for color in ("b"):
-                        if self.PlayDots(color, number):
-                            return 1
-                return -1
-            if turn > 2:
-                return -1
-        return 0
+        return 1

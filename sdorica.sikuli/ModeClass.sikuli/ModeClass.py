@@ -38,8 +38,8 @@ class DragCharacterBar:
         self.dragLeft = topLeft.offset(208, 450)
         self.dragLeftMore = topLeft.offset(49, 450)
         self.dragRight = topLeft.offset(877, 450)
-        self.dragTop = topLeft.offset(900, 20)
-        self.dragBottom = topLeft.offset(900, 590)
+        self.dragTop = topLeft.offset(790, 61)
+        self.dragBottom = topLeft.offset(790, 482)
          
     #角色選單拉到最右邊
     def ToRightEnd(self, dragTimes):       
@@ -91,14 +91,14 @@ class ModeFactory():
     QUEST = 3
     THURSDAY_4 = 4
     FRIDAY_3 = 5
-    JIN2NAYA = 6
+    TEMP = 6
     MODE_DICT = {FARM: "Farm",
                  AUTO_LV_UP: "Auto Lelve Up",
                  MATERIAL : "Material",
                  QUEST : "Quest",
                  THURSDAY_4 : "Thursday 4",
                  FRIDAY_3 : "Friday 3",
-                 JIN2NAYA : "Jin2Naya" }
+                 TEMP : "TEMP" }
 
     @staticmethod
     def GenMode(choice):
@@ -114,8 +114,8 @@ class ModeFactory():
             return Thursday4Mode()
         elif choice == ModeFactory.FRIDAY_3:
             return Friday3Mode()
-        elif choice == ModeFactory.JIN2NAYA:
-            return Jin2NayaMode()
+        elif choice == ModeFactory.TEMP:
+            return TempaMode()
         else:
             return BasicMode()
 
@@ -157,20 +157,27 @@ class BasicMode(object):
         self.InputSetting()
         self.SelectStage()
         for self.TurnCount in range(configObj.getTurns()):
-            if not IsNightGodRunning():
-                break
+            if not IsNightGodRunning(): break
+            if self.Quit: break
             logging.info("Turn: %d", self.TurnCount)
             self.InitParameter()
+            if self.Quit: break
             self.IntoStage()
+            if self.Quit: break
             self.SelectFighter()
+            if self.Quit: break
             self.SelectBrainman()
+            if self.Quit: break
             self.IntoPlay()
+            if self.Quit: break
             self.Playing()
+            if self.Quit: break
             self.LeavePlay()
+            if self.Quit: break
             self.WaitToMenu()
+            if self.Quit: break
             self.ToNextStage()
-            if self.Quit:
-                break
+            if self.Quit: break
             ok_btn = exists(Pattern("ok_btn_reward.png").similar(0.85), 0.001)
             if ok_btn:
                 click(ok_btn)
@@ -223,7 +230,7 @@ class BasicMode(object):
         if self.Algo == AlgoFactory.JIN2_ALGO or  self.Algo == AlgoFactory.NO1_ALGO or self.Algo == AlgoFactory.ONE_TO_TEN_ALGO:
             if exists(Pattern("team_2.png").similar(0.90), 1):
                 click(Pattern("team_2.png").similar(0.90))
-        elif self.Algo == AlgoFactory.NOLVA_ALGO:
+        elif self.Algo == AlgoFactory.NOLVA_ALGO or self.Algo == AlgoFactory.NO2_ALGO:
             if exists(Pattern("team3.png").similar(0.90), 1):
                 click(Pattern("team3.png").similar(0.90))
 
@@ -736,6 +743,8 @@ class QuestMode(BasicMode):
         self._drag_quest_menu()
         if self._match_algo(configObj.quest_no1, AlgoFactory.NO1_ALGO):
             return
+        if self._match_algo(configObj.quest_no2, AlgoFactory.NO2_ALGO):
+            return
         if self._match_algo(configObj.quest_jin2, AlgoFactory.JIN2_ALGO):
             return
         if self._match_algo(configObj.quest_nolva, AlgoFactory.NOLVA_ALGO):
@@ -788,6 +797,7 @@ class QuestMode(BasicMode):
         return
 
     def _to_event_stage(self):
+        logging.debug("to_event_stage")
         self.Algo = AlgoFactory.JIN2_ALGO
         self.event_count += 1
         event_menu_btn = exists(Pattern("event_menu_page.png").similar(0.80), 0.001)
@@ -803,7 +813,8 @@ class QuestMode(BasicMode):
             while not exists(Pattern("limit_event.png").similar(0.80), 0.001):
                 click(Pattern("next_arrow.png").similar(0.85))
                 wait(1)
-            if exists(Pattern("left_zero.png").similar(0.90), 1):
+            if exists(Pattern("1536627662878.png").similar(0.90), 1):
+                self._back_to_main_menu()
                 self.Quit = True
                 return
             for i in range(2):
@@ -821,6 +832,7 @@ class QuestMode(BasicMode):
             Settings.DelayBeforeDrop = 0
                 
     def ToNextStage(self):
+        logging.debug("ToNextStage")
         self._back_to_main_menu()
         if not self.quest_done:
             self._select_quest()
@@ -897,10 +909,11 @@ class Friday3Mode(BasicMode):
         if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
             return
         click(start.getCenter().offset(-600,-70))
-        click("delan.png")
+        click("1536301234259.png")
         click(Pattern("skin_arrow.png").similar(0.90))
         click(start.getCenter().offset(-800,-70))
         click("nolva.png")
+        click(Pattern("skin_arrow.png").similar(0.85))
         click(start.getCenter().offset(-1000,-70))
         click("puji.png")
 
@@ -908,15 +921,58 @@ class Friday3Mode(BasicMode):
         click(start.getCenter().offset(-930,180))
         wait(1)
         for i in range(5):
-            if exists(Pattern("lisa.png").similar(0.90),0.001):
-                click(Pattern("lisa.png").similar(0.90))
+            if exists(Pattern("1536301266208.png").similar(0.88),0.001):
+                click(Pattern("1536301266208.png").similar(0.88))
+                click(Pattern("skin_arrow.png").similar(0.85))
                 break
             bar.ToDown()
 
     def SelectBrainman(self):
         return
 
-class Jin2NayaMode(BasicMode):
+class TempaMode(BasicMode):
     
     def SelectBrainman(self):
         return
+
+    def ActionDuringDrag(self, clock, dragFrom, dragTo):
+        logging.debug("ActionDuringDrag")
+        #region = Region(clock.x-130, clock.y-47, 1280, 720)
+        #if not region.exists("1536301367435.png"):
+        #    return 
+    
+        #with MouseDragHandler(dragFrom, dragTo, True):
+        #    click("1536301367435.png")
+        #    click("ok_btn_buff.png")
+        
+    def SelectFighter(self):
+        self.Algo = AlgoFactory.TEMP_ALGO
+        for i in range(5000):
+            if self.IsInStage():
+                break
+        if not self.IsInStage():
+            return
+        bar = DragCharacterBar()
+        start =  exists("gotofight.png", 30)
+        if not start:
+            exit
+        if exists(Pattern("lv60.png").similar(0.80),0.001): #有紀錄的隊伍了
+            return
+        click(start.getCenter().offset(-600,-70))
+        click("1536301234259.png")
+        click(Pattern("skin_arrow.png").similar(0.90))
+        click(start.getCenter().offset(-800,-70))
+        click("nolva.png")
+        click(Pattern("skin_arrow.png").similar(0.85))
+        click(start.getCenter().offset(-1000,-70))
+        click("puji.png")
+
+        click(Pattern("skin_arrow.png").similar(0.85))
+        click(start.getCenter().offset(-930,180))
+        wait(1)
+        for i in range(5):
+            if exists(Pattern("1536301266208.png").similar(0.88),0.001):
+                click(Pattern("1536301266208.png").similar(0.88))
+                click(Pattern("skin_arrow.png").similar(0.85))
+                break
+            bar.ToDown()
