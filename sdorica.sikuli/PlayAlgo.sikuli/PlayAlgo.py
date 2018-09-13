@@ -70,7 +70,7 @@ class PlayAlgo(object):
         self.clock = clock
 
     def ClickGold(self):
-        click(self.clock.getCenter().offset(260,190))
+        click(self.clock.getCenter().offset(390,90))
         
     def ClickBlack(self):
         click(self.clock.getCenter().offset(75,250))
@@ -422,19 +422,76 @@ class Thursday4Algo(SimpleAlgo):
                 exit
         return 0
 
+        
 class TempAlgo(SimpleAlgo):
 
     def __init__(self, clock):
         self.clock = clock
         self.is_4_b = False
-              
-    def Play(self, clock, sub_stage, turn):
+        self.algo = []
+        self.turn_len = []
+        self.stage_len = 0
+        self._parse_txt()
 
-        if turn == 0 and sub_stage == 1:
+    def _parse_txt(self):
+        txt_path = os.path.dirname(getBundlePath())
+        txt_path = os.path.join(txt_path, "sdorica.sikuli", "TempAlgo.txt")
+        
+        with open(txt_path) as f:
+            lines = f.readlines()
+            
+            for line in lines:
+                line = line.strip() # remove leading/trailing white spaces
+                if line == "END":
+                    break
+                if line:
+                    self.stage_len = self.stage_len + 1
+                    columns = [item.strip() for item in line.split('>')]
+                    self.algo.append(columns)
+                    self.turn_len.append(len(columns))
+                    
+
+    def _action_code(self, code):
+        action_result = 1
+        if code.find("(W)") <> -1:
+            self.ClickWhite()
+        if code.find("(B)") <> -1:
+            self.ClickBlack()
+        if code.find("(G)") <> -1:
+            self.ClickGold()
+        if code.find("(A)") <> -1:
             self.ClickAssistant()
-            wait(3)
-            if self.PlayDots("g", 4):
-                return 1
-            else:
-                return -1
-        return 1
+        if code.find("4w") <> -1:
+            action_result = self.PlayDots("w", 4)
+        elif code.find("2w") <> -1:
+            action_result = self.PlayDots("w", 2)
+        elif code.find("w") <> -1:
+            action_result = self.PlayDots("w", 1)
+        elif code.find("4b") <> -1:
+            action_result = self.PlayDots("b", 4)
+        elif code.find("2b") <> -1:
+            action_result = self.PlayDots("b", 2)
+        elif code.find("b") <> -1:
+            action_result = self.PlayDots("b", 1)
+        elif code.find("4g") <> -1:
+            action_result = self.PlayDots("g", 4)
+        elif code.find("2g") <> -1:
+            action_result = self.PlayDots("g", 2)
+        elif code.find("g") <> -1:
+            action_result = self.PlayDots("g", 1)
+
+        if action_result:
+            return 1
+        else:
+            return -1
+            
+    def _play_by_txt(self, sub_stage, turn):
+        if sub_stage > self.stage_len:
+            return 1
+        if (turn+1) >  self.turn_len[sub_stage-1]:
+            return 1
+        code = self.algo[sub_stage-1][turn]
+        return self._action_code(code)
+    
+    def Play(self, clock, sub_stage, turn):
+        return self._play_by_txt(sub_stage, turn)

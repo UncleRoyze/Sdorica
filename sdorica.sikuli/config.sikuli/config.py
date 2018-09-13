@@ -66,7 +66,7 @@ class Configuration(Singleton):
         self.quest_jin2 = [Pattern("quest_nodead_c10_3.png").similar(0.95),Pattern("quest_nodead_c10_4.png").similar(0.95),Pattern("quest_20t.png").similar(0.95),Pattern("quest_treasure-1.png").exact(),Pattern("quest_treasure-2.png").exact(),Pattern("quest_guild_lv6-1.png").similar(0.95),Pattern("quest_guild_lv4-2.png").similar(0.95),Pattern("quest_lv8-1.png").exact(),Pattern("quest_lv8-3.png").exact(),Pattern("quest_lv8-4.png").exact(),Pattern("quest_lv8-5.png").exact(),Pattern("quest_lv8-6.png").exact(),Pattern("quest_lv8-7.png").exact()]
         self.quest_no1 = [Pattern("quest_lv8-0.png").similar(0.95)]
         self.quest_1to10 = [Pattern("quest_lv6-2.png").similar(0.95)]
-        self.quest_no2 = [Pattern("quest_no2_c10_1.png").similar(0.95)]
+        self.quest_no2 = [Pattern("quest_no2_c10_1.png").similar(0.95),Pattern("quest_no2_c10_4.png").similar(0.95)]
                                         
     def writeConfig(self):
         self.config.write(open(self.ini_path, 'wb'))

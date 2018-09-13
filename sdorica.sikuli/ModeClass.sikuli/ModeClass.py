@@ -192,6 +192,7 @@ class BasicMode(object):
         
     # 是否在遊戲關卡內        
     def IsInPlaying(self):
+        logging.debug("IsInPlaying")
         if exists(Pattern("clock.png").similar(0.90) , 0.001):       
             return True
         else:
@@ -396,7 +397,7 @@ class BasicMode(object):
             return
         if self.quit_play == True:
             self._quit_play()
-            return
+            #return
         Settings.MoveMouseDelay = 0.001
         for i in range(20):
             
@@ -944,14 +945,21 @@ class TempaMode(BasicMode):
         #with MouseDragHandler(dragFrom, dragTo, True):
         #    click("1536301367435.png")
         #    click("ok_btn_buff.png")
-        
+    def LeavePlay(self):
+        while(1):
+            i=1
+            
     def SelectFighter(self):
+        logging.debug("SelectFighter-TEMP")
         self.Algo = AlgoFactory.TEMP_ALGO
-        for i in range(5000):
+        if self.IsInPlaying():
+            return
+        for i in range(1000):
             if self.IsInStage():
                 break
         if not self.IsInStage():
             return
+
         bar = DragCharacterBar()
         start =  exists("gotofight.png", 30)
         if not start:
