@@ -945,9 +945,6 @@ class TempaMode(BasicMode):
         #with MouseDragHandler(dragFrom, dragTo, True):
         #    click("1536301367435.png")
         #    click("ok_btn_buff.png")
-    def LeavePlay(self):
-        while(1):
-            i=1
             
     def SelectFighter(self):
         logging.debug("SelectFighter-TEMP")

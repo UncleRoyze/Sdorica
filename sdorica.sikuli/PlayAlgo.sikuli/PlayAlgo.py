@@ -444,6 +444,9 @@ class TempAlgo(SimpleAlgo):
                 line = line.strip() # remove leading/trailing white spaces
                 if line == "END":
                     break
+                if line == "QUIT":
+                    self.algo[self.stage_len-1].append("quit")
+                    break
                 if line:
                     self.stage_len = self.stage_len + 1
                     columns = [item.strip() for item in line.split('>')]
@@ -453,6 +456,9 @@ class TempAlgo(SimpleAlgo):
 
     def _action_code(self, code):
         action_result = 1
+        if code.find("quit") <> -1:
+            wait(10)
+            return -1
         if code.find("(W)") <> -1:
             self.ClickWhite()
         if code.find("(B)") <> -1:
@@ -479,7 +485,7 @@ class TempAlgo(SimpleAlgo):
             action_result = self.PlayDots("g", 2)
         elif code.find("g") <> -1:
             action_result = self.PlayDots("g", 1)
-
+            
         if action_result:
             return 1
         else:
