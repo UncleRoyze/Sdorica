@@ -193,7 +193,7 @@ class BasicMode(object):
     # 是否在遊戲關卡內        
     def IsInPlaying(self):
         logging.debug("IsInPlaying")
-        if exists(Pattern("clock.png").similar(0.90) , 0.001):       
+        if exists(Pattern("clock.png").similar(0.95) , 0.001):       
             return True
         else:
             return False
@@ -938,13 +938,13 @@ class TempaMode(BasicMode):
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
-        #region = Region(clock.x-130, clock.y-47, 1280, 720)
-        #if not region.exists("1536301367435.png"):
-        #    return 
+        region = Region(clock.x-130, clock.y-47, 1280, 720)
+        if not region.exists(Pattern("1537344105808.png").similar(0.95)):
+            return 
     
-        #with MouseDragHandler(dragFrom, dragTo, True):
-        #    click("1536301367435.png")
-        #    click("ok_btn_buff.png")
+        with MouseDragHandler(dragFrom, dragTo, True):
+            click(Pattern("1537344105808.png").similar(0.95))
+            click("ok_btn_buff.png")
             
     def SelectFighter(self):
         logging.debug("SelectFighter-TEMP")

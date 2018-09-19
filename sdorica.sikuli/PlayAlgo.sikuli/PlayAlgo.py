@@ -485,6 +485,8 @@ class TempAlgo(SimpleAlgo):
             action_result = self.PlayDots("g", 2)
         elif code.find("g") <> -1:
             action_result = self.PlayDots("g", 1)
+        elif code.find("WAIT") <> -1:
+            return 1
             
         if action_result:
             return 1
@@ -495,9 +497,12 @@ class TempAlgo(SimpleAlgo):
         if sub_stage > self.stage_len:
             return 1
         if (turn+1) >  self.turn_len[sub_stage-1]:
-            return 1
+            return -1
         code = self.algo[sub_stage-1][turn]
         return self._action_code(code)
     
     def Play(self, clock, sub_stage, turn):
         return self._play_by_txt(sub_stage, turn)
+
+    def SelectFighter():
+        return
