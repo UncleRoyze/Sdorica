@@ -938,8 +938,8 @@ class Friday3Mode(BasicMode):
 
 class TempaMode(BasicMode):
     
-    def SelectBrainman(self):
-        return
+    #def SelectBrainman(self):
+    #    return
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
