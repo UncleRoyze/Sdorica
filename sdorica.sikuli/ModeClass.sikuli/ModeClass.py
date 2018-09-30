@@ -217,6 +217,11 @@ class BasicMode(object):
         start_exists = exists(start, 0.001)
         if start_exists:
             click(start_exists)
+        ok_btn = exists("1538304311050.png", 1)
+        if ok_btn:
+            click(ok_btn)
+            wait(2)
+            click(start_exists)
 
     def SelectFighter(self):
         logging.debug("SelectFighter")
@@ -686,13 +691,13 @@ class QuestMode(BasicMode):
             wait(1)
         if blue:
             click(donate_btn.getCenter().offset(0,30))
-            for i in range(10):
+            for i in range(20):
                 click(Pattern("donate_plus_btn.png").similar(0.90))
             click(Pattern("donate_ok_btn.png").similar(0.85), 1)
             wait(1)
             click(Pattern("donate_ok_btn.png").similar(0.85), 1)
             wait(1)
-        self._buy_guild_market_free_item()
+        #self._buy_guild_market_free_item()
         if exists(Pattern("journey_btn.png").similar(0.90), 0.001):
             click(Pattern("journey_btn.png").similar(0.90)) # back to main menu
             wait(1)
@@ -938,17 +943,17 @@ class TempaMode(BasicMode):
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
-        region = Region(clock.x-130, clock.y-47, 1280, 720)
-        if not region.exists(Pattern("1537344105808.png").similar(0.95)):
-            return 
+        #region = Region(clock.x-130, clock.y-47, 1280, 720)
+        #if not region.exists(Pattern("1537344105808.png").similar(0.95)):
+        #    return 
     
-        with MouseDragHandler(dragFrom, dragTo, True):
-            click(Pattern("1537344105808.png").similar(0.95))
-            click("ok_btn_buff.png")
+        #with MouseDragHandler(dragFrom, dragTo, True):
+        #    click(Pattern("1537344105808.png").similar(0.95))
+        #    click("ok_btn_buff.png")
             
     def SelectFighter(self):
         logging.debug("SelectFighter-TEMP")
-        self.Algo = AlgoFactory.TEMP_ALGO
+        #self.Algo = AlgoFactory.TEMP_ALGO
         if self.IsInPlaying():
             return
         for i in range(1000):
