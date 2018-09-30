@@ -291,10 +291,10 @@ class Jin2Algo(PlayAlgo):
                 return 1
 
         #敵方有人要攻擊了, 讓鱷魚嘲諷坦
-        if exists(Pattern("turn1.png").similar(0.80), 0.001) and not exists("dead_crocodile.png",0.001):
-            for number in (4, 1):
-                if self.PlayDots("g", number):
-                    return 1
+        #if exists(Pattern("turn1.png").similar(0.80), 0.001) and not exists("dead_crocodile.png",0.001):
+        #    for number in (4, 1):
+        #        if self.PlayDots("g", number):
+        #            return 1
         for number in (4, 2, 1):   
             for color in ("w", "b", "g"):
                 if self.PlayDots(color, number):
