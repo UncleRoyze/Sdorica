@@ -192,8 +192,8 @@ class BasicMode(object):
         
     # 是否在遊戲關卡內        
     def IsInPlaying(self):
-        logging.debug("IsInPlaying")
-        if exists(Pattern("clock.png").similar(0.95) , 0.001):       
+        if exists(Pattern("clock.png").similar(0.95) , 0.001):   
+            logging.debug("IsInPlaying")
             return True
         else:
             return False
@@ -216,11 +216,7 @@ class BasicMode(object):
         start = "gotofight.png" 
         start_exists = exists(start, 0.001)
         if start_exists:
-            click(start_exists)
-        ok_btn = exists("ok_btn.png", 1)
-        if ok_btn:
-            click(ok_btn)
-            wait(2)
+            wait(1)
             click(start_exists)
 
     def SelectFighter(self):
@@ -464,14 +460,14 @@ class ChallengeMode(BasicMode):
                 count = sub_stage - 1
             return page, count
 
-        challenge_btn = exists("challenge_btn.png", 0.001) 
+        challenge_btn = exists("1538362880595.png", 0.001) 
         if challenge_btn:
             click(challenge_btn)
             wait(1)
         else:
             logging.debug("Cannot find challenge button, try to find the selected one.")
             
-        challenge_btn_selected = exists("challenge_btn_selected.png", 0.001)
+        challenge_btn_selected = exists("1538362847793.png", 0.001)
         if challenge_btn_selected:
             click(challenge_btn_selected)
             wait(1)
@@ -938,8 +934,8 @@ class Friday3Mode(BasicMode):
 
 class TempaMode(BasicMode):
     
-    #def SelectBrainman(self):
-    #    return
+    def SelectBrainman(self):
+        return
 
     def ActionDuringDrag(self, clock, dragFrom, dragTo):
         logging.debug("ActionDuringDrag")
